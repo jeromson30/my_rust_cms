@@ -1,13 +1,10 @@
 use axum::{
-    routing::{get, post, put},
-    extract::{Path, Json, State},
+    routing::{get, post},
+    extract::{Path, Json},
     http::StatusCode,
     response::IntoResponse,
     Router,
 };
-use crate::backend::services::builder_service::BuilderServiceError;
-use crate::backend::models::builder::{Page, CreatePageData, UpdatePageData};
-use crate::backend::AppState;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
@@ -20,88 +17,67 @@ struct SuccessResponse<T> {
     data: T,
 }
 
+#[derive(Deserialize)]
+pub struct CreatePage {
+    pub title: String,
+    pub content: String,
+}
+
 /// Handler for creating a new page
 async fn create_page_handler(
-    State(state): State<AppState>,
-    Json(new_page): Json<CreatePageData>,
+    Json(page_data): Json<CreatePage>,
 ) -> impl IntoResponse {
-    let builder_service = &state.builder_service;
-    match builder_service.create_page(new_page).await {
-        Ok(page) => (
-            StatusCode::CREATED,
-            Json(SuccessResponse { data: page }),
-        ),
-        Err(BuilderServiceError::PageAlreadyExists) => (
-            StatusCode::CONFLICT,
-            Json(ErrorResponse {
-                error: "Page already exists".to_string(),
-            }),
-        ),
-        Err(_) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ErrorResponse {
-                error: "Failed to create page".to_string(),
-            }),
-        ),
-    }
+    // TODO: Implement actual page creation
+    (
+        StatusCode::CREATED,
+        Json(SuccessResponse { 
+            data: serde_json::json!({
+                "id": 1,
+                "title": page_data.title,
+                "content": page_data.content
+            })
+        }),
+    )
 }
 
-/// Handler for fetching an existing page by ID
+/// Handler for fetching all pages
+async fn get_all_pages_handler() -> impl IntoResponse {
+    // TODO: Implement actual page listing
+    (
+        StatusCode::OK,
+        Json(SuccessResponse { 
+            data: serde_json::json!([
+                {
+                    "id": 1,
+                    "title": "Home Page",
+                    "content": "Welcome to our site"
+                }
+            ])
+        }),
+    )
+}
+
+/// Handler for fetching a specific page by ID
 async fn get_page_handler(
-    State(state): State<AppState>,
     Path(id): Path<i32>,
 ) -> impl IntoResponse {
-    let builder_service = &state.builder_service;
-    match builder_service.get_page(id).await {
-        Ok(page) => (
-            StatusCode::OK,
-            Json(SuccessResponse { data: page }),
-        ),
-        Err(BuilderServiceError::NotFound) => (
-            StatusCode::NOT_FOUND,
-            Json(ErrorResponse {
-                error: "Page not found".to_string(),
-            }),
-        ),
-        Err(_) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ErrorResponse {
-                error: "Failed to retrieve page".to_string(),
-            }),
-        ),
-    }
+    // TODO: Implement actual page retrieval
+    (
+        StatusCode::OK,
+        Json(SuccessResponse { 
+            data: serde_json::json!({
+                "id": id,
+                "title": "Example Page",
+                "content": "This is an example page"
+            })
+        }),
+    )
 }
 
-/// Handler for updating an existing page by ID
-async fn update_page_handler(
-    State(state): State<AppState>,
-    Path(id): Path<i32>,
-    Json(updated_page): Json<UpdatePageData>,
-) -> impl IntoResponse {
-    let builder_service = &state.builder_service;
-    match builder_service.update_page(id, updated_page).await {
-        Ok(page) => (
-            StatusCode::OK,
-            Json(SuccessResponse { data: page }),
-        ),
-        Err(BuilderServiceError::NotFound) => (
-            StatusCode::NOT_FOUND,
-            Json(ErrorResponse {
-                error: "Page not found".to_string(),
-            }),
-        ),
-        Err(_) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ErrorResponse {
-                error: "Failed to update page".to_string(),
-            }),
-        ),
-    }
-}
-
-/// Initialize the builder routes
+// Initialize Routes
 pub fn routes() -> Router {
     Router::new()
         .route("/pages", post(create_page_handler))
-        .route("/pages/:id", get(get_page_handler).put(update_page_handler))
+        .route("/pages", get(get_all_pages_handler))
+        .route("/pages/:id", get(get_page_handler))
 }

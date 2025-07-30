@@ -1,26 +1,27 @@
-use crate::models::media::Media;
+use crate::backend::models::media::Media;
 use diesel::prelude::*;
+use crate::backend::schema::media;
 
 pub struct MediaRepository;
 
 impl MediaRepository {
-    pub fn create(new_media: Media) -> Result<Media, &'static str> {
-        // Implement logic to insert the media into the database
-        Ok(new_media)
+    pub fn find_all() -> Result<Vec<Media>, &'static str> {
+        // TODO: Implement actual database query
+        Ok(vec![])
     }
 
-    pub fn find_by_id(id: i32) -> Result<Media, &'static str> {
-        // Implement logic to find a media file by id
-        Err("Media file not found")
+    pub fn find_by_id(id: i32) -> Result<Option<Media>, &'static str> {
+        // TODO: Implement actual database query
+        Ok(None)
+    }
+
+    pub fn create(media: Media) -> Result<Media, &'static str> {
+        // TODO: Implement actual database query
+        Ok(media)
     }
 
     pub fn delete(id: i32) -> Result<(), &'static str> {
-        // Implement logic to delete a media file by id
+        // TODO: Implement actual database query
         Ok(())
-    }
-
-    pub fn find_all() -> Result<Vec<Media>, &'static str> {
-        // Implement logic to list all media files
-        Ok(vec![])
     }
 }

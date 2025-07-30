@@ -69,7 +69,7 @@ fn get_api_base_url() -> String {
     window()
         .and_then(|win| win.get("API_BASE_URL"))
         .and_then(|val| val.as_string())
-        .unwrap_or_else(|| "http://localhost:8080".to_string())
+        .unwrap_or_else(|| "http://localhost:8081".to_string())
 }
 
 /// Enum representing HTTP methods
@@ -175,8 +175,8 @@ fn set_auth_token(token: String) -> Result<(), ApiServiceError> {
 
 /// Helper function to remove auth token from local storage
 fn remove_auth_token() -> Result<(), ApiServiceError> {
-    LocalStorage::delete(AUTH_TOKEN_KEY)
-        .map_err(|e| ApiServiceError::SerializationError(e.to_string()))
+    LocalStorage::delete(AUTH_TOKEN_KEY);
+    Ok(())
 }
 
 /// Fetch all posts

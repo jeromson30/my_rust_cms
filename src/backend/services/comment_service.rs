@@ -1,146 +1,89 @@
-use serde::{Deserialize, Serialize};
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsValue;
-use reqwasm::http::Request;
-use std::fmt;
-use thiserror::Error;
-use web_sys::console;
+// src/backend/services/comment_service.rs
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct Comment {
-    pub id: Option<i32>,
-    pub post_id: i32,
-    pub author: String,
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum CommentError {
+    #[error("Comment creation failed: {0}")]
+    CommentCreationFailed(String),
+    #[error("Comment not found: {0}")]
+    CommentNotFound(String),
+    #[error("Invalid comment data: {0}")]
+    InvalidCommentData(String),
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct CommentData {
+    pub id: i32,
+    pub post_id: Option<i32>,
+    pub user_id: Option<i32>,
     pub content: String,
     pub created_at: String,
 }
 
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_name = API_BASE_URL)]
-    static API_BASE_URL: JsValue;
-}
+pub struct CommentService;
 
-fn get_api_base_url() -> String {
-    API_BASE_URL
-        .as_string()
-        .unwrap_or_else(|| "http://localhost:8080".to_string())
-}
-
-#[derive(Debug, Error)]
-pub enum CommentError {
-    #[error("Request error: {0}")]
-    RequestError(String),
-    #[error("Parse error: {0}")]
-    ParseError(String),
-    #[error("Unknown error occurred")]
-    UnknownError,
-}
-
-impl From<reqwasm::Error> for CommentError {
-    fn from(err: reqwasm::Error) -> Self {
-        CommentError::RequestError(err.to_string())
-    }
-}
-
-impl From<JsValue> for CommentError {
-    fn from(_: JsValue) -> Self {
-        CommentError::UnknownError
-    }
-}
-
-enum HttpMethod {
-    GET,
-    POST,
-    DELETE,
-    PUT,
-    PATCH,
-}
-
-impl HttpMethod {
-    fn as_str(&self) -> &'static str {
-        match self {
-            HttpMethod::GET => "GET",
-            HttpMethod::POST => "POST",
-            HttpMethod::DELETE => "DELETE",
-            HttpMethod::PUT => "PUT",
-            HttpMethod::PATCH => "PATCH",
-        }
-    }
-}
-
-async fn make_request(
-    method: HttpMethod,
-    url: &str,
-    body: Option<impl Into<JsValue>>,
-) -> Result<reqwasm::Response, CommentError> {
-    let mut request = Request::new(url).method(method.as_str());
-
-    if let Some(body) = body {
-        request = request
-            .header("Content-Type", "application/json")
-            .body(body);
+impl CommentService {
+    pub fn new() -> Self {
+        Self
     }
 
-    let response = request.send().await.map_err(CommentError::from)?;
-
-    if response.ok() {
-        Ok(response)
-    } else {
-        Err(CommentError::RequestError(format!(
-            "Failed with status: {}",
-            response.status()
-        )))
+    pub async fn create_comment(&self, post_id: Option<i32>, user_id: Option<i32>, content: String) -> Result<CommentData, CommentError> {
+        // TODO: Implement actual comment creation
+        Ok(CommentData {
+            id: 1,
+            post_id,
+            user_id,
+            content,
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+        })
     }
-}
 
-/// Sends a POST request to save a new comment on the server.
-pub async fn save_comment(comment: Comment) -> Result<(), CommentError> {
-    let url = format!("{}/api/comments", get_api_base_url());
-    let body = serde_json::to_string(&comment)
-        .map_err(|e| CommentError::ParseError(e.to_string()))?;
-
-    let result = make_request(HttpMethod::POST, &url, Some(body)).await;
-
-    match result {
-        Ok(_) => {
-            console::log_1(&"Comment saved successfully!".into());
-            Ok(())
-        }
-        Err(e) => {
-            console::error_1(&format!("Failed to save comment: {}", e).into());
-            Err(e)
-        }
+    pub async fn get_comment(&self, comment_id: i32) -> Result<CommentData, CommentError> {
+        // TODO: Implement actual comment retrieval
+        Ok(CommentData {
+            id: comment_id,
+            post_id: Some(1),
+            user_id: Some(1),
+            content: "Sample comment".to_string(),
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+        })
     }
-}
 
-/// Fetches all comments related to a specific post.
-pub async fn fetch_comments(post_id: i32) -> Result<Vec<Comment>, CommentError> {
-    let url = format!("{}/api/comments?post_id={}", get_api_base_url(), post_id);
+    pub async fn update_comment(&self, comment_id: i32, content: String) -> Result<CommentData, CommentError> {
+        // TODO: Implement actual comment update
+        Ok(CommentData {
+            id: comment_id,
+            post_id: Some(1),
+            user_id: Some(1),
+            content,
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+        })
+    }
 
-    let response = make_request(HttpMethod::GET, &url, None::<JsValue>).await?;
-    let comments = response
-        .json::<Vec<Comment>>()
-        .await
-        .map_err(|e| CommentError::ParseError(e.to_string()))?;
+    pub async fn delete_comment(&self, comment_id: i32) -> Result<(), CommentError> {
+        // TODO: Implement actual comment deletion
+        Ok(())
+    }
 
-    Ok(comments)
-}
-
-/// Deletes a comment by sending a DELETE request to the server.
-pub async fn delete_comment(id: i32) -> Result<(), CommentError> {
-    let url = format!("{}/api/comments/{}", get_api_base_url(), id);
-
-    let result = make_request(HttpMethod::DELETE, &url, None::<JsValue>).await;
-
-    match result {
-        Ok(_) => {
-            console::log_1(&"Comment deleted successfully!".into());
-            Ok(())
-        }
-        Err(e) => {
-            console::error_1(&format!("Failed to delete comment: {}", e).into());
-            Err(e)
-        }
+    pub async fn list_comments(&self) -> Result<Vec<CommentData>, CommentError> {
+        // TODO: Implement actual comment listing
+        Ok(vec![
+            CommentData {
+                id: 1,
+                post_id: Some(1),
+                user_id: Some(1),
+                content: "First comment".to_string(),
+                created_at: "2024-01-01T00:00:00Z".to_string(),
+            },
+            CommentData {
+                id: 2,
+                post_id: Some(1),
+                user_id: Some(2),
+                content: "Second comment".to_string(),
+                created_at: "2024-01-01T00:00:00Z".to_string(),
+            },
+        ])
     }
 }

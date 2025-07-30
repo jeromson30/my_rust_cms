@@ -1,14 +1,24 @@
 use serde::{Deserialize, Serialize};
-use diesel::prelude::*;
+use diesel::{Queryable, Insertable, Identifiable};
+use chrono::NaiveDateTime;
 
-#[derive(Serialize, Deserialize, Queryable, Insertable)]
-#[table_name = "comments"]
+use crate::backend::schema::comments;
+
+#[derive(Serialize, Queryable, Identifiable, Debug)]
+#[diesel(table_name = comments)]
 pub struct Comment {
     pub id: i32,
-    pub post_id: i32,
-    pub author_name: String,
-    pub author_email: String,
+    pub post_id: Option<i32>,
+    pub user_id: Option<i32>,
     pub content: String,
-    pub status: String,
-    pub created_at: chrono::NaiveDateTime,
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>,
+}
+
+#[derive(Deserialize, Insertable)]
+#[diesel(table_name = comments)]
+pub struct NewComment {
+    pub post_id: Option<i32>,
+    pub user_id: Option<i32>,
+    pub content: String,
 }

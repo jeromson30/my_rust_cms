@@ -1,29 +1,33 @@
 use serde::{Deserialize, Serialize};
-use diesel::prelude::*;
 use diesel::{Queryable, Insertable, Identifiable, AsChangeset};
 use chrono::NaiveDateTime;
 
 use crate::backend::schema::media;
 
 #[derive(Serialize, Queryable, Identifiable, Debug)]
-#[table_name = "media"]
+#[diesel(table_name = media)]
 pub struct Media {
     pub id: i32,
+    pub file_name: String,
     pub url: String,
-    pub alt_text: String,
-    pub uploaded_at: NaiveDateTime,
+    pub media_type: Option<String>,
+    pub uploaded_at: Option<NaiveDateTime>,
+    pub user_id: Option<i32>,
 }
 
 #[derive(Deserialize, Insertable)]
-#[table_name = "media"]
+#[diesel(table_name = media)]
 pub struct NewMedia {
+    pub file_name: String,
     pub url: String,
-    pub alt_text: String,
+    pub media_type: Option<String>,
+    pub user_id: Option<i32>,
 }
 
 #[derive(Deserialize, AsChangeset)]
-#[table_name = "media"]
+#[diesel(table_name = media)]
 pub struct UpdateMedia {
+    pub file_name: Option<String>,
     pub url: Option<String>,
-    pub alt_text: Option<String>,
+    pub media_type: Option<String>,
 }

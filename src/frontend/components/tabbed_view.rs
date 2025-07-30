@@ -79,8 +79,12 @@ pub fn tabbed_view(props: &Props) -> Html {
             let mut updated_post = post.clone();
             updated_post.content = (*content).clone();
             wasm_bindgen_futures::spawn_local(async move {
-                if let Err(err) = update_post(updated_post.id, &updated_post).await {
-                    log::error!("Failed to update post: {:?}", err);
+                if let Some(post_id) = updated_post.id {
+                    if let Err(err) = update_post(post_id, &updated_post).await {
+                        log::error!("Failed to update post: {:?}", err);
+                    }
+                } else {
+                    log::error!("Cannot update post: post ID is None");
                 }
             });
         })

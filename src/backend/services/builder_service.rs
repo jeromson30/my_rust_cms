@@ -1,146 +1,91 @@
+// src/backend/services/builder_service.rs
+
 use serde::{Deserialize, Serialize};
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsValue;
-use reqwasm::http::Request;
-use std::fmt;
 use thiserror::Error;
-use web_sys::console;
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CMSComponent {
-    pub id: Option<i32>,
-    pub name: String,
-    pub html: String,
-    pub css: String,
-    pub js: String,
-}
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_name = API_BASE_URL)]
-    static API_BASE_URL: JsValue;
-}
-
-fn get_api_base_url() -> String {
-    API_BASE_URL
-        .as_string()
-        .unwrap_or_else(|| "http://localhost:8080".to_string())
-}
 
 #[derive(Debug, Error)]
 pub enum BuilderError {
-    #[error("Request error: {0}")]
-    RequestError(String),
-    #[error("Parse error: {0}")]
-    ParseError(String),
-    #[error("Unknown error occurred")]
-    UnknownError,
+    #[error("Page creation failed: {0}")]
+    PageCreationFailed(String),
+    #[error("Page not found: {0}")]
+    PageNotFound(String),
+    #[error("Invalid page data: {0}")]
+    InvalidPageData(String),
 }
 
-impl From<reqwasm::Error> for BuilderError {
-    fn from(err: reqwasm::Error) -> Self {
-        BuilderError::RequestError(err.to_string())
-    }
+#[derive(Serialize, Deserialize, Clone)]
+pub struct PageData {
+    pub id: i32,
+    pub title: String,
+    pub content: String,
+    pub components: Vec<ComponentData>,
 }
 
-impl From<JsValue> for BuilderError {
-    fn from(_: JsValue) -> Self {
-        BuilderError::UnknownError
-    }
+#[derive(Serialize, Deserialize, Clone)]
+pub struct ComponentData {
+    pub id: i32,
+    pub name: String,
+    pub data: serde_json::Value,
 }
 
-enum HttpMethod {
-    GET,
-    POST,
-    DELETE,
-    PUT,
-    PATCH,
-}
+pub struct BuilderService;
 
-impl HttpMethod {
-    fn as_str(&self) -> &'static str {
-        match self {
-            HttpMethod::GET => "GET",
-            HttpMethod::POST => "POST",
-            HttpMethod::DELETE => "DELETE",
-            HttpMethod::PUT => "PUT",
-            HttpMethod::PATCH => "PATCH",
-        }
-    }
-}
-
-async fn make_request(
-    method: HttpMethod,
-    url: &str,
-    body: Option<impl Into<JsValue>>,
-) -> Result<reqwasm::Response, BuilderError> {
-    let mut request = Request::new(url).method(method.as_str());
-
-    if let Some(body) = body {
-        request = request
-            .header("Content-Type", "application/json")
-            .body(body);
+impl BuilderService {
+    pub fn new() -> Self {
+        Self
     }
 
-    let response = request.send().await.map_err(BuilderError::from)?;
-
-    if response.ok() {
-        Ok(response)
-    } else {
-        Err(BuilderError::RequestError(format!(
-            "Failed with status: {}",
-            response.status()
-        )))
+    pub async fn create_page(&self, title: String, content: String) -> Result<PageData, BuilderError> {
+        // TODO: Implement actual page creation
+        Ok(PageData {
+            id: 1,
+            title,
+            content,
+            components: vec![],
+        })
     }
-}
 
-/// Saves a CMS component
-pub async fn save_component(component: CMSComponent) -> Result<(), BuilderError> {
-    let url = format!("{}/api/components", get_api_base_url());
-    let body = serde_json::to_string(&component)
-        .map_err(|e| BuilderError::ParseError(e.to_string()))?;
-
-    let result = make_request(HttpMethod::POST, &url, Some(body)).await;
-
-    match result {
-        Ok(_) => {
-            console::log_1(&"Component saved successfully!".into());
-            Ok(())
-        }
-        Err(e) => {
-            console::error_1(&format!("Failed to save component: {}", e).into());
-            Err(e)
-        }
+    pub async fn get_page(&self, page_id: i32) -> Result<PageData, BuilderError> {
+        // TODO: Implement actual page retrieval
+        Ok(PageData {
+            id: page_id,
+            title: "Sample Page".to_string(),
+            content: "Sample content".to_string(),
+            components: vec![
+                ComponentData {
+                    id: 1,
+                    name: "text".to_string(),
+                    data: serde_json::json!({"text": "Sample text component"}),
+                },
+            ],
+        })
     }
-}
 
-/// Fetches all CMS components
-pub async fn fetch_components() -> Result<Vec<CMSComponent>, BuilderError> {
-    let url = format!("{}/api/components", get_api_base_url());
+    pub async fn update_page(&self, page_id: i32, title: String, content: String) -> Result<PageData, BuilderError> {
+        // TODO: Implement actual page update
+        Ok(PageData {
+            id: page_id,
+            title,
+            content,
+            components: vec![],
+        })
+    }
 
-    let response = make_request(HttpMethod::GET, &url, None::<JsValue>).await?;
-    let components = response
-        .json::<Vec<CMSComponent>>()
-        .await
-        .map_err(|e| BuilderError::ParseError(e.to_string()))?;
-
-    Ok(components)
-}
-
-/// Deletes a CMS component by ID
-pub async fn delete_component(id: i32) -> Result<(), BuilderError> {
-    let url = format!("{}/api/components/{}", get_api_base_url(), id);
-
-    let result = make_request(HttpMethod::DELETE, &url, None::<JsValue>).await;
-
-    match result {
-        Ok(_) => {
-            console::log_1(&"Component deleted successfully!".into());
-            Ok(())
-        }
-        Err(e) => {
-            console::error_1(&format!("Failed to delete component: {}", e).into());
-            Err(e)
-        }
+    pub async fn list_pages(&self) -> Result<Vec<PageData>, BuilderError> {
+        // TODO: Implement actual page listing
+        Ok(vec![
+            PageData {
+                id: 1,
+                title: "Home Page".to_string(),
+                content: "Welcome to our site".to_string(),
+                components: vec![],
+            },
+            PageData {
+                id: 2,
+                title: "About Page".to_string(),
+                content: "About our company".to_string(),
+                components: vec![],
+            },
+        ])
     }
 }

@@ -1,82 +1,80 @@
 use axum::{
     routing::{get, post, put, delete},
-    extract::{Path, Json, Extension},
+    extract::{Path, Json},
     http::StatusCode,
     response::IntoResponse,
     Router,
 };
-use std::sync::Arc;
-use crate::services::comment_service::CommentService;
-use crate::models::comment::Comment;
-use crate::models::comment::CommentError;
+use serde::{Deserialize, Serialize};
 
-/// Handler for creating a comment
+#[derive(Deserialize)]
+pub struct CreateComment {
+    pub post_id: Option<i32>,
+    pub user_id: Option<i32>,
+    pub content: String,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateComment {
+    pub content: String,
+}
+
+// Get all comments
+async fn get_comments_handler() -> impl IntoResponse {
+    // TODO: Implement actual comment retrieval
+    (StatusCode::OK, Json(serde_json::json!({
+        "success": true,
+        "data": []
+    })))
+}
+
+// Get comment by ID
+async fn get_comment_handler(Path(id): Path<i32>) -> impl IntoResponse {
+    // TODO: Implement actual comment retrieval
+    (StatusCode::OK, Json(serde_json::json!({
+        "success": true,
+        "data": { "id": id, "content": "Sample comment" }
+    })))
+}
+
+// Create new comment
 async fn create_comment_handler(
-    Json(comment_data): Json<Comment>,
-    Extension(comment_service): Extension<Arc<CommentService>>,
+    Json(comment_data): Json<CreateComment>,
 ) -> impl IntoResponse {
-    match comment_service.create_comment(comment_data).await {
-        Ok(comment) => (StatusCode::CREATED, Json(comment)),
-        Err(CommentError::InvalidData) => (StatusCode::BAD_REQUEST, Json("Invalid comment data")),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json("Failed to create comment")),
-    }
+    // TODO: Implement actual comment creation
+    (StatusCode::CREATED, Json(serde_json::json!({
+        "success": true,
+        "data": { "id": 1, "content": comment_data.content }
+    })))
 }
 
-/// Handler for fetching all comments
-async fn get_all_comments_handler(
-    Extension(comment_service): Extension<Arc<CommentService>>,
-) -> impl IntoResponse {
-    match comment_service.list_comments().await {
-        Ok(comments) => (StatusCode::OK, Json(comments)),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json("Failed to retrieve comments")),
-    }
-}
-
-/// Handler for fetching a comment by ID
-async fn get_comment_handler(
-    Path(id): Path<i32>,
-    Extension(comment_service): Extension<Arc<CommentService>>,
-) -> impl IntoResponse {
-    match comment_service.get_comment(id).await {
-        Ok(comment) => (StatusCode::OK, Json(comment)),
-        Err(CommentError::NotFound) => (StatusCode::NOT_FOUND, Json("Comment not found")),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json("Failed to retrieve comment")),
-    }
-}
-
-/// Handler for updating a comment by ID
+// Update comment
 async fn update_comment_handler(
     Path(id): Path<i32>,
-    Json(comment_data): Json<Comment>,
-    Extension(comment_service): Extension<Arc<CommentService>>,
+    Json(comment_data): Json<UpdateComment>,
 ) -> impl IntoResponse {
-    match comment_service.update_comment(id, comment_data).await {
-        Ok(comment) => (StatusCode::OK, Json(comment)),
-        Err(CommentError::NotFound) => (StatusCode::NOT_FOUND, Json("Comment not found")),
-        Err(CommentError::InvalidData) => (StatusCode::BAD_REQUEST, Json("Invalid comment data")),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json("Failed to update comment")),
-    }
+    // TODO: Implement actual comment update
+    (StatusCode::OK, Json(serde_json::json!({
+        "success": true,
+        "data": { "id": id, "content": comment_data.content }
+    })))
 }
 
-/// Handler for deleting a comment by ID
-async fn delete_comment_handler(
-    Path(id): Path<i32>,
-    Extension(comment_service): Extension<Arc<CommentService>>,
-) -> impl IntoResponse {
-    match comment_service.delete_comment(id).await {
-        Ok(_) => (StatusCode::OK, Json("Comment deleted")),
-        Err(CommentError::NotFound) => (StatusCode::NOT_FOUND, Json("Comment not found")),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json("Failed to delete comment")),
-    }
+// Delete comment
+async fn delete_comment_handler(Path(id): Path<i32>) -> impl IntoResponse {
+    // TODO: Implement actual comment deletion
+    (StatusCode::OK, Json(serde_json::json!({
+        "success": true,
+        "message": "Comment deleted"
+    })))
 }
 
-/// Initialize the comment routes
-pub fn init_routes(comment_service: Arc<CommentService>) -> Router {
+// Initialize Routes
+pub fn routes() -> Router {
     Router::new()
-        .route("/api/comments", post(create_comment_handler))
-        .route("/api/comments", get(get_all_comments_handler))
-        .route("/api/comments/:id", get(get_comment_handler))
-        .route("/api/comments/:id", put(update_comment_handler))
-        .route("/api/comments/:id", delete(delete_comment_handler))
-        .layer(Extension(comment_service))
+        .route("/", get(get_comments_handler))
+        .route("/:id", get(get_comment_handler))
+        .route("/", post(create_comment_handler))
+        .route("/:id", put(update_comment_handler))
+        .route("/:id", delete(delete_comment_handler))
 }

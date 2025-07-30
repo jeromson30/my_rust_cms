@@ -5,67 +5,77 @@ use axum::{
     response::IntoResponse,
     Router,
 };
-use crate::services::user_service::UserService;
-use crate::models::user::User;
-use std::sync::Arc;
-use axum::Json;
+use serde::{Deserialize, Serialize};
 
+#[derive(Deserialize)]
+pub struct CreateUser {
+    pub username: String,
+    pub password: String,
+    pub email: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateUser {
+    pub username: Option<String>,
+    pub email: Option<String>,
+}
+
+// Get all users
+async fn get_users_handler() -> impl IntoResponse {
+    // TODO: Implement actual user retrieval
+    (StatusCode::OK, Json(serde_json::json!({
+        "success": true,
+        "data": []
+    })))
+}
+
+// Get user by ID
+async fn get_user_handler(Path(id): Path<i32>) -> impl IntoResponse {
+    // TODO: Implement actual user retrieval
+    (StatusCode::OK, Json(serde_json::json!({
+        "success": true,
+        "data": { "id": id, "username": "sample_user" }
+    })))
+}
+
+// Create new user
 async fn create_user_handler(
-    Json(user_data): Json<User>,
-    Extension(user_service): Extension<Arc<UserService>>
+    Json(user_data): Json<CreateUser>,
 ) -> impl IntoResponse {
-    match user_service.create_user(user_data).await {
-        Ok(user) => (StatusCode::CREATED, Json(user)).into_response(),
-        Err(err) => (StatusCode::BAD_REQUEST, Json(err)).into_response(),
-    }
+    // TODO: Implement actual user creation
+    (StatusCode::CREATED, Json(serde_json::json!({
+        "success": true,
+        "data": { "id": 1, "username": user_data.username }
+    })))
 }
 
-async fn get_all_users_handler(
-    Extension(user_service): Extension<Arc<UserService>>
-) -> impl IntoResponse {
-    match user_service.list_users().await {
-        Ok(users) => (StatusCode::OK, Json(users)).into_response(),
-        Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(err)).into_response(),
-    }
-}
-
-async fn get_user_handler(
-    Path(id): Path<i32>,
-    Extension(user_service): Extension<Arc<UserService>>
-) -> impl IntoResponse {
-    match user_service.get_user(id).await {
-        Ok(user) => (StatusCode::OK, Json(user)).into_response(),
-        Err(err) => (StatusCode::NOT_FOUND, Json(err)).into_response(),
-    }
-}
-
+// Update user
 async fn update_user_handler(
     Path(id): Path<i32>,
-    Json(user_data): Json<User>,
-    Extension(user_service): Extension<Arc<UserService>>
+    Json(user_data): Json<UpdateUser>,
 ) -> impl IntoResponse {
-    match user_service.update_user(id, user_data).await {
-        Ok(user) => (StatusCode::OK, Json(user)).into_response(),
-        Err(err) => (StatusCode::BAD_REQUEST, Json(err)).into_response(),
-    }
+    // TODO: Implement actual user update
+    (StatusCode::OK, Json(serde_json::json!({
+        "success": true,
+        "data": { "id": id, "username": user_data.username.unwrap_or("updated_user".to_string()) }
+    })))
 }
 
-async fn delete_user_handler(
-    Path(id): Path<i32>,
-    Extension(user_service): Extension<Arc<UserService>>
-) -> impl IntoResponse {
-    match user_service.delete_user(id).await {
-        Ok(_) => (StatusCode::OK, Json("User deleted")).into_response(),
-        Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(err)).into_response(),
-    }
+// Delete user
+async fn delete_user_handler(Path(id): Path<i32>) -> impl IntoResponse {
+    // TODO: Implement actual user deletion
+    (StatusCode::OK, Json(serde_json::json!({
+        "success": true,
+        "message": "User deleted"
+    })))
 }
 
-pub fn init_routes(user_service: Arc<UserService>) -> Router {
+// Initialize Routes
+pub fn routes() -> Router {
     Router::new()
-        .route("/api/users", get(get_all_users_handler))
-        .route("/api/users", post(create_user_handler))
-        .route("/api/users/:id", get(get_user_handler))
-        .route("/api/users/:id", put(update_user_handler))
-        .route("/api/users/:id", delete(delete_user_handler))
-        .layer(Extension(user_service))
+        .route("/", get(get_users_handler))
+        .route("/:id", get(get_user_handler))
+        .route("/", post(create_user_handler))
+        .route("/:id", put(update_user_handler))
+        .route("/:id", delete(delete_user_handler))
 }

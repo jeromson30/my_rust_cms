@@ -1,13 +1,16 @@
 use wasm_bindgen::prelude::*;
 use yew::Renderer;
 
-mod frontend; // Make sure the frontend module is included
-use frontend::components::login_page::LoginPage; // Import the LoginPage component
+mod frontend;
 
 // WebAssembly entry point
 #[wasm_bindgen(start)]
 pub fn run_app() {
-    Renderer::<LoginPage>::new().render(); // Render the LoginPage
+    // Initialize console error panic hook for better error messages
+    console_error_panic_hook::set_once();
+    
+    // Render the main app
+    Renderer::<frontend::App>::new().render();
 }
 
 fn main() {

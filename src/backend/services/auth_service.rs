@@ -1,15 +1,16 @@
 // src/backend/services/auth_service.rs
 
-use argon2::{self, Config};
+use argon2::{self, password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString}, Argon2};
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
+use diesel::pg::PgConnection;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tracing::error;
 
 use crate::backend::models::user::{NewUser, User};
 use crate::backend::schema::users::dsl::*;
-use crate::backend::utils::db::DbPool;
+use crate::backend::config::database::DbPool;
 
 #[derive(Debug, Error)]
 pub enum AuthServiceError {
@@ -33,10 +34,12 @@ impl AuthService {
     }
 
     /// Hash password using Argon2
-    fn hash_password(&self, password: &str) -> Result<String, AuthServiceError> {
-        let config = Config::default();
-        let salt = argon2::password_hash::SaltString::generate(&mut rand::thread_rng());
-        argon2::hash_encoded(password.as_bytes(), salt.as_ref(), &config)
+    fn hash_password(&self, password_str: &str) -> Result<String, AuthServiceError> {
+        let salt = SaltString::generate(&mut OsRng);
+        let argon2 = Argon2::default();
+        
+        argon2.hash_password(password_str.as_bytes(), &salt)
+            .map(|hash| hash.to_string())
             .map_err(|e| {
                 error!("Hashing error: {:?}", e);
                 AuthServiceError::HashingError(e.to_string())
@@ -44,8 +47,16 @@ impl AuthService {
     }
 
     /// Verify password
-    fn verify_password(&self, hash: &str, password: &str) -> Result<bool, AuthServiceError> {
-        argon2::verify_encoded(hash, password.as_bytes())
+    fn verify_password(&self, hash: &str, password_str: &str) -> Result<bool, AuthServiceError> {
+        let parsed_hash = PasswordHash::new(hash)
+            .map_err(|e| {
+                error!("Hash parsing error: {:?}", e);
+                AuthServiceError::VerificationError(e.to_string())
+            })?;
+            
+        Argon2::default()
+            .verify_password(password_str.as_bytes(), &parsed_hash)
+            .map(|_| true)
             .map_err(|e| {
                 error!("Verification error: {:?}", e);
                 AuthServiceError::VerificationError(e.to_string())
@@ -57,17 +68,17 @@ impl AuthService {
         &self,
         new_user: NewUser,
     ) -> Result<User, AuthServiceError> {
-        let hashed_password = self.hash_password(&new_user.password_hash)?;
+        let hashed_password = self.hash_password(&new_user.password)?;
 
-        let conn = self.get_connection()?;
+        let mut conn = self.get_connection()?;
         let new_user = NewUser {
-            password_hash: hashed_password,
+            password: hashed_password,
             ..new_user
         };
 
         diesel::insert_into(users)
             .values(&new_user)
-            .get_result::<User>(&conn)
+            .get_result::<User>(&mut conn)
             .map_err(|e| {
                 error!("Database error: {:?}", e);
                 AuthServiceError::DatabaseError(e.to_string())
@@ -80,13 +91,13 @@ impl AuthService {
         username_input: &str,
         password_input: &str,
     ) -> Result<User, AuthServiceError> {
-        let conn = self.get_connection()?;
+        let mut conn = self.get_connection()?;
         let user = users
             .filter(username.eq(username_input))
-            .first::<User>(&conn)
+            .first::<User>(&mut conn)
             .map_err(|_| AuthServiceError::InvalidCredentials)?;
 
-        let is_valid = self.verify_password(&user.password_hash, password_input)?;
+        let is_valid = self.verify_password(&user.password, password_input)?;
         if is_valid {
             Ok(user)
         } else {

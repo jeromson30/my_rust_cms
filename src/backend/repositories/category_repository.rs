@@ -1,31 +1,33 @@
-use crate::models::post::Post;
+use crate::backend::models::post::Post;
 use diesel::prelude::*;
+use crate::backend::schema::categories;
+use crate::backend::models::category::Category;
 
-pub struct PostRepository;
+pub struct CategoryRepository;
 
-impl PostRepository {
-    pub fn create(new_post: Post) -> Result<Post, &'static str> {
-        // Implement logic to insert the post into the database
-        Ok(new_post)
+impl CategoryRepository {
+    pub fn find_all() -> Result<Vec<Category>, &'static str> {
+        // TODO: Implement actual database query
+        Ok(vec![])
     }
 
-    pub fn find_by_id(id: i32) -> Result<Post, &'static str> {
-        // Implement logic to find a post by id
-        Err("Post not found")
+    pub fn find_by_id(id: i32) -> Result<Option<Category>, &'static str> {
+        // TODO: Implement actual database query
+        Ok(None)
     }
 
-    pub fn update(id: i32, updated_post: Post) -> Result<Post, &'static str> {
-        // Implement logic to update a post by id
-        Ok(updated_post)
+    pub fn create(category: Category) -> Result<Category, &'static str> {
+        // TODO: Implement actual database query
+        Ok(category)
+    }
+
+    pub fn update(id: i32, category: Category) -> Result<Category, &'static str> {
+        // TODO: Implement actual database query
+        Ok(category)
     }
 
     pub fn delete(id: i32) -> Result<(), &'static str> {
-        // Implement logic to delete a post by id
+        // TODO: Implement actual database query
         Ok(())
-    }
-
-    pub fn find_all() -> Result<Vec<Post>, &'static str> {
-        // Implement logic to list all posts
-        Ok(vec![])
     }
 }

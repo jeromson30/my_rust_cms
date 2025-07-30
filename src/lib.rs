@@ -1,3 +1,5 @@
+pub mod frontend;
+
 #[cfg(test)]
 mod tests {
     #[test]
