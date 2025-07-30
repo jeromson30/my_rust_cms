@@ -7,9 +7,6 @@ edition = "2021"
 # Yew framework
 yew = { version = "0.20", features = ["csr"] }
 
-# Yew Router for client-side routing
-yew-router = { version = "0.18" }
-
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde-wasm-bindgen = "0.2"

@@ -1,71 +1,42 @@
 use yew::prelude::*;
-use gloo_net::http::Request;
+
+mod components;
+mod pages;
+mod services;
+
+use components::*;
+use pages::*;
+use components::ActiveTab;
 
 #[function_component(App)]
 pub fn app() -> Html {
-    let backend_status = use_state(String::new);
-    let loading = use_state(|| true);
-    let error = use_state(String::new);
+    let active_tab = use_state(|| ActiveTab::Dashboard);
 
-    {
-        let backend_status = backend_status.clone();
-        let loading = loading.clone();
-        let error = error.clone();
-
-        use_effect_with_deps(move |_| {
-            wasm_bindgen_futures::spawn_local(async move {
-                match Request::get("http://localhost:8081")
-                    .header("Content-Type", "application/json")
-                    .send()
-                    .await
-                {
-                    Ok(response) => {
-                        match response.text().await {
-                            Ok(text) => {
-                                backend_status.set(text);
-                            }
-                            Err(_) => {
-                                error.set("Failed to parse backend response".to_string());
-                            }
-                        }
-                    }
-                    Err(_) => {
-                        error.set("Failed to connect to backend".to_string());
-                    }
-                }
-                loading.set(false);
-            });
-            || ()
-        }, ());
-    }
+    let switch_tab = {
+        let active_tab = active_tab.clone();
+        Callback::from(move |tab: ActiveTab| {
+            active_tab.set(tab);
+        })
+    };
 
     html! {
         <div class="app">
-            <header>
-                <h1>{"Rust CMS Frontend"}</h1>
-                <p>{"Testing Backend Connection"}</p>
-            </header>
-            
-            <main>
-                if *loading {
-                    <div class="loading">{"Testing backend connection..."}</div>
-                } else if !error.is_empty() {
-                    <div class="error">
-                        <h2>{"Error"}</h2>
-                        <p>{&*error}</p>
-                    </div>
-                } else {
-                    <div class="status">
-                        <div class="status-item">
-                            <h3>{"Backend Status"}</h3>
-                            <div class="status-content">
-                                <span class="label">{"Response:"}</span>
-                                <span class="value">{&*backend_status}</span>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </main>
+            <Header />
+            <div class="main-container">
+                <Sidebar on_tab_click={switch_tab} active_tab={(*active_tab).clone()} />
+                <main class="content">
+                    {match *active_tab {
+                        ActiveTab::Dashboard => html! { <Dashboard /> },
+                        ActiveTab::Posts => html! { <PostList /> },
+                        ActiveTab::Pages => html! { <PageBuilder /> },
+                        ActiveTab::Media => html! { <MediaLibrary /> },
+                        ActiveTab::Users => html! { <UserManagement /> },
+                        ActiveTab::Settings => html! { <Settings /> },
+                        ActiveTab::Builder => html! { <PageBuilder /> },
+                        ActiveTab::Comments => html! { <CommentModeration /> },
+                    }}
+                </main>
+            </div>
         </div>
     }
 }
