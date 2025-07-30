@@ -1,0 +1,25 @@
+[package]
+name = "frontend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+yew = { workspace = true }
+
+serde-wasm-bindgen = { workspace = true }
+wasm-bindgen = { workspace = true }
+gloo-net = { workspace = true }
+gloo-storage = { workspace = true }
+gloo = { workspace = true }
+gloo-file = { workspace = true }
+wasm-bindgen-futures = { workspace = true }
+wasm-bindgen-test = { workspace = true }
+console_error_panic_hook = { workspace = true }
+web-sys = { workspace = true }
+js-sys = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+gloo-timers = { workspace = true } 

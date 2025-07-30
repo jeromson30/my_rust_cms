@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Rust CMS</title>
+    <link data-trunk rel="css" href="src/styles/main.css">
+    <link data-trunk rel="css" href="src/styles/admin.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        // Define the API_BASE_URL as a string
+        window.API_BASE_URL = 'http://localhost:8081'; // Backend runs on port 8081
+    </script>
+    <script type="module">
+        import init from "./pkg/frontend.js";
+        init();
+    </script>
+</body>
+</html> 

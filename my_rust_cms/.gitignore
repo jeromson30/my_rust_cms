@@ -1,6 +1,0 @@
-/target
-/dist
-**/*.rs.bk
-Cargo.lock
-.env
-scratch.txt
