@@ -6,8 +6,7 @@ use crate::pages::public::PublicPage;
 pub struct PublicLayoutProps {
     pub children: Children,
     pub on_admin_click: Callback<()>,
-    pub on_home_click: Option<Callback<()>>,
-    pub on_posts_click: Option<Callback<()>>,
+
     pub on_navigate: Option<Callback<PublicPage>>,
     pub current_page: String,
 }
@@ -45,74 +44,32 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
         Callback::from(move |_| callback.emit(()))
     };
 
-    let on_home_click = {
-        let callback = props.on_home_click.clone();
-        Callback::from(move |e: MouseEvent| {
-            e.prevent_default();
-            if let Some(cb) = &callback {
-                cb.emit(());
-            }
-        })
-    };
-
-    let on_posts_click = {
-        let callback = props.on_posts_click.clone();
-        Callback::from(move |e: MouseEvent| {
-            e.prevent_default();
-            if let Some(cb) = &callback {
-                cb.emit(());
-            }
-        })
-    };
-
     let on_nav_item_click = {
         let on_navigate = props.on_navigate.clone();
-        let current_page = props.current_page.clone();
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
-            web_sys::console::log_1(&format!("Navigation click event triggered").into());
-            if let Some(target) = e.target_dyn_into::<web_sys::HtmlElement>() {
-                web_sys::console::log_1(&format!("Target element found: {:?}", target.tag_name()).into());
-                if let Some(url) = target.get_attribute("data-url") {
-                    web_sys::console::log_1(&format!("Navigation click: URL = {}", url).into());
-                    if let Some(on_navigate) = &on_navigate {
-                        web_sys::console::log_1(&format!("on_navigate callback is available").into());
-                        // Extract slug from URL and determine if it's a page or post
-                        let slug = url.trim_start_matches('/');
-                        if !slug.is_empty() {
-                            if slug.starts_with("post/") {
-                                // Handle post URLs like "/post/3"
-                                let post_id_str = slug.trim_start_matches("post/");
-                                if let Ok(post_id) = post_id_str.parse::<i32>() {
-                                    web_sys::console::log_1(&format!("Navigation: Post ID = {}", post_id).into());
-                                    web_sys::console::log_1(&format!("Current page before navigation: {}", current_page).into());
-                                    on_navigate.emit(PublicPage::Post(post_id));
+            if let Some(on_navigate) = &on_navigate {
+                if let Some(target) = e.target_dyn_into::<web_sys::HtmlElement>() {
+                    if let Some(url) = target.get_attribute("data-url") {
+                        let page = match url.as_str() {
+                            "/" => PublicPage::Home,
+                            "/posts" => PublicPage::Posts,
+                            url if url.starts_with("/post/") => {
+                                if let Ok(id) = url.trim_start_matches("/post/").parse::<i32>() {
+                                    PublicPage::Post(id)
                                 } else {
-                                    web_sys::console::log_1(&format!("Invalid post ID: {}", post_id_str).into());
-                                }
-                            } else {
-                                // Handle page URLs like "/about", "/contact", etc.
-                                let final_slug = if slug.starts_with("page/") {
-                                    slug.trim_start_matches("page/")
-                                } else {
-                                    slug
-                                };
-                                web_sys::console::log_1(&format!("Navigation: slug = {}, final_slug = {}", slug, final_slug).into());
-                                if !final_slug.is_empty() {
-                                    web_sys::console::log_1(&format!("Emitting navigation to page: {}", final_slug).into());
-                                    web_sys::console::log_1(&format!("Current page before navigation: {}", current_page).into());
-                                    on_navigate.emit(PublicPage::Page(final_slug.to_string()));
+                                    return;
                                 }
                             }
-                        }
-                    } else {
-                        web_sys::console::log_1(&"on_navigate callback is None".into());
+                            url if url.starts_with("/page/") => {
+                                let slug = url.trim_start_matches("/page/");
+                                PublicPage::Page(slug.to_string())
+                            }
+                            _ => return,
+                        };
+                        on_navigate.emit(page);
                     }
-                } else {
-                    web_sys::console::log_1(&"No data-url attribute found".into());
                 }
-            } else {
-                web_sys::console::log_1(&"Could not get target element".into());
             }
         })
     };
@@ -123,24 +80,9 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
                 <div class="container">
                     <h1 class="site-title">{"My Rust CMS"}</h1>
                     <nav class="site-nav">
-                        <a 
-                            href="#" 
-                            class={if props.current_page == "home" { "nav-link active" } else { "nav-link" }}
-                            onclick={on_home_click}
-                        >
-                            {"Home"}
-                        </a>
-                        <a 
-                            href="#" 
-                            class={if props.current_page == "posts" { "nav-link active" } else { "nav-link" }}
-                            onclick={on_posts_click}
-                        >
-                            {"Posts"}
-                        </a>
-                        
                         if !*loading {
                             {{
-                                let items: Vec<_> = navigation_items.iter().filter(|item| item.is_active && item.title != "Home" && item.title != "Posts").collect();
+                                let items: Vec<_> = navigation_items.iter().filter(|item| item.is_active).collect();
                                 web_sys::console::log_1(&format!("Filtered navigation items: {:?}", items).into());
                                 web_sys::console::log_1(&format!("Current page: {}", props.current_page).into());
                                 items.into_iter().map(|item| {

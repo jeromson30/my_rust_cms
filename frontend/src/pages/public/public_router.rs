@@ -26,15 +26,7 @@ pub fn public_router(props: &PublicRouterProps) -> Html {
         PublicPage::Page(slug) => slug,
     };
 
-    let on_home_click = {
-        let on_navigate = props.on_navigate.clone();
-        Callback::from(move |_| on_navigate.emit(PublicPage::Home))
-    };
 
-    let on_posts_click = {
-        let on_navigate = props.on_navigate.clone();
-        Callback::from(move |_| on_navigate.emit(PublicPage::Posts))
-    };
 
     let content = match &props.current_page {
         PublicPage::Home => html! {
@@ -54,8 +46,6 @@ pub fn public_router(props: &PublicRouterProps) -> Html {
     html! {
         <PublicLayout
             on_admin_click={props.on_admin_click.clone()}
-            on_home_click={Some(on_home_click)}
-            on_posts_click={Some(on_posts_click)}
             on_navigate={Some(props.on_navigate.clone())}
             current_page={current_page_name.to_string()}
         >

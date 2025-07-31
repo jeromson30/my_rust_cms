@@ -1,8 +1,8 @@
 use yew::prelude::*;
 use wasm_bindgen::JsCast;
 use crate::services::navigation_service::{NavigationItem, get_navigation_items, create_navigation_item, update_navigation_item, delete_navigation_item};
-use crate::services::page_service::{get_pages, Page};
-use crate::services::api_service::{get_posts, Post};
+use crate::services::page_service::get_pages;
+use crate::services::api_service::get_posts;
 
 #[function_component(NavigationManager)]
 pub fn navigation_manager() -> Html {
@@ -21,6 +21,7 @@ pub fn navigation_manager() -> Html {
     let posts = use_state(Vec::new);
     let pages_loading = use_state(|| true);
     let posts_loading = use_state(|| true);
+    let refresh_trigger = use_state(|| 0);
 
     // Load navigation items on mount
     {
@@ -50,8 +51,10 @@ pub fn navigation_manager() -> Html {
         let pages = pages.clone();
         let pages_loading = pages_loading.clone();
         let error = error.clone();
+        let refresh_trigger = refresh_trigger.clone();
 
-        use_effect_with_deps(move |_| {
+        use_effect_with_deps(move |_trigger| {
+            pages_loading.set(true);
             wasm_bindgen_futures::spawn_local(async move {
                 match get_pages().await {
                     Ok(pages_data) => {
@@ -65,7 +68,7 @@ pub fn navigation_manager() -> Html {
                 }
             });
             || ()
-        }, ());
+        }, (*refresh_trigger,));
     }
 
     // Load posts for dropdown
@@ -73,8 +76,10 @@ pub fn navigation_manager() -> Html {
         let posts = posts.clone();
         let posts_loading = posts_loading.clone();
         let error = error.clone();
+        let refresh_trigger = refresh_trigger.clone();
 
-        use_effect_with_deps(move |_| {
+        use_effect_with_deps(move |_trigger| {
+            posts_loading.set(true);
             wasm_bindgen_futures::spawn_local(async move {
                 match get_posts().await {
                     Ok(posts_data) => {
@@ -88,8 +93,15 @@ pub fn navigation_manager() -> Html {
                 }
             });
             || ()
-        }, ());
+        }, (*refresh_trigger,));
     }
+
+    let refresh_pages = {
+        let refresh_trigger = refresh_trigger.clone();
+        Callback::from(move |_| {
+            refresh_trigger.set(*refresh_trigger + 1);
+        })
+    };
 
     let add_item = {
         let navigation_items = navigation_items.clone();
@@ -102,6 +114,8 @@ pub fn navigation_manager() -> Html {
         Callback::from(move |_| {
             if !new_item_title.is_empty() {
                 let url = match (*new_item_type).as_str() {
+                    "home" => "/".to_string(),
+                    "posts" => "/posts".to_string(),
                     "page" => format!("/page/{}", *new_item_target),
                     "post" => format!("/post/{}", *new_item_target),
                     _ => (*new_item_url).clone(),
@@ -282,6 +296,8 @@ pub fn navigation_manager() -> Html {
                                 onchange={on_type_change}
                             >
                                 <option value="custom">{"Custom URL"}</option>
+                                <option value="home">{"Home Page"}</option>
+                                <option value="posts">{"Posts List"}</option>
                                 <option value="page">{"Page"}</option>
                                 <option value="post">{"Post"}</option>
                             </select>
@@ -299,7 +315,18 @@ pub fn navigation_manager() -> Html {
                             </div>
                         } else if (*new_item_type) == "page" {
                             <div class="form-group">
-                                <label for="new-target">{"Select Page"}</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <label for="new-target">{"Select Page"}</label>
+                                    <button 
+                                        type="button" 
+                                        onclick={refresh_pages.clone()}
+                                        class="btn btn-sm btn-outline-secondary"
+                                        disabled={*pages_loading}
+                                        title="Refresh page list"
+                                    >
+                                        {"🔄"}
+                                    </button>
+                                </div>
                                 if *pages_loading {
                                     <select disabled={true}>
                                         <option>{"Loading pages..."}</option>
@@ -323,7 +350,18 @@ pub fn navigation_manager() -> Html {
                             </div>
                         } else if (*new_item_type) == "post" {
                             <div class="form-group">
-                                <label for="new-target">{"Select Post"}</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <label for="new-target">{"Select Post"}</label>
+                                    <button 
+                                        type="button" 
+                                        onclick={refresh_pages.clone()}
+                                        class="btn btn-sm btn-outline-secondary"
+                                        disabled={*posts_loading}
+                                        title="Refresh post list"
+                                    >
+                                        {"🔄"}
+                                    </button>
+                                </div>
                                 if *posts_loading {
                                     <select disabled={true}>
                                         <option>{"Loading posts..."}</option>
@@ -353,7 +391,7 @@ pub fn navigation_manager() -> Html {
                                 disabled={
                                     new_item_title.is_empty() || 
                                     ((*new_item_type) == "custom" && new_item_url.is_empty()) ||
-                                    ((*new_item_type) != "custom" && new_item_target.is_empty())
+                                    (["page", "post"].contains(&(*new_item_type).as_str()) && new_item_target.is_empty())
                                 }
                             >
                                 {"Add Item"}
