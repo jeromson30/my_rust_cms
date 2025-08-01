@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::services::auth_service::get_auth_token;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Page {
@@ -37,7 +38,10 @@ pub async fn get_pages() -> Result<Vec<Page>, PageServiceError> {
 }
 
 pub async fn create_page(page: &Page) -> Result<Page, PageServiceError> {
+    let token = get_auth_token().map_err(|_| PageServiceError::NetworkError("Not authenticated".to_string()))?;
+    
     let request = gloo_net::http::Request::post("http://localhost:8081/api/pages")
+        .header("Authorization", &format!("Bearer {}", token))
         .json(page)
         .map_err(|e| PageServiceError::NetworkError(e.to_string()))?;
     
@@ -57,7 +61,10 @@ pub async fn create_page(page: &Page) -> Result<Page, PageServiceError> {
 }
 
 pub async fn update_page(id: i32, page: &Page) -> Result<Page, PageServiceError> {
+    let token = get_auth_token().map_err(|_| PageServiceError::NetworkError("Not authenticated".to_string()))?;
+    
     let request = gloo_net::http::Request::put(&format!("http://localhost:8081/api/pages/{}", id))
+        .header("Authorization", &format!("Bearer {}", token))
         .json(page)
         .map_err(|e| PageServiceError::NetworkError(e.to_string()))?;
     
@@ -77,7 +84,10 @@ pub async fn update_page(id: i32, page: &Page) -> Result<Page, PageServiceError>
 }
 
 pub async fn delete_page(id: i32) -> Result<(), PageServiceError> {
+    let token = get_auth_token().map_err(|_| PageServiceError::NetworkError("Not authenticated".to_string()))?;
+    
     match gloo_net::http::Request::delete(&format!("http://localhost:8081/api/pages/{}", id))
+        .header("Authorization", &format!("Bearer {}", token))
         .send()
         .await
     {

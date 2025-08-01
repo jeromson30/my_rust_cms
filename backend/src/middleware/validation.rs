@@ -1,7 +1,8 @@
 use axum::{
     extract::Request,
     middleware::Next,
-    response::Response,
+    response::{Response, IntoResponse},
+    http::StatusCode,
 };
 use crate::middleware::errors::{AppError, ApiResult};
 use regex::Regex;
@@ -169,7 +170,7 @@ static RATE_LIMITER: Lazy<Mutex<HashMap<String, (u32, Instant)>>> = Lazy::new(||
 pub async fn rate_limit_middleware(
     req: Request,
     next: Next,
-) -> Result<Response, AppError> {
+) -> Response {
     let client_ip = req
         .headers()
         .get("x-forwarded-for")
@@ -195,9 +196,10 @@ pub async fn rate_limit_middleware(
     
     // Allow 100 requests per minute per IP
     if *count > 100 {
-        return Err(AppError::ValidationError("Rate limit exceeded".to_string()));
+        drop(limiter); // Release the lock
+        return (StatusCode::TOO_MANY_REQUESTS, "Rate limit exceeded").into_response();
     }
     
     drop(limiter); // Release the lock
-    Ok(next.run(req).await)
+    next.run(req).await
 }

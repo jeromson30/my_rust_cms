@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use web_sys::{DragEvent, Element, MouseEvent};
+use web_sys::{DragEvent, Element, MouseEvent, HtmlInputElement, InputEvent, KeyboardEvent};
 use wasm_bindgen::JsCast;
 use serde::{Deserialize, Serialize};
 use crate::components::markdown_editor::MarkdownEditor;
@@ -11,6 +11,82 @@ pub struct PageComponent {
     pub content: String,
     pub styles: ComponentStyles,
     pub position: Position,
+    pub properties: ComponentProperties,
+}
+
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
+pub struct ComponentProperties {
+    // Image specific
+    pub image_url: String,
+    pub image_alt: String,
+    pub image_title: String,
+    pub image_lazy_load: bool,
+    
+    // Button/Link specific
+    pub button_text: String,
+    pub button_url: String,
+    pub button_target: String,
+    pub button_size: String,
+    pub button_variant: String,
+    pub button_icon: String,
+    
+    // Form specific
+    pub form_action: String,
+    pub form_method: String,
+    pub form_fields: Vec<FormField>,
+    
+    // Video specific
+    pub video_url: String,
+    pub video_autoplay: bool,
+    pub video_controls: bool,
+    pub video_muted: bool,
+    pub video_loop: bool,
+    
+    // Gallery specific
+    pub gallery_images: Vec<GalleryImage>,
+    pub gallery_layout: String,
+    pub gallery_columns: i32,
+    
+    // List specific
+    pub list_type: String,
+    pub list_items: Vec<String>,
+    
+    // Container specific
+    pub container_max_width: String,
+    pub container_align: String,
+    
+    // Animation
+    pub animation_type: String,
+    pub animation_duration: String,
+    pub animation_delay: String,
+    
+    // SEO
+    pub seo_title: String,
+    pub seo_description: String,
+    pub seo_keywords: Vec<String>,
+    
+    // Accessibility
+    pub aria_label: String,
+    pub aria_description: String,
+    pub tab_index: i32,
+}
+
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
+pub struct FormField {
+    pub field_type: String,
+    pub name: String,
+    pub label: String,
+    pub placeholder: String,
+    pub required: bool,
+    pub validation: String,
+}
+
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
+pub struct GalleryImage {
+    pub url: String,
+    pub alt: String,
+    pub caption: String,
+    pub title: String,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -47,6 +123,21 @@ pub struct ComponentStyles {
     pub font_size: String,
     pub font_weight: String,
     pub text_align: String,
+    pub border_width: String,
+    pub border_color: String,
+    pub border_style: String,
+    pub box_shadow: String,
+    pub opacity: f32,
+    pub z_index: i32,
+    pub font_family: String,
+    pub line_height: String,
+    pub letter_spacing: String,
+    pub text_decoration: String,
+    pub text_transform: String,
+    pub background_image: String,
+    pub background_size: String,
+    pub background_position: String,
+    pub background_repeat: String,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -61,13 +152,28 @@ impl Default for ComponentStyles {
     fn default() -> Self {
         Self {
             background_color: "transparent".to_string(),
-            text_color: "inherit".to_string(), // Use inherit for better theme compatibility
+            text_color: "inherit".to_string(),
             padding: "16px".to_string(),
             margin: "8px".to_string(),
-            border_radius: "8px".to_string(), // Slightly more rounded for modern look
+            border_radius: "8px".to_string(),
             font_size: "16px".to_string(),
             font_weight: "normal".to_string(),
             text_align: "left".to_string(),
+            border_width: "0px".to_string(),
+            border_color: "transparent".to_string(),
+            border_style: "solid".to_string(),
+            box_shadow: "none".to_string(),
+            opacity: 1.0,
+            z_index: 1,
+            font_family: "system-ui, -apple-system, sans-serif".to_string(),
+            line_height: "1.5".to_string(),
+            letter_spacing: "normal".to_string(),
+            text_decoration: "none".to_string(),
+            text_transform: "none".to_string(),
+            background_image: "none".to_string(),
+            background_size: "cover".to_string(),
+            background_position: "center".to_string(),
+            background_repeat: "no-repeat".to_string(),
         }
     }
 }
@@ -79,6 +185,66 @@ impl Default for Position {
             y: 0.0,
             width: "100%".to_string(),
             height: "auto".to_string(),
+        }
+    }
+}
+
+impl Default for ComponentProperties {
+    fn default() -> Self {
+        Self {
+            // Image specific
+            image_url: "".to_string(),
+            image_alt: "".to_string(),
+            image_title: "".to_string(),
+            image_lazy_load: true,
+            
+            // Button/Link specific
+            button_text: "Click Here".to_string(),
+            button_url: "#".to_string(),
+            button_target: "_self".to_string(),
+            button_size: "medium".to_string(),
+            button_variant: "primary".to_string(),
+            button_icon: "".to_string(),
+            
+            // Form specific
+            form_action: "".to_string(),
+            form_method: "POST".to_string(),
+            form_fields: vec![],
+            
+            // Video specific
+            video_url: "".to_string(),
+            video_autoplay: false,
+            video_controls: true,
+            video_muted: false,
+            video_loop: false,
+            
+            // Gallery specific
+            gallery_images: vec![],
+            gallery_layout: "grid".to_string(),
+            gallery_columns: 3,
+            
+            // List specific
+            list_type: "unordered".to_string(),
+            list_items: vec![],
+            
+            // Container specific
+            container_max_width: "1200px".to_string(),
+            container_align: "center".to_string(),
+            
+            // Animation
+            animation_type: "none".to_string(),
+            animation_duration: "0.3s".to_string(),
+            animation_delay: "0s".to_string(),
+            
+            // SEO
+            seo_title: "".to_string(),
+            seo_description: "".to_string(),
+            seo_keywords: vec![],
+            
+            // Accessibility
+            aria_label: "".to_string(),
+            aria_description: "".to_string(),
+            tab_index: 0,
         }
     }
 }
@@ -176,18 +342,37 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
     let drag_over = use_state(|| false);
     let dragging_component = use_state(|| None::<ComponentType>);
 
-    // Load initial components when provided
+    // Load initial components when provided (always update, even if empty)
     {
         let components = components.clone();
         let initial_components = props.initial_components.clone();
+        let selected_component = selected_component.clone();
+        let editing_component = editing_component.clone();
         
         use_effect_with_deps(move |_| {
-            if !initial_components.is_empty() {
-                components.set(initial_components);
-            }
+            // Always set components to reflect the current page, even if empty
+            components.set(initial_components);
+            // Clear any open modals when switching pages to prevent navigation blocking
+            selected_component.set(None);
+            editing_component.set(None);
             || ()
         }, (props.initial_components.clone(),));
     }
+
+    // Auto-sync components back to parent when they change
+    {
+        let components = components.clone();
+        let on_save = props.on_save.clone();
+        
+        use_effect_with_deps(move |current_components| {
+            // Automatically notify parent of component changes
+            on_save.emit(current_components.clone());
+            || ()
+        }, (*components).clone());
+    }
+
+    // Disable global keyboard handler temporarily to test
+    // TODO: Implement modal-specific escape key handling if needed
 
     let component_types = vec![
         ComponentType::Text,
@@ -270,6 +455,7 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                 content: component_type.default_content(),
                 styles: ComponentStyles::default(),
                 position: Position::default(),
+                properties: ComponentProperties::default(),
             };
             
             let mut current_components = (*components).clone();
@@ -332,6 +518,43 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
             }
             components.set(current_components);
             editing_component.set(None);
+        })
+    };
+
+    let on_property_update = {
+        let components = components.clone();
+        Callback::from(move |(component_id, property_name, property_value): (String, String, String)| {
+            let mut current_components = (*components).clone();
+            if let Some(component) = current_components.iter_mut().find(|c| c.id == component_id) {
+                match property_name.as_str() {
+                    "image_url" => component.properties.image_url = property_value,
+                    "image_alt" => component.properties.image_alt = property_value,
+                    "image_title" => component.properties.image_title = property_value,
+                    "button_text" => component.properties.button_text = property_value,
+                    "button_url" => component.properties.button_url = property_value,
+                    "button_target" => component.properties.button_target = property_value,
+                    _ => {}
+                }
+            }
+            components.set(current_components);
+        })
+    };
+
+    let on_boolean_property_update = {
+        let components = components.clone();
+        Callback::from(move |(component_id, property_name, property_value): (String, String, bool)| {
+            let mut current_components = (*components).clone();
+            if let Some(component) = current_components.iter_mut().find(|c| c.id == component_id) {
+                match property_name.as_str() {
+                    "image_lazy_load" => component.properties.image_lazy_load = property_value,
+                    "video_autoplay" => component.properties.video_autoplay = property_value,
+                    "video_controls" => component.properties.video_controls = property_value,
+                    "video_muted" => component.properties.video_muted = property_value,
+                    "video_loop" => component.properties.video_loop = property_value,
+                    _ => {}
+                }
+            }
+            components.set(current_components);
         })
     };
 
@@ -468,7 +691,7 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                     class={classes!("canvas-component", if is_selected { Some("selected") } else { None })}
                                                     onclick={on_click}
                                                     style={format!(
-                                                        "background-color: {}; color: {}; padding: {}; margin: {}; border-radius: {}; font-size: {}; font-weight: {}; text-align: {};",
+                                                        "background-color: {}; color: {}; padding: {}; margin: {}; border-radius: {}; font-size: {}; font-weight: {}; text-align: {}; border: {} {} {}; box-shadow: {}; opacity: {}; z-index: {}; font-family: {}; line-height: {}; letter-spacing: {}; text-decoration: {}; text-transform: {}; background-image: {}; background-size: {}; background-position: {}; background-repeat: {};",
                                                         component.styles.background_color,
                                                         component.styles.text_color,
                                                         component.styles.padding,
@@ -476,7 +699,22 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                         component.styles.border_radius,
                                                         component.styles.font_size,
                                                         component.styles.font_weight,
-                                                        component.styles.text_align
+                                                        component.styles.text_align,
+                                                        component.styles.border_width,
+                                                        component.styles.border_style,
+                                                        component.styles.border_color,
+                                                        component.styles.box_shadow,
+                                                        component.styles.opacity,
+                                                        component.styles.z_index,
+                                                        component.styles.font_family,
+                                                        component.styles.line_height,
+                                                        component.styles.letter_spacing,
+                                                        component.styles.text_decoration,
+                                                        component.styles.text_transform,
+                                                        component.styles.background_image,
+                                                        component.styles.background_size,
+                                                        component.styles.background_position,
+                                                        component.styles.background_repeat
                                                     )}
                                                 >
                                                     {render_component_content(component)}
@@ -504,18 +742,47 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
 
             </div>
 
-            // Properties Modal
-            {if let Some(selected_id) = selected_component.as_ref() {
-                if let Some(component) = components.iter().find(|c| &c.id == selected_id) {
+            // Properties Modal - Opens when editing_component is set
+            {if let Some(editing_id) = editing_component.as_ref() {
+                if let Some(component) = components.iter().find(|c| &c.id == editing_id) {
                     let close_modal = {
-                        let selected_component = selected_component.clone();
-                        Callback::from(move |_: MouseEvent| {
-                            selected_component.set(None);
+                        let editing_component = editing_component.clone();
+                        Callback::from(move |e: MouseEvent| {
+                            e.prevent_default();
+                            editing_component.set(None);
+                        })
+                    };
+
+                    let close_modal_overlay = {
+                        let editing_component = editing_component.clone();
+                        Callback::from(move |e: MouseEvent| {
+                            // Only close if clicking on the overlay itself, not the content
+                            if let Some(target) = e.target() {
+                                if let Ok(element) = target.dyn_into::<web_sys::HtmlElement>() {
+                                    if element.class_name().contains("properties-modal") {
+                                        e.prevent_default();
+                                        editing_component.set(None);
+                                    }
+                                }
+                            }
                         })
                     };
 
                     html! {
-                        <div class="properties-modal" onclick={close_modal.clone()}>
+                        <div 
+                            class="properties-modal" 
+                            onclick={close_modal_overlay}
+                            onkeydown={{
+                                let editing_component = editing_component.clone();
+                                Callback::from(move |e: KeyboardEvent| {
+                                    if e.key() == "Escape" {
+                                        e.prevent_default();
+                                        editing_component.set(None);
+                                    }
+                                })
+                            }}
+                            tabindex="-1"
+                        >
                             <div 
                                 class="properties-modal-content"
                                 onclick={Callback::from(|e: MouseEvent| e.stop_propagation())}
@@ -533,35 +800,41 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
 
                                 <div class="modal-body">
                                     <div class="property-sections">
-                                        // Content Section
-                                        <div class="property-section">
-                                            <h4 class="section-title">{"Content"}</h4>
-                                            <div class="property-group">
-                                                <label>{"Content Editor"}</label>
-                                                <MarkdownEditor
-                                                    value={component.content.clone()}
-                                                    on_change={{
-                                                        let on_content_save = on_content_save.clone();
-                                                        let component_id = component.id.clone();
-                                                        Callback::from(move |new_content: String| {
-                                                            on_content_save.emit((component_id.clone(), new_content));
-                                                        })
-                                                    }}
-                                                    placeholder={Some(format!("Enter content for your {}...", component.component_type.display_name()))}
-                                                    rows={Some(10)}
-                                                />
-                                            </div>
-                                            <div class="property-group">
-                                                <label>{"Preview"}</label>
-                                                <div class="property-preview">
-                                                    {render_component_content(component)}
+                                        // Content Section (hide for image components as they use image-specific properties)
+                                        {if !matches!(component.component_type, ComponentType::Image) {
+                                            html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"Content"}</h4>
+                                                    <div class="property-group">
+                                                        <label>{"Content Editor"}</label>
+                                                        <MarkdownEditor
+                                                            value={component.content.clone()}
+                                                            on_change={{
+                                                                let on_content_save = on_content_save.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |new_content: String| {
+                                                                    on_content_save.emit((component_id.clone(), new_content));
+                                                                })
+                                                            }}
+                                                            placeholder={Some(format!("Enter content for your {}...", component.component_type.display_name()))}
+                                                            rows={Some(10)}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Preview"}</label>
+                                                        <div class="property-preview">
+                                                            {render_component_content(component)}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
+                                            }
+                                        } else {
+                                            html! {}
+                                        }}
 
                                         // Style Section
                                         <div class="property-section">
-                                            <h4 class="section-title">{"Appearance"}</h4>
+                                            <h4 class="section-title">{"Colors & Background"}</h4>
                                             <div class="property-group">
                                                 <label>{"Background Color"}</label>
                                                 <div class="color-input-group">
@@ -577,6 +850,74 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                 </div>
                                             </div>
                                             <div class="property-group">
+                                                <label>{"Background Image URL"}</label>
+                                                <input type="text" value={component.styles.background_image.clone()} placeholder="https://..." />
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Background Size"}</label>
+                                                <select value={component.styles.background_size.clone()}>
+                                                    <option value="cover">{"Cover"}</option>
+                                                    <option value="contain">{"Contain"}</option>
+                                                    <option value="auto">{"Auto"}</option>
+                                                    <option value="100% 100%">{"Stretch"}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        // Typography Section
+                                        <div class="property-section">
+                                            <h4 class="section-title">{"Typography"}</h4>
+                                            <div class="property-group">
+                                                <label>{"Font Family"}</label>
+                                                <select value={component.styles.font_family.clone()}>
+                                                    <option value="system-ui, -apple-system, sans-serif">{"System UI"}</option>
+                                                    <option value="Georgia, serif">{"Georgia"}</option>
+                                                    <option value="Times New Roman, serif">{"Times New Roman"}</option>
+                                                    <option value="Arial, sans-serif">{"Arial"}</option>
+                                                    <option value="Helvetica, sans-serif">{"Helvetica"}</option>
+                                                    <option value="Courier New, monospace">{"Courier New"}</option>
+                                                </select>
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Font Size"}</label>
+                                                <input type="text" value={component.styles.font_size.clone()} placeholder="16px" />
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Font Weight"}</label>
+                                                <select value={component.styles.font_weight.clone()}>
+                                                    <option value="100">{"Thin"}</option>
+                                                    <option value="300">{"Light"}</option>
+                                                    <option value="normal">{"Normal"}</option>
+                                                    <option value="500">{"Medium"}</option>
+                                                    <option value="600">{"Semi Bold"}</option>
+                                                    <option value="bold">{"Bold"}</option>
+                                                    <option value="800">{"Extra Bold"}</option>
+                                                    <option value="900">{"Black"}</option>
+                                                </select>
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Line Height"}</label>
+                                                <input type="text" value={component.styles.line_height.clone()} placeholder="1.5" />
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Letter Spacing"}</label>
+                                                <input type="text" value={component.styles.letter_spacing.clone()} placeholder="normal" />
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Text Transform"}</label>
+                                                <select value={component.styles.text_transform.clone()}>
+                                                    <option value="none">{"None"}</option>
+                                                    <option value="uppercase">{"Uppercase"}</option>
+                                                    <option value="lowercase">{"Lowercase"}</option>
+                                                    <option value="capitalize">{"Capitalize"}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        // Spacing & Layout Section  
+                                        <div class="property-section">
+                                            <h4 class="section-title">{"Spacing & Layout"}</h4>
+                                            <div class="property-group">
                                                 <label>{"Padding"}</label>
                                                 <input type="text" value={component.styles.padding.clone()} placeholder="16px" />
                                             </div>
@@ -589,27 +930,361 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                 <input type="text" value={component.styles.border_radius.clone()} placeholder="4px" />
                                             </div>
                                         </div>
+                                        
+                                        // Border & Effects Section
+                                        <div class="property-section">
+                                            <h4 class="section-title">{"Border & Effects"}</h4>
+                                            <div class="property-group">
+                                                <label>{"Border Width"}</label>
+                                                <input type="text" value={component.styles.border_width.clone()} placeholder="0px" />
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Border Color"}</label>
+                                                <div class="color-input-group">
+                                                    <input type="color" value={component.styles.border_color.clone()} />
+                                                    <input type="text" value={component.styles.border_color.clone()} placeholder="#000000" />
+                                                </div>
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Border Style"}</label>
+                                                <select value={component.styles.border_style.clone()}>
+                                                    <option value="solid">{"Solid"}</option>
+                                                    <option value="dashed">{"Dashed"}</option>
+                                                    <option value="dotted">{"Dotted"}</option>
+                                                    <option value="double">{"Double"}</option>
+                                                    <option value="none">{"None"}</option>
+                                                </select>
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Box Shadow"}</label>
+                                                <input type="text" value={component.styles.box_shadow.clone()} placeholder="0 2px 4px rgba(0,0,0,0.1)" />
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Opacity"}</label>
+                                                <input type="range" min="0" max="1" step="0.1" value={component.styles.opacity.to_string()} />
+                                                <span class="opacity-value">{format!("{}%", (component.styles.opacity * 100.0) as i32)}</span>
+                                            </div>
+                                        </div>
 
                                         // Layout Section
                                         <div class="property-section">
                                             <h4 class="section-title">{"Layout"}</h4>
                                             <div class="property-group">
                                                 <label>{"Width"}</label>
-                                                <select>
+                                                <select value={component.position.width.clone()}>
                                                     <option value="auto">{"Auto"}</option>
                                                     <option value="100%">{"Full Width"}</option>
+                                                    <option value="75%">{"Three Quarters"}</option>
                                                     <option value="50%">{"Half Width"}</option>
-                                                    <option value="custom">{"Custom"}</option>
+                                                    <option value="25%">{"Quarter Width"}</option>
+                                                    <option value="300px">{"Fixed 300px"}</option>
                                                 </select>
                                             </div>
                                             <div class="property-group">
                                                 <label>{"Text Alignment"}</label>
                                                 <div class="alignment-buttons">
-                                                    <button class="align-btn active" title="Left">{"⬅"}</button>
-                                                    <button class="align-btn" title="Center">{"⬆"}</button>
-                                                    <button class="align-btn" title="Right">{"➡"}</button>
-                                                    <button class="align-btn" title="Justify">{"⬌"}</button>
+                                                    <button class={classes!("align-btn", if component.styles.text_align == "left" { Some("active") } else { None })} title="Left">{"⬅"}</button>
+                                                    <button class={classes!("align-btn", if component.styles.text_align == "center" { Some("active") } else { None })} title="Center">{"⬆"}</button>
+                                                    <button class={classes!("align-btn", if component.styles.text_align == "right" { Some("active") } else { None })} title="Right">{"➡"}</button>
+                                                    <button class={classes!("align-btn", if component.styles.text_align == "justify" { Some("active") } else { None })} title="Justify">{"⬌"}</button>
                                                 </div>
+                                            </div>
+                                        </div>
+                                        
+                                        // Component-Specific Properties
+                                        {match component.component_type {
+                                            ComponentType::Image => html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"Image Properties"}</h4>
+                                                    <div class="property-group">
+                                                        <label>{"Image URL"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.image_url.clone()} 
+                                                            placeholder="https://example.com/image.jpg"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "image_url".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Alt Text"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.image_alt.clone()} 
+                                                            placeholder="Describe this image for accessibility"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "image_alt".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Image Title"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.image_title.clone()} 
+                                                            placeholder="Image title (tooltip text)"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "image_title".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label class="checkbox-label">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={component.properties.image_lazy_load}
+                                                                onchange={{
+                                                                    let on_boolean_property_update = on_boolean_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: Event| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_boolean_property_update.emit((component_id.clone(), "image_lazy_load".to_string(), target.checked()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                            {"Enable lazy loading"}
+                                                        </label>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Preview"}</label>
+                                                        <div class="property-preview">
+                                                            {if !component.properties.image_url.is_empty() {
+                                                                html! {
+                                                                    <img 
+                                                                        src={component.properties.image_url.clone()}
+                                                                        alt={component.properties.image_alt.clone()}
+                                                                        title={component.properties.image_title.clone()}
+                                                                        style="max-width: 100%; max-height: 200px; object-fit: contain; border-radius: 4px;"
+                                                                    />
+                                                                }
+                                                            } else {
+                                                                html! {
+                                                                    <div class="image-placeholder" style="background: #f5f5f5; border: 2px dashed #ccc; padding: 40px; text-align: center; border-radius: 4px;">
+                                                                        <span style="color: #999;">{"📷 Enter an image URL above to see preview"}</span>
+                                                                    </div>
+                                                                }
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            },
+                                            ComponentType::Button | ComponentType::Link => html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"Button Properties"}</h4>
+                                                    <div class="property-group">
+                                                        <label>{"Button Text"}</label>
+                                                        <input type="text" value={component.properties.button_text.clone()} placeholder="Click Here" />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Link URL"}</label>
+                                                        <input type="text" value={component.properties.button_url.clone()} placeholder="https://..." />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Target"}</label>
+                                                        <select value={component.properties.button_target.clone()}>
+                                                            <option value="_self">{"Same Window"}</option>
+                                                            <option value="_blank">{"New Window"}</option>
+                                                            <option value="_parent">{"Parent Frame"}</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Button Size"}</label>
+                                                        <select value={component.properties.button_size.clone()}>
+                                                            <option value="small">{"Small"}</option>
+                                                            <option value="medium">{"Medium"}</option>
+                                                            <option value="large">{"Large"}</option>
+                                                            <option value="xl">{"Extra Large"}</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Button Style"}</label>
+                                                        <select value={component.properties.button_variant.clone()}>
+                                                            <option value="primary">{"Primary"}</option>
+                                                            <option value="secondary">{"Secondary"}</option>
+                                                            <option value="outline">{"Outline"}</option>
+                                                            <option value="ghost">{"Ghost"}</option>
+                                                            <option value="danger">{"Danger"}</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Icon (Emoji)"}</label>
+                                                        <input type="text" value={component.properties.button_icon.clone()} placeholder="🚀" />
+                                                    </div>
+                                                </div>
+                                            },
+                                            ComponentType::Video => html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"Video Properties"}</h4>
+                                                    <div class="property-group">
+                                                        <label>{"Video URL"}</label>
+                                                        <input type="text" value={component.properties.video_url.clone()} placeholder="https://..." />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label class="checkbox-label">
+                                                            <input type="checkbox" checked={component.properties.video_autoplay} />
+                                                            {"Autoplay"}
+                                                        </label>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label class="checkbox-label">
+                                                            <input type="checkbox" checked={component.properties.video_controls} />
+                                                            {"Show controls"}
+                                                        </label>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label class="checkbox-label">
+                                                            <input type="checkbox" checked={component.properties.video_muted} />
+                                                            {"Muted"}
+                                                        </label>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label class="checkbox-label">
+                                                            <input type="checkbox" checked={component.properties.video_loop} />
+                                                            {"Loop"}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            },
+                                            ComponentType::Gallery => html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"Gallery Properties"}</h4>
+                                                    <div class="property-group">
+                                                        <label>{"Layout Style"}</label>
+                                                        <select value={component.properties.gallery_layout.clone()}>
+                                                            <option value="grid">{"Grid"}</option>
+                                                            <option value="masonry">{"Masonry"}</option>
+                                                            <option value="carousel">{"Carousel"}</option>
+                                                            <option value="slider">{"Slider"}</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Columns"}</label>
+                                                        <select value={component.properties.gallery_columns.to_string()}>
+                                                            <option value="1">{"1 Column"}</option>
+                                                            <option value="2">{"2 Columns"}</option>
+                                                            <option value="3">{"3 Columns"}</option>
+                                                            <option value="4">{"4 Columns"}</option>
+                                                            <option value="5">{"5 Columns"}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            },
+                                            ComponentType::List => html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"List Properties"}</h4>
+                                                    <div class="property-group">
+                                                        <label>{"List Type"}</label>
+                                                        <select value={component.properties.list_type.clone()}>
+                                                            <option value="unordered">{"Bulleted List"}</option>
+                                                            <option value="ordered">{"Numbered List"}</option>
+                                                            <option value="checklist">{"Checklist"}</option>
+                                                            <option value="none">{"Plain List"}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            },
+                                            ComponentType::Container => html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"Container Properties"}</h4>
+                                                    <div class="property-group">
+                                                        <label>{"Max Width"}</label>
+                                                        <select value={component.properties.container_max_width.clone()}>
+                                                            <option value="none">{"No Limit"}</option>
+                                                            <option value="800px">{"Small (800px)"}</option>
+                                                            <option value="1200px">{"Medium (1200px)"}</option>
+                                                            <option value="1600px">{"Large (1600px)"}</option>
+                                                            <option value="100%">{"Full Width"}</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Alignment"}</label>
+                                                        <select value={component.properties.container_align.clone()}>
+                                                            <option value="left">{"Left"}</option>
+                                                            <option value="center">{"Center"}</option>
+                                                            <option value="right">{"Right"}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            },
+                                            _ => html! {}
+                                        }}
+                                        
+                                        // Animation Section
+                                        <div class="property-section">
+                                            <h4 class="section-title">{"Animation & Effects"}</h4>
+                                            <div class="property-group">
+                                                <label>{"Animation Type"}</label>
+                                                <select value={component.properties.animation_type.clone()}>
+                                                    <option value="none">{"None"}</option>
+                                                    <option value="fadeIn">{"Fade In"}</option>
+                                                    <option value="slideUp">{"Slide Up"}</option>
+                                                    <option value="slideDown">{"Slide Down"}</option>
+                                                    <option value="slideLeft">{"Slide Left"}</option>
+                                                    <option value="slideRight">{"Slide Right"}</option>
+                                                    <option value="zoomIn">{"Zoom In"}</option>
+                                                    <option value="bounce">{"Bounce"}</option>
+                                                </select>
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Animation Duration"}</label>
+                                                <select value={component.properties.animation_duration.clone()}>
+                                                    <option value="0.1s">{"Very Fast (0.1s)"}</option>
+                                                    <option value="0.3s">{"Fast (0.3s)"}</option>
+                                                    <option value="0.5s">{"Medium (0.5s)"}</option>
+                                                    <option value="1s">{"Slow (1s)"}</option>
+                                                    <option value="2s">{"Very Slow (2s)"}</option>
+                                                </select>
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Animation Delay"}</label>
+                                                <select value={component.properties.animation_delay.clone()}>
+                                                    <option value="0s">{"No Delay"}</option>
+                                                    <option value="0.1s">{"0.1s"}</option>
+                                                    <option value="0.3s">{"0.3s"}</option>
+                                                    <option value="0.5s">{"0.5s"}</option>
+                                                    <option value="1s">{"1s"}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        // SEO & Accessibility Section
+                                        <div class="property-section">
+                                            <h4 class="section-title">{"SEO & Accessibility"}</h4>
+                                            <div class="property-group">
+                                                <label>{"SEO Title"}</label>
+                                                <input type="text" value={component.properties.seo_title.clone()} placeholder="SEO-friendly title" />
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"SEO Description"}</label>
+                                                <textarea value={component.properties.seo_description.clone()} placeholder="Brief description for search engines" rows="3"></textarea>
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"ARIA Label"}</label>
+                                                <input type="text" value={component.properties.aria_label.clone()} placeholder="Accessibility label" />
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"ARIA Description"}</label>
+                                                <input type="text" value={component.properties.aria_description.clone()} placeholder="Accessibility description" />
+                                            </div>
+                                            <div class="property-group">
+                                                <label>{"Tab Index"}</label>
+                                                <input type="number" value={component.properties.tab_index.to_string()} min="-1" max="999" />
                                             </div>
                                         </div>
 
@@ -671,10 +1346,21 @@ fn render_component_content(component: &PageComponent) -> Html {
             Html::from_html_unchecked(html_output.into())
         }
         ComponentType::Image => {
-            if component.content.is_empty() {
-                html! { <div class="placeholder-image">{"📷 Click to add image"}</div> }
+            if component.properties.image_url.is_empty() {
+                html! { 
+                    <div class="placeholder-image" style="background: #f5f5f5; border: 2px dashed #ccc; padding: 40px; text-align: center; border-radius: 8px; color: #666;">
+                        {"📷 Configure image properties to display"} 
+                    </div> 
+                }
             } else {
-                html! { <img src={component.content.clone()} alt="Component image" /> }
+                html! { 
+                    <img 
+                        src={component.properties.image_url.clone()} 
+                        alt={component.properties.image_alt.clone()} 
+                        title={component.properties.image_title.clone()}
+                        style="max-width: 100%; height: auto; border-radius: 4px;"
+                    /> 
+                }
             }
         }
         ComponentType::Button | ComponentType::Link => {

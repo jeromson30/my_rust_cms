@@ -9,6 +9,7 @@ pub mod page_builder;
 pub mod settings;
 pub mod navigation_manager;
 pub mod analytics;
+pub mod design_system;
 
 pub use admin::Admin;
 pub use dashboard::Dashboard;
@@ -20,4 +21,5 @@ pub use media_library::MediaLibrary;
 pub use page_builder::PageBuilder;
 pub use settings::Settings;
 pub use navigation_manager::NavigationManager;
-pub use analytics::Analytics; 
+pub use analytics::Analytics;
+pub use design_system::DesignSystemPage; 

@@ -28,7 +28,7 @@ pub fn settings() -> Html {
     let site_settings = use_state(|| SiteSettings {
         site_title: "My Rust CMS".to_string(),
         site_description: "A modern content management system built with Rust".to_string(),
-        site_url: "http://localhost:3000".to_string(),
+        site_url: "http://localhost:8080".to_string(),
         admin_email: "admin@example.com".to_string(),
         posts_per_page: 10,
         allow_comments: true,

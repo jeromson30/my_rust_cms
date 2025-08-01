@@ -2,8 +2,24 @@
 
 use gloo_net::http::Request;
 use serde::{Deserialize, Serialize};
+use crate::services::auth_service::get_auth_token;
 
 const API_BASE_URL: &str = "http://localhost:8081/api";
+
+// Helper function to create authenticated requests
+fn create_authenticated_request(method: &str, url: &str) -> Result<gloo_net::http::RequestBuilder, ApiServiceError> {
+    let token = get_auth_token().map_err(|_| ApiServiceError::ServerError("Not authenticated".to_string()))?;
+    
+    let request_builder = match method {
+        "GET" => Request::get(url),
+        "POST" => Request::post(url),
+        "PUT" => Request::put(url),
+        "DELETE" => Request::delete(url),
+        _ => return Err(ApiServiceError::ServerError("Invalid HTTP method".to_string())),
+    };
+    
+    Ok(request_builder.header("Authorization", &format!("Bearer {}", token)))
+}
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct Post {
@@ -219,7 +235,7 @@ pub async fn delete_post(id: i32) -> Result<(), ApiServiceError> {
 
 // Users API
 pub async fn get_users() -> Result<Vec<User>, ApiServiceError> {
-    let response = Request::get(&format!("{}/users", API_BASE_URL))
+    let response = create_authenticated_request("GET", &format!("{}/users", API_BASE_URL))?
         .send()
         .await
         .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
@@ -288,7 +304,7 @@ pub async fn delete_user(id: i32) -> Result<(), ApiServiceError> {
 
 // Comments API
 pub async fn get_comments() -> Result<Vec<Comment>, ApiServiceError> {
-    let response = Request::get(&format!("{}/comments", API_BASE_URL))
+    let response = create_authenticated_request("GET", &format!("{}/comments", API_BASE_URL))?
         .send()
         .await
         .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
@@ -357,7 +373,7 @@ pub async fn delete_comment(id: i32) -> Result<(), ApiServiceError> {
 
 // Media API
 pub async fn get_media() -> Result<Vec<MediaItem>, ApiServiceError> {
-    let response = Request::get(&format!("{}/media", API_BASE_URL))
+    let response = create_authenticated_request("GET", &format!("{}/media", API_BASE_URL))?
         .send()
         .await
         .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
@@ -407,7 +423,7 @@ pub async fn delete_media(id: i32) -> Result<(), ApiServiceError> {
 
 // Stats API
 pub async fn get_stats() -> Result<Stats, ApiServiceError> {
-    let response = Request::get(&format!("{}/stats", API_BASE_URL))
+    let response = create_authenticated_request("GET", &format!("{}/stats", API_BASE_URL))?
         .send()
         .await
         .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;

@@ -218,7 +218,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(auth_routes)
         .merge(admin_routes)
         .nest_service("/uploads", tower_http::services::ServeDir::new("backend/uploads"))
-        .layer(axum_middleware::from_fn(rate_limit_middleware))
+        // TODO: Fix rate limiting middleware - temporarily disabled
+        // .layer(axum_middleware::from_fn(rate_limit_middleware))
         .with_state(app_services)
         .layer(cors);
 

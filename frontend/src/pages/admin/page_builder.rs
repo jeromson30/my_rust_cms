@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use crate::components::page_builder::{DragDropPageBuilder, PageComponent};
 use crate::services::api_service::{get_pages, create_page, update_page, delete_page, PageItem};
+use crate::services::sample_page_data::generate_sample_pages;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlInputElement, HtmlSelectElement, Event, MouseEvent};
 
@@ -256,6 +257,48 @@ pub fn page_builder() -> Html {
         })
     };
 
+    // Generate sample pages
+    let generate_samples = {
+        let pages = pages.clone();
+        let loading = loading.clone();
+        let error = error.clone();
+        
+        Callback::from(move |_| {
+            let pages = pages.clone();
+            let loading = loading.clone();
+            let error = error.clone();
+            
+            loading.set(true);
+            
+            wasm_bindgen_futures::spawn_local(async move {
+                let sample_pages = generate_sample_pages();
+                let mut created_count = 0;
+                let mut current_pages = (*pages).clone();
+                
+                for sample_page in sample_pages {
+                    match create_page(&sample_page).await {
+                        Ok(created_page) => {
+                            current_pages.push(created_page);
+                            created_count += 1;
+                        }
+                        Err(e) => {
+                            gloo::console::warn!("Failed to create sample page:", &e.to_string());
+                        }
+                    }
+                }
+                
+                pages.set(current_pages);
+                loading.set(false);
+                
+                if created_count > 0 {
+                    error.set(Some(format!("✅ Successfully created {} sample pages!", created_count)));
+                } else {
+                    error.set(Some("⚠️ No sample pages were created. They may already exist.".to_string()));
+                }
+            });
+        })
+    };
+
     html! {
         <div class="enhanced-page-builder">
             <div class="page-builder-header">
@@ -328,6 +371,14 @@ pub fn page_builder() -> Html {
                         {"New Page"}
                     </button>
                     <button
+                        class="btn btn-outline-secondary"
+                        onclick={generate_samples}
+                        disabled={*loading}
+                        title="Generate sample pages with component structures for testing"
+                    >
+                        {if *loading { "Generating..." } else { "Generate Samples" }}
+                    </button>
+                    <button
                         class="btn btn-info"
                         onclick={toggle_preview}
                     >
@@ -355,10 +406,12 @@ pub fn page_builder() -> Html {
                 </div>
             </div>
 
-            {if let Some(error_msg) = error.as_ref() {
+            {if let Some(message) = error.as_ref() {
+                let is_success = message.starts_with("✅");
+                let alert_class = if is_success { "alert alert-success" } else { "alert alert-danger" };
                 html! {
-                    <div class="alert alert-danger">
-                        {error_msg}
+                    <div class={alert_class}>
+                        {message}
                     </div>
                 }
             } else {

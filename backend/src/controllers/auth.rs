@@ -1,6 +1,7 @@
 use axum::{
     extract::{State, Json},
     response::Json as ResponseJson,
+    http::HeaderMap,
 };
 use serde::{Deserialize, Serialize};
 use crate::{
@@ -106,12 +107,11 @@ pub async fn get_current_user(
 /// Invalidates the current session token.
 /// Requires valid session token in Authorization header.
 pub async fn logout(
-    req: axum::extract::Request,
+    headers: HeaderMap,
     State(services): State<AppServices>,
 ) -> Result<ResponseJson<serde_json::Value>, AppError> {
     // Extract token from authorization header
-    let auth_header = req
-        .headers()
+    let auth_header = headers
         .get("authorization")
         .and_then(|h| h.to_str().ok())
         .and_then(|h| h.strip_prefix("Bearer "))

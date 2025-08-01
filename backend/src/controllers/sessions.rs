@@ -1,11 +1,11 @@
 use axum::{
-    extract::{State, Path},
+    extract::{State, Path, Extension},
     response::Json as ResponseJson,
 };
 use crate::{
     AppServices,
     middleware::{
-        auth::get_authenticated_user,
+        auth::AuthenticatedUser,
         errors::{AppError, ApiResult},
     },
     models::session::SessionInfo,
@@ -17,10 +17,9 @@ use crate::{
 /// Returns a list of all active sessions for the authenticated user.
 /// Includes session information like creation time, expiration, etc.
 pub async fn get_user_sessions(
-    req: axum::extract::Request,
+    Extension(auth_user): Extension<AuthenticatedUser>,
     State(services): State<AppServices>,
 ) -> Result<ResponseJson<Vec<SessionInfo>>, AppError> {
-    let auth_user = get_authenticated_user(&req)?;
     let sessions = services.session_manager.get_user_sessions(auth_user.id).await?;
     Ok(ResponseJson(sessions))
 }
@@ -30,10 +29,9 @@ pub async fn get_user_sessions(
 /// Invalidates all sessions for the authenticated user.
 /// Useful for security when user suspects account compromise.
 pub async fn logout_all_sessions(
-    req: axum::extract::Request,
+    Extension(auth_user): Extension<AuthenticatedUser>,
     State(services): State<AppServices>,
 ) -> Result<ResponseJson<serde_json::Value>, AppError> {
-    let auth_user = get_authenticated_user(&req)?;
     let count = services.session_manager.logout_all_user_sessions(auth_user.id).await?;
     
     Ok(ResponseJson(serde_json::json!({
@@ -48,11 +46,15 @@ pub async fn logout_all_sessions(
 /// Returns comprehensive session statistics for monitoring.
 /// Includes total sessions, active sessions, cleanup stats, etc.
 pub async fn get_all_session_stats(
-    _req: axum::extract::Request,
     State(services): State<AppServices>,
-) -> Result<ResponseJson<SessionStats>, AppError> {
+) -> Result<ResponseJson<serde_json::Value>, AppError> {
     let stats = services.session_manager.get_session_statistics().await?;
-    Ok(ResponseJson(stats))
+    Ok(ResponseJson(serde_json::json!({
+        "total_sessions": stats.total_sessions,
+        "active_sessions": stats.active_sessions,
+        "expired_cleaned": stats.expired_cleaned,
+        "last_cleanup": stats.last_cleanup
+    })))
 }
 
 /// Manually trigger session cleanup (admin only)
@@ -60,11 +62,15 @@ pub async fn get_all_session_stats(
 /// Forces immediate cleanup of expired sessions.
 /// Returns statistics about what was cleaned up.
 pub async fn manual_session_cleanup(
-    _req: axum::extract::Request,
     State(services): State<AppServices>,
-) -> Result<ResponseJson<SessionStats>, AppError> {
+) -> Result<ResponseJson<serde_json::Value>, AppError> {
     let stats = services.session_manager.cleanup_expired_sessions().await?;
-    Ok(ResponseJson(stats))
+    Ok(ResponseJson(serde_json::json!({
+        "total_sessions": stats.total_sessions,
+        "active_sessions": stats.active_sessions,
+        "expired_cleaned": stats.expired_cleaned,
+        "last_cleanup": stats.last_cleanup
+    })))
 }
 
 /// Get sessions for a specific user (admin only)
@@ -72,7 +78,6 @@ pub async fn manual_session_cleanup(
 /// Returns all active sessions for the specified user.
 /// Useful for admin monitoring and support.
 pub async fn get_admin_user_sessions(
-    _req: axum::extract::Request,
     State(services): State<AppServices>,
     Path(user_id): Path<i32>,
 ) -> Result<ResponseJson<Vec<SessionInfo>>, AppError> {
@@ -85,7 +90,6 @@ pub async fn get_admin_user_sessions(
 /// Expires all sessions for the specified user immediately.
 /// Used for security incidents or policy enforcement.
 pub async fn force_logout_user(
-    _req: axum::extract::Request,
     State(services): State<AppServices>,
     Path(user_id): Path<i32>,
 ) -> Result<ResponseJson<serde_json::Value>, AppError> {

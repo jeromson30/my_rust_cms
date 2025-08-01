@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::services::auth_service::get_auth_token;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct NavigationItem {
@@ -35,7 +36,10 @@ pub async fn get_navigation_items() -> Result<Vec<NavigationItem>, NavigationSer
 }
 
 pub async fn create_navigation_item(item: &NavigationItem) -> Result<NavigationItem, NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
     match gloo_net::http::Request::post("http://localhost:8081/api/navigation")
+        .header("Authorization", &format!("Bearer {}", token))
         .json(item)
         .map_err(|e| NavigationServiceError::ParseError(e.to_string()))?
         .send()
@@ -56,7 +60,10 @@ pub async fn create_navigation_item(item: &NavigationItem) -> Result<NavigationI
 }
 
 pub async fn update_navigation_item(id: i32, item: &NavigationItem) -> Result<NavigationItem, NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
     match gloo_net::http::Request::put(&format!("http://localhost:8081/api/navigation/{}", id))
+        .header("Authorization", &format!("Bearer {}", token))
         .json(item)
         .map_err(|e| NavigationServiceError::ParseError(e.to_string()))?
         .send()
@@ -77,7 +84,10 @@ pub async fn update_navigation_item(id: i32, item: &NavigationItem) -> Result<Na
 }
 
 pub async fn delete_navigation_item(id: i32) -> Result<(), NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
     match gloo_net::http::Request::delete(&format!("http://localhost:8081/api/navigation/{}", id))
+        .header("Authorization", &format!("Bearer {}", token))
         .send()
         .await
     {

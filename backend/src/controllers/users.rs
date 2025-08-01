@@ -1,5 +1,5 @@
 use axum::{
-    extract::{State, Path, Json},
+    extract::{State, Path, Json, Extension},
     response::Json as ResponseJson,
     http::StatusCode,
 };
@@ -8,7 +8,7 @@ use crate::{
     AppServices,
     models::{User, NewUser, UpdateUser},
     middleware::{
-        auth::get_authenticated_user,
+        auth::AuthenticatedUser,
         validation::{validate_username, validate_email, validate_password},
         errors::{AppError, ApiResult},
     },
@@ -50,11 +50,10 @@ pub async fn get_users(
 /// Passwords are automatically hashed using bcrypt.
 /// Requires admin authentication.
 pub async fn create_user(
-    req: axum::extract::Request,
+    Extension(_auth_user): Extension<AuthenticatedUser>,
     State(services): State<AppServices>,
     Json(user_req): Json<CreateUserRequest>,
 ) -> Result<ResponseJson<serde_json::Value>, AppError> {
-    let _auth_user = get_authenticated_user(&req)?;
     
     // Validate input
     validate_username(&user_req.username)?;
@@ -108,12 +107,11 @@ pub async fn create_user(
 /// Passwords are automatically hashed if provided.
 /// Requires admin authentication.
 pub async fn update_user(
-    req: axum::extract::Request,
+    Extension(_auth_user): Extension<AuthenticatedUser>,
     State(services): State<AppServices>,
     Path(id): Path<i32>,
     Json(user_req): Json<UpdateUserRequest>,
 ) -> Result<ResponseJson<serde_json::Value>, AppError> {
-    let _auth_user = get_authenticated_user(&req)?;
     
     // Validate input if provided
     if let Some(ref username) = user_req.username {
@@ -168,11 +166,10 @@ pub async fn update_user(
 /// Prevents self-deletion for safety.
 /// Requires admin authentication.
 pub async fn delete_user(
-    req: axum::extract::Request,
+    Extension(auth_user): Extension<AuthenticatedUser>,
     State(services): State<AppServices>,
     Path(id): Path<i32>,
 ) -> Result<ResponseJson<serde_json::Value>, AppError> {
-    let auth_user = get_authenticated_user(&req)?;
     
     // Prevent self-deletion
     if auth_user.id == id {

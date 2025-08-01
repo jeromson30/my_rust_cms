@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use crate::components::PublicLayout;
 use crate::services::page_service::{get_page_by_slug, Page};
+use crate::components::page_builder::{PageComponent, ComponentType};
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum PublicPage {
@@ -346,7 +347,7 @@ fn page_content(props: &PageContentProps) -> Html {
                         }
                     </div>
                     <div class="page-content">
-                        <div inner_html={page_data.content.clone()}></div>
+                        {render_page_builder_content(&page_data.content)}
                     </div>
                 </>
             } else {
@@ -354,4 +355,108 @@ fn page_content(props: &PageContentProps) -> Html {
             }
         </div>
     }
+}
+
+// Function to parse and render page builder content
+fn render_page_builder_content(content: &str) -> Html {
+    // Try to parse as JSON array of components first
+    if content.starts_with('[') {
+        match serde_json::from_str::<Vec<PageComponent>>(content) {
+            Ok(components) => {
+                html! {
+                    <div class="page-builder-content">
+                        {components.iter().map(|component| {
+                            render_component_content_public(component)
+                        }).collect::<Html>()}
+                    </div>
+                }
+            }
+            Err(_) => {
+                // Fallback to markdown rendering
+                render_markdown_content(content)
+            }
+        }
+    } else {
+        // Regular content, render as markdown
+        render_markdown_content(content)
+    }
+}
+
+// Simplified component renderer for public pages
+fn render_component_content_public(component: &PageComponent) -> Html {
+    match component.component_type {
+        ComponentType::Text | ComponentType::Heading | ComponentType::Subheading | 
+        ComponentType::Hero | ComponentType::Card | ComponentType::List | ComponentType::Quote => {
+            // Render as markdown
+            let parser = pulldown_cmark::Parser::new(&component.content);
+            let mut html_output = String::new();
+            pulldown_cmark::html::push_html(&mut html_output, parser);
+            html! {
+                <div class="component" style={format_component_styles(&component.styles)}>
+                    {Html::from_html_unchecked(html_output.into())}
+                </div>
+            }
+        }
+        ComponentType::Button | ComponentType::Link => {
+            let parser = pulldown_cmark::Parser::new(&component.content);
+            let mut html_output = String::new();
+            pulldown_cmark::html::push_html(&mut html_output, parser);
+            html! {
+                <div class="component button-component" style={format_component_styles(&component.styles)}>
+                    {Html::from_html_unchecked(html_output.into())}
+                </div>
+            }
+        }
+        ComponentType::ThreeColumn => {
+            let parts: Vec<&str> = component.content.split("\n\n").collect();
+            html! { 
+                <div class="component three-column-component" style={format!("display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; {}", format_component_styles(&component.styles))}>
+                    <div class="column">{render_markdown_content(parts.get(0).unwrap_or(&""))}</div>
+                    <div class="column">{render_markdown_content(parts.get(1).unwrap_or(&""))}</div>
+                    <div class="column">{render_markdown_content(parts.get(2).unwrap_or(&""))}</div>
+                </div> 
+            }
+        }
+        _ => {
+            // Fallback for other component types
+            html! {
+                <div class="component" style={format_component_styles(&component.styles)}>
+                    {render_markdown_content(&component.content)}
+                </div>
+            }
+        }
+    }
+}
+
+// Helper function to render markdown content
+fn render_markdown_content(content: &str) -> Html {
+    let parser = pulldown_cmark::Parser::new(content);
+    let mut html_output = String::new();
+    pulldown_cmark::html::push_html(&mut html_output, parser);
+    Html::from_html_unchecked(html_output.into())
+}
+
+// Helper function to format component styles
+fn format_component_styles(styles: &crate::components::page_builder::ComponentStyles) -> String {
+    format!(
+        "background-color: {}; color: {}; padding: {}; margin: {}; border-radius: {}; font-size: {}; font-weight: {}; text-align: {}; border: {}px {} {}; opacity: {}; z-index: {}; font-family: {}; line-height: {}; letter-spacing: {}; text-decoration: {}; text-transform: {};",
+        styles.background_color,
+        styles.text_color,
+        styles.padding,
+        styles.margin,
+        styles.border_radius,
+        styles.font_size,
+        styles.font_weight,
+        styles.text_align,
+        styles.border_width,
+        styles.border_style,
+        styles.border_color,
+        styles.opacity,
+        styles.z_index,
+        styles.font_family,
+        styles.line_height,
+        styles.letter_spacing,
+        styles.text_decoration,
+        styles.text_transform
+    )
 } 
