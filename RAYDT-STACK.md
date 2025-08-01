@@ -325,7 +325,6 @@ pub struct NewPost {
 - ✅ **Type-Safe Full-Stack**: End-to-end type safety from database to UI
 
 ### **📊 Impact Metrics**
-- **80% Code Reduction**: From 1260+ lines to 254 lines in main.rs
 - **10-100x Performance**: Compared to traditional web stacks
 - **Zero Runtime Errors**: Memory safety prevents entire classes of bugs
 - **50-90% Resource Reduction**: Minimal memory and CPU usage
