@@ -68,6 +68,52 @@ pub struct Stats {
     pub system_status: String,
 }
 
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct PerformanceMetrics {
+    pub backend_metrics: BackendMetrics,
+    pub frontend_metrics: FrontendMetrics,
+    pub system_metrics: SystemMetrics,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct BackendMetrics {
+    pub avg_request_time: f64,
+    pub max_request_time: f64,
+    pub min_request_time: f64,
+    pub total_requests: u64,
+    pub error_rate: f64,
+    pub db_query_avg_time: f64,
+    pub db_connection_pool_active: u32,
+    pub db_connection_pool_idle: u32,
+    pub memory_usage_mb: f64,
+    pub active_sessions: u32,
+    pub session_avg_duration: f64,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct FrontendMetrics {
+    pub wasm_bundle_size_kb: f64,
+    pub page_load_time: f64,
+    pub time_to_interactive: f64,
+    pub first_contentful_paint: f64,
+    pub largest_contentful_paint: f64,
+    pub cumulative_layout_shift: f64,
+    pub network_request_avg_time: f64,
+    pub component_render_avg_time: f64,
+    pub dom_nodes_count: u32,
+    pub memory_usage_js_mb: f64,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct SystemMetrics {
+    pub cpu_usage_percent: f64,
+    pub memory_total_mb: f64,
+    pub memory_available_mb: f64,
+    pub disk_usage_percent: f64,
+    pub network_io_bytes_per_sec: f64,
+    pub uptime_seconds: u64,
+}
+
 #[derive(Debug)]
 pub enum ApiServiceError {
     NetworkError(String),
@@ -428,5 +474,23 @@ pub async fn delete_page(id: i32) -> Result<(), ApiServiceError> {
         Ok(())
     } else {
         Err(ApiServiceError::NetworkError(format!("HTTP {}", response.status())))
+    }
+}
+
+// Performance Metrics API
+pub async fn get_performance_metrics() -> Result<PerformanceMetrics, ApiServiceError> {
+    let response = Request::get(&format!("{}/performance", API_BASE_URL))
+        .send()
+        .await
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+
+    if response.status() == 200 {
+        let metrics: PerformanceMetrics = response
+            .json()
+            .await
+            .map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(metrics)
+    } else {
+        Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
     }
 }

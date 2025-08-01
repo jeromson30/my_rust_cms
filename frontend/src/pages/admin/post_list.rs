@@ -95,8 +95,13 @@ pub fn post_list() -> Html {
             html! {
                 <div class="post-list">
                     <div class="page-header">
-                        <h1>{"Posts"}</h1>
-                        <button class="btn" onclick={on_create_post}>{"Add New Post"}</button>
+                        <div>
+                            <h1>{"Posts"}</h1>
+                            <p>{"Manage and organize your content"}</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick={on_create_post}>{"Add New Post"}</button>
+                        </div>
                     </div>
 
                     if *loading {

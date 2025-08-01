@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use wasm_bindgen::JsCast;
 use crate::services::api_service::{get_stats, get_posts, get_media, get_comments, get_users};
+use crate::components::PerformanceMonitor;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct AnalyticsData {
@@ -275,7 +276,12 @@ pub fn analytics() -> Html {
                     <div class="metrics-section">
                         <h2>{"Key Metrics"}</h2>
                         <div class="metrics-grid">
-                            <div class="metric-card">
+                            <div class="metric-card posts">
+                                <div class="metric-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                                    </svg>
+                                </div>
                                 <div class="metric-value">{(*analytics_data).total_posts}</div>
                                 <div class="metric-label">{"Total Posts"}</div>
                                 <div class="metric-breakdown">
@@ -284,7 +290,12 @@ pub fn analytics() -> Html {
                                 </div>
                             </div>
                             
-                            <div class="metric-card">
+                            <div class="metric-card users">
+                                <div class="metric-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                        <path d="M16,4C18.21,4 20,5.79 20,8C20,10.21 18.21,12 16,12C13.79,12 12,10.21 12,8C12,5.79 13.79,4 16,4M16,14C18.67,14 24,15.33 24,18V20H8V18C8,15.33 13.33,14 16,14M8.5,14L7.5,16H0.5L1.5,14H8.5M5,4A4,4 0 0,1 9,8A4,4 0 0,1 5,12A4,4 0 0,1 1,8A4,4 0 0,1 5,4Z" />
+                                    </svg>
+                                </div>
                                 <div class="metric-value">{(*analytics_data).total_users}</div>
                                 <div class="metric-label">{"Total Users"}</div>
                                 <div class="metric-breakdown">
@@ -292,7 +303,12 @@ pub fn analytics() -> Html {
                                 </div>
                             </div>
                             
-                            <div class="metric-card">
+                            <div class="metric-card comments">
+                                <div class="metric-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                        <path d="M9,22A1,1 0 0,1 8,21V18H4A2,2 0 0,1 2,16V4C2,2.89 2.9,2 4,2H20A2,2 0 0,1 22,4V16A2,2 0 0,1 20,18H13.9L10.2,21.71C10,21.9 9.75,22 9.5,22V22H9Z" />
+                                    </svg>
+                                </div>
                                 <div class="metric-value">{(*analytics_data).total_comments}</div>
                                 <div class="metric-label">{"Total Comments"}</div>
                                 <div class="metric-breakdown">
@@ -301,7 +317,12 @@ pub fn analytics() -> Html {
                                 </div>
                             </div>
                             
-                            <div class="metric-card">
+                            <div class="metric-card media">
+                                <div class="metric-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                        <path d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M6,20H15L11.5,15.5L9.5,18L7.5,15.5L6,20Z" />
+                                    </svg>
+                                </div>
                                 <div class="metric-value">{(*analytics_data).total_media}</div>
                                 <div class="metric-label">{"Media Files"}</div>
                                 <div class="metric-breakdown">
@@ -311,21 +332,48 @@ pub fn analytics() -> Html {
                         </div>
                     </div>
 
-                    // System Status
-                    <div class="status-section">
-                        <h2>{"System Status"}</h2>
-                        <div class="status-card">
-                            <div class={classes!("status-indicator", if (*analytics_data).system_status == "Online" { "online" } else { "offline" })}>
-                                {&(*analytics_data).system_status}
+                    // Content Distribution
+                    <div class="distribution-section">
+                        <h2>{"Content Distribution"}</h2>
+                        <div class="distribution-chart">
+                            <div class="chart-item">
+                                <div class="chart-label">{"Posts"}</div>
+                                <div class="chart-bar">
+                                    <div 
+                                        class="chart-fill" 
+                                        style={format!("width: {}%", 
+                                            if (*analytics_data).total_posts > 0 {
+                                                ((*analytics_data).published_posts as f64 / (*analytics_data).total_posts as f64 * 100.0) as i32
+                                            } else { 0 }
+                                        )}
+                                    ></div>
+                                </div>
+                                <div class="chart-value">{(*analytics_data).published_posts}{"/"}{(*analytics_data).total_posts}{" published"}</div>
                             </div>
-                            <div class="status-details">
-                                <p>{"All systems operational"}</p>
-                                <p>{"Last updated: "}{chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string()}</p>
+                            
+                            <div class="chart-item">
+                                <div class="chart-label">{"Comments"}</div>
+                                <div class="chart-bar">
+                                    <div 
+                                        class="chart-fill" 
+                                        style={format!("width: {}%", 
+                                            if (*analytics_data).total_comments > 0 {
+                                                ((*analytics_data).approved_comments as f64 / (*analytics_data).total_comments as f64 * 100.0) as i32
+                                            } else { 0 }
+                                        )}
+                                    ></div>
+                                </div>
+                                <div class="chart-value">{(*analytics_data).approved_comments}{"/"}{(*analytics_data).total_comments}{" approved"}</div>
                             </div>
                         </div>
                     </div>
 
-                    // Recent Activity
+                    // Performance Monitoring Section
+                    <div class="performance-section">
+                        <PerformanceMonitor show_real_time={true} />
+                    </div>
+
+                    // Recent Activity (moved to bottom)
                     <div class="activity-section">
                         <h2>{"Recent Activity"}</h2>
                         <div class="activity-list">
@@ -376,38 +424,16 @@ pub fn analytics() -> Html {
                         </div>
                     </div>
 
-                    // Content Distribution
-                    <div class="distribution-section">
-                        <h2>{"Content Distribution"}</h2>
-                        <div class="distribution-chart">
-                            <div class="chart-item">
-                                <div class="chart-label">{"Posts"}</div>
-                                <div class="chart-bar">
-                                    <div 
-                                        class="chart-fill" 
-                                        style={format!("width: {}%", 
-                                            if (*analytics_data).total_posts > 0 {
-                                                ((*analytics_data).published_posts as f64 / (*analytics_data).total_posts as f64 * 100.0) as i32
-                                            } else { 0 }
-                                        )}
-                                    ></div>
-                                </div>
-                                <div class="chart-value">{(*analytics_data).published_posts}{"/"}{(*analytics_data).total_posts}{" published"}</div>
+                    // System Status (moved to bottom)
+                    <div class="status-section">
+                        <h2>{"System Status"}</h2>
+                        <div class="status-card">
+                            <div class={classes!("status-indicator", if (*analytics_data).system_status == "Online" { "online" } else { "offline" })}>
+                                {&(*analytics_data).system_status}
                             </div>
-                            
-                            <div class="chart-item">
-                                <div class="chart-label">{"Comments"}</div>
-                                <div class="chart-bar">
-                                    <div 
-                                        class="chart-fill" 
-                                        style={format!("width: {}%", 
-                                            if (*analytics_data).total_comments > 0 {
-                                                ((*analytics_data).approved_comments as f64 / (*analytics_data).total_comments as f64 * 100.0) as i32
-                                            } else { 0 }
-                                        )}
-                                    ></div>
-                                </div>
-                                <div class="chart-value">{(*analytics_data).approved_comments}{"/"}{(*analytics_data).total_comments}{" approved"}</div>
+                            <div class="status-details">
+                                <p>{"All systems operational"}</p>
+                                <p>{"Last updated: "}{chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string()}</p>
                             </div>
                         </div>
                     </div>

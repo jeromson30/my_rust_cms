@@ -220,7 +220,7 @@ impl SessionManager {
         let mut conn = self.pool.get().map_err(|e| AppError::DatabaseError(e.to_string()))?;
         
         let now = Utc::now().naive_utc();
-        let total_sessions: i64 = diesel::QueryDsl::count(&crate::schema::sessions::table)
+        let total_sessions: i64 = diesel::QueryDsl::count(crate::schema::sessions::table)
             .get_result(&mut conn)?;
         
         let active_sessions: i64 = crate::schema::sessions::table

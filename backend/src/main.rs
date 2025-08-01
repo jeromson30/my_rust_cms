@@ -12,9 +12,8 @@ use axum::{
     routing::{get, post, put, delete},
     http::StatusCode,
     response::IntoResponse,
-    Json, Router,
-    extract::{State, Path, Multipart},
-    middleware,
+    Router,
+    middleware as axum_middleware,
 };
 use std::net::SocketAddr;
 use tracing::info;
@@ -24,8 +23,6 @@ use database::{DbPool, establish_connection_pool};
 use models::*;
 use middleware::{auth::*, validation::*, errors::*};
 use services::{SessionManager, SessionConfig};
-use controllers;
-use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 
 // Database connection pool state
@@ -186,7 +183,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/auth/me", get(controllers::auth::get_current_user))
         .route("/api/auth/sessions", get(controllers::sessions::get_user_sessions))
         .route("/api/auth/sessions/logout-all", post(controllers::sessions::logout_all_sessions))
-        .layer(middleware::from_fn_with_state(app_services.clone(), auth_middleware_with_services));
+        .layer(axum_middleware::from_fn_with_state(app_services.clone(), auth_middleware_with_services));
 
     // Admin-only routes (requires admin role)
     let admin_routes = Router::new()
@@ -208,11 +205,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/pages", post(controllers::pages::create_page))
         .route("/api/pages/:id", put(controllers::pages::update_page).delete(controllers::pages::delete_page))
         .route("/api/stats", get(controllers::admin::get_stats))
+        .route("/api/performance", get(controllers::admin::get_performance_metrics))
         .route("/api/admin/sessions", get(controllers::sessions::get_all_session_stats))
         .route("/api/admin/sessions/cleanup", post(controllers::sessions::manual_session_cleanup))
         .route("/api/admin/users/:id/sessions", get(controllers::sessions::get_admin_user_sessions))
         .route("/api/admin/users/:id/force-logout", post(controllers::sessions::force_logout_user))
-        .layer(middleware::from_fn_with_state(app_services.clone(), admin_auth_middleware_with_services));
+        .layer(axum_middleware::from_fn_with_state(app_services.clone(), admin_auth_middleware_with_services));
 
     // Combine all routes
     let app = Router::new()
@@ -220,7 +218,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(auth_routes)
         .merge(admin_routes)
         .nest_service("/uploads", tower_http::services::ServeDir::new("backend/uploads"))
-        .layer(middleware::from_fn(rate_limit_middleware))
+        .layer(axum_middleware::from_fn(rate_limit_middleware))
         .with_state(app_services)
         .layer(cors);
 

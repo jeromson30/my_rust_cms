@@ -240,7 +240,10 @@ pub fn user_management() -> Html {
                 html! {
                     <div class="user-management">
                         <div class="page-header">
-                            <h1>{"User Management"}</h1>
+                            <div>
+                                <h1>{"User Management"}</h1>
+                                <p>{"Manage users, roles, and permissions"}</p>
+                            </div>
                         </div>
                         <div class="loading">{"Loading users..."}</div>
                     </div>
@@ -249,8 +252,13 @@ pub fn user_management() -> Html {
                 html! {
                     <div class="user-management">
                         <div class="page-header">
-                            <h1>{"User Management"}</h1>
-                            <button class="btn" onclick={on_create_user}>{"Add New User"}</button>
+                            <div>
+                                <h1>{"User Management"}</h1>
+                                <p>{"Manage users, roles, and permissions"}</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-primary" onclick={on_create_user}>{"Add New User"}</button>
+                            </div>
                         </div>
 
                         if let Some(ref error_msg) = *error {

@@ -326,15 +326,16 @@ pub fn media_library() -> Html {
     html! {
         <div class="modern-media-library">
             // Header
-            <div class="media-header">
-                <div class="header-content">
-                    <h1 class="page-title">{"📁 Media Library"}</h1>
-                    <div class="header-stats">
-                        <span class="stat">
-                            <strong>{filtered_items.len()}</strong>
-                            {" items"}
-                        </span>
-                    </div>
+            <div class="page-header">
+                <div>
+                    <h1>{"Media Library"}</h1>
+                    <p>{"Manage your images, documents, and files"}</p>
+                </div>
+                <div class="header-actions">
+                    <span class="stat">
+                        <strong>{filtered_items.len()}</strong>
+                        {" items"}
+                    </span>
                 </div>
             </div>
 

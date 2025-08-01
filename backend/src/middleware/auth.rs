@@ -13,6 +13,7 @@ use crate::{
 };
 use std::sync::Arc;
 
+#[derive(Clone)]
 pub struct AuthenticatedUser {
     pub id: i32,
     pub username: String,
