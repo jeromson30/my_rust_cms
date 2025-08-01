@@ -1,0 +1,275 @@
+/* Markdown Editor Styles */
+.markdown-editor {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+}
+
+.markdown-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    flex-wrap: wrap;
+}
+
+.toolbar-group {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.toolbar-group::after {
+    content: "";
+    width: 1px;
+    height: 20px;
+    background: #dee2e6;
+    margin-left: 8px;
+}
+
+.toolbar-group:last-child::after {
+    display: none;
+}
+
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 4px 8px;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.toolbar-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.toolbar-btn.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.markdown-content {
+    position: relative;
+}
+
+.markdown-textarea {
+    width: 100%;
+    min-height: 300px;
+    padding: 16px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.markdown-preview {
+    min-height: 300px;
+    padding: 16px;
+    background: white;
+    overflow-y: auto;
+}
+
+.preview-content {
+    line-height: 1.6;
+    color: #333;
+}
+
+.preview-content h1,
+.preview-content h2,
+.preview-content h3,
+.preview-content h4,
+.preview-content h5,
+.preview-content h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.preview-content h1 {
+    font-size: 2em;
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 0.3em;
+}
+
+.preview-content h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 0.3em;
+}
+
+.preview-content h3 {
+    font-size: 1.25em;
+}
+
+.preview-content h4 {
+    font-size: 1em;
+}
+
+.preview-content h5 {
+    font-size: 0.875em;
+}
+
+.preview-content h6 {
+    font-size: 0.85em;
+    color: #6a737d;
+}
+
+.preview-content p {
+    margin-bottom: 16px;
+}
+
+.preview-content blockquote {
+    padding: 0 16px;
+    margin: 0 0 16px 0;
+    color: #6a737d;
+    border-left: 4px solid #dfe2e5;
+}
+
+.preview-content ul,
+.preview-content ol {
+    padding-left: 2em;
+    margin-bottom: 16px;
+}
+
+.preview-content li {
+    margin-bottom: 4px;
+}
+
+.preview-content code {
+    padding: 2px 4px;
+    font-size: 85%;
+    background: #f6f8fa;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.preview-content pre {
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    background: #f6f8fa;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+.preview-content pre code {
+    padding: 0;
+    margin: 0;
+    font-size: 100%;
+    word-break: normal;
+    white-space: pre;
+    background: transparent;
+    border: 0;
+}
+
+.preview-content a {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+.preview-content a:hover {
+    text-decoration: underline;
+}
+
+.preview-content table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.preview-content table th,
+.preview-content table td {
+    padding: 6px 13px;
+    border: 1px solid #dfe2e5;
+}
+
+.preview-content table th {
+    font-weight: 600;
+    background: #f6f8fa;
+}
+
+.preview-content table tr:nth-child(2n) {
+    background: #f6f8fa;
+}
+
+.markdown-help {
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+}
+
+.markdown-help details {
+    padding: 12px 16px;
+}
+
+.markdown-help summary {
+    cursor: pointer;
+    font-weight: 500;
+    color: #495057;
+    font-size: 14px;
+}
+
+.help-content {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.help-content p {
+    margin: 0 0 8px 0;
+}
+
+.help-content ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+}
+
+.help-content li {
+    margin-bottom: 4px;
+}
+
+.help-content code {
+    background: #e9ecef;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .markdown-toolbar {
+        padding: 6px 8px;
+        gap: 4px;
+    }
+    
+    .toolbar-btn {
+        min-width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    
+    .markdown-textarea {
+        padding: 12px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .markdown-preview {
+        padding: 12px;
+    }
+}

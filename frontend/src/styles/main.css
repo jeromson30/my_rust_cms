@@ -390,7 +390,9 @@ body {
     border: 2px solid #eee;
     border-radius: 4px;
     font-size: 1rem;
-    transition: border-color 0.2s ease;
+    transition: all 0.2s ease;
+    background: #fff;
+    color: #333;
 }
 
 .form-group input:focus,
@@ -398,6 +400,35 @@ body {
 .form-group select:focus {
     outline: none;
     border-color: #000;
+    background: #fff;
+    color: #333;
+}
+
+/* Ensure readable text in all states */
+.form-group input:active,
+.form-group textarea:active,
+.form-group select:active,
+.form-group input:focus-visible,
+.form-group textarea:focus-visible,
+.form-group select:focus-visible {
+    background: #fff !important;
+    color: #333 !important;
+}
+
+/* Placeholder styling */
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #888;
+    opacity: 0.8;
+}
+
+/* Webkit autofill fix for public forms */
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover,
+.form-group input:-webkit-autofill:focus,
+.form-group input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #fff inset !important;
+    -webkit-text-fill-color: #333 !important;
 }
 
 /* Tables */

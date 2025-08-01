@@ -72,9 +72,10 @@ pub fn media_library() -> Html {
                     id: None,
                     name: (*name).clone(),
                     type_: (*type_).clone(),
-                    size: (*size).clone(),
+                    size: Some((*size).clone()),
                     url: (*url).clone(),
                     created_at: None,
+                    user_id: None,
                 };
 
                 match create_media(&new_media).await {
@@ -220,7 +221,7 @@ pub fn media_library() -> Html {
                             <div class="media-info">
                                 <h4>{&item.name}</h4>
                                 <p class="media-meta">
-                                    {&item.type_}{" • "}{&item.size}{" • "}{item.created_at.as_ref().unwrap_or(&"Unknown".to_string())}
+                                    {&item.type_}{" • "}{item.size.as_ref().unwrap_or(&"Unknown size".to_string())}{" • "}{item.created_at.as_ref().unwrap_or(&"Unknown".to_string())}
                                 </p>
                                 <p class="media-url">{&item.url}</p>
                             </div>

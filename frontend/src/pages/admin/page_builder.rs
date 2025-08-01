@@ -1,65 +1,37 @@
 use yew::prelude::*;
-use crate::services::api_service::MediaItem;
-use crate::services::page_service::{Page, get_pages, create_page, update_page};
-
+use crate::components::page_builder::{DragDropPageBuilder, PageComponent};
+use crate::services::api_service::{get_pages, create_page, update_page, delete_page, PageItem};
 use wasm_bindgen::JsCast;
-
-#[derive(Clone, PartialEq, Debug)]
-pub enum ComponentType {
-    Header,
-    Text,
-    Image,
-    Gallery,
-    Contact,
-    Navigation,
-}
-
-#[derive(Clone, PartialEq, Debug)]
-pub struct PageComponent {
-    pub id: String,
-    pub component_type: ComponentType,
-    pub content: String,
-    pub props: std::collections::HashMap<String, String>,
-    pub order: i32,
-}
+use web_sys::{HtmlInputElement, HtmlSelectElement, Event, MouseEvent};
 
 #[function_component(PageBuilder)]
 pub fn page_builder() -> Html {
-    let current_page = use_state(|| Page {
-        id: None,
-        title: "New Page".to_string(),
-        slug: "new-page".to_string(),
-        content: "".to_string(),
-        status: "draft".to_string(),
-        created_at: None,
-        updated_at: None,
-    });
+    let current_page = use_state(|| None::<PageItem>);
+    let page_title = use_state(|| String::new());
+    let page_slug = use_state(|| String::new());
+    let page_components = use_state(Vec::new);
     
     let pages = use_state(Vec::new);
     let loading = use_state(|| true);
     let error = use_state(|| None::<String>);
     let saving = use_state(|| false);
-    
-    let selected_component = use_state(|| None::<String>);
-    let show_component_panel = use_state(|| false);
-    let show_media_picker = use_state(|| false);
-    let media_items = use_state(Vec::<MediaItem>::new);
+    let show_preview = use_state(|| false);
 
     // Load pages on mount
     {
         let pages = pages.clone();
         let loading = loading.clone();
         let error = error.clone();
-
+        
         use_effect_with_deps(move |_| {
             wasm_bindgen_futures::spawn_local(async move {
                 match get_pages().await {
-                    Ok(fetched_pages) => {
-                        pages.set(fetched_pages);
+                    Ok(page_list) => {
+                        pages.set(page_list);
                         loading.set(false);
                     }
                     Err(e) => {
-                        error.set(Some(format!("Failed to load pages: {:?}", e)));
+                        error.set(Some(format!("Failed to load pages: {}", e)));
                         loading.set(false);
                     }
                 }
@@ -68,223 +40,361 @@ pub fn page_builder() -> Html {
         }, ());
     }
 
-    // Load media items
-    {
-        let media_items = media_items.clone();
-        use_effect_with_deps(move |_| {
-            wasm_bindgen_futures::spawn_local(async move {
-                if let Ok(items) = crate::services::api_service::get_media().await {
-                    media_items.set(items);
+    // Load page for editing
+    let load_page = {
+        let current_page = current_page.clone();
+        let page_title = page_title.clone();
+        let page_slug = page_slug.clone();
+        let page_components = page_components.clone();
+        
+        Callback::from(move |page: PageItem| {
+            page_title.set(page.title.clone());
+            page_slug.set(page.slug.clone());
+            
+            // Parse page content as JSON to get components
+            let components = if !page.content.is_empty() {
+                match serde_json::from_str::<Vec<PageComponent>>(&page.content) {
+                    Ok(comps) => comps,
+                    Err(_) => vec![], // If parsing fails, start with empty components
                 }
-            });
-            || ()
-        }, ());
-    }
+            } else {
+                vec![]
+            };
+            
+            page_components.set(components);
+            current_page.set(Some(page));
+        })
+    };
 
+    // Create new page function that can be called from dropdown
+    let create_new_page_fn = {
+        let current_page = current_page.clone();
+        let page_title = page_title.clone();
+        let page_slug = page_slug.clone();
+        let page_components = page_components.clone();
+        
+        move || {
+            current_page.set(None);
+            page_title.set("New Page".to_string());
+            page_slug.set("new-page".to_string());
+            page_components.set(vec![]);
+        }
+    };
+
+    // Create new page callback for button clicks
+    let create_new_page = {
+        let create_new_page_fn = create_new_page_fn.clone();
+        Callback::from(move |_: MouseEvent| {
+            create_new_page_fn();
+        })
+    };
+
+    // Save page
     let save_page = {
         let current_page = current_page.clone();
+        let page_title = page_title.clone();
+        let page_slug = page_slug.clone();
+        let page_components = page_components.clone();
         let pages = pages.clone();
         let saving = saving.clone();
         let error = error.clone();
         
         Callback::from(move |_| {
-            let page = (*current_page).clone();
-            let pages_clone = pages.clone();
-            let saving_clone = saving.clone();
-            let error_clone = error.clone();
+            let current_page = current_page.clone();
+            let title = (*page_title).clone();
+            let slug = (*page_slug).clone();
+            let components = (*page_components).clone();
+            let pages = pages.clone();
+            let saving = saving.clone();
+            let error = error.clone();
             
-            saving_clone.set(true);
+            if title.is_empty() {
+                error.set(Some("Page title is required".to_string()));
+                return;
+            }
+            
+            saving.set(true);
             
             wasm_bindgen_futures::spawn_local(async move {
-                let result = if let Some(id) = page.id {
-                    update_page(id, &page).await
+                let content = serde_json::to_string(&components).unwrap_or_default();
+                
+                let page_data = PageItem {
+                    id: current_page.as_ref().and_then(|p| p.id),
+                    title,
+                    slug,
+                    content,
+                    status: "published".to_string(),
+                    created_at: None,
+                    updated_at: None,
+                };
+                
+                let result = if let Some(existing_page) = current_page.as_ref() {
+                    if let Some(id) = existing_page.id {
+                        update_page(id, &page_data).await
+                    } else {
+                        create_page(&page_data).await
+                    }
                 } else {
-                    create_page(&page).await
+                    create_page(&page_data).await
                 };
                 
                 match result {
                     Ok(saved_page) => {
-                        // Update the pages list
-                        let mut updated_pages = (*pages_clone).clone();
-                        if let Some(existing_index) = updated_pages.iter().position(|p| p.id == saved_page.id) {
-                            updated_pages[existing_index] = saved_page.clone();
-                        } else {
-                            updated_pages.push(saved_page.clone());
-                        }
-                        pages_clone.set(updated_pages);
+                        current_page.set(Some(saved_page.clone()));
                         
-                        // Update current page with saved data
-                        web_sys::console::log_1(&format!("Page saved successfully: {:?}", saved_page).into());
+                        // Update pages list
+                        let mut current_pages = (*pages).clone();
+                        if let Some(index) = current_pages.iter().position(|p| p.id == saved_page.id) {
+                            current_pages[index] = saved_page;
+                        } else {
+                            current_pages.push(saved_page);
+                        }
+                        pages.set(current_pages);
+                        
+                        saving.set(false);
+                        error.set(None);
                     }
                     Err(e) => {
-                        error_clone.set(Some(format!("Failed to save page: {:?}", e)));
+                        error.set(Some(format!("Failed to save page: {}", e)));
+                        saving.set(false);
                     }
                 }
-                saving_clone.set(false);
             });
         })
     };
 
-    let load_page = {
+    // Delete page
+    let delete_page_callback = {
         let current_page = current_page.clone();
-        Callback::from(move |page: Page| {
-            current_page.set(page);
-        })
-    };
-
-    let create_new_page = {
-        let current_page = current_page.clone();
+        let pages = pages.clone();
+        let page_title = page_title.clone();
+        let page_slug = page_slug.clone();
+        let page_components = page_components.clone();
+        let error = error.clone();
+        
         Callback::from(move |_| {
-            current_page.set(Page {
-                id: None,
-                title: "New Page".to_string(),
-                slug: "new-page".to_string(),
-                content: "".to_string(),
-                status: "draft".to_string(),
-                created_at: None,
-                updated_at: None,
-            });
+            if let Some(page) = current_page.as_ref() {
+                if let Some(id) = page.id {
+                    let current_page = current_page.clone();
+                    let pages = pages.clone();
+                    let page_title = page_title.clone();
+                    let page_slug = page_slug.clone();
+                    let page_components = page_components.clone();
+                    let error = error.clone();
+                    
+                    wasm_bindgen_futures::spawn_local(async move {
+                        match delete_page(id).await {
+                            Ok(_) => {
+                                // Remove from pages list
+                                let mut current_pages = (*pages).clone();
+                                current_pages.retain(|p| p.id != Some(id));
+                                pages.set(current_pages);
+                                
+                                // Reset to new page
+                                current_page.set(None);
+                                page_title.set("New Page".to_string());
+                                page_slug.set("new-page".to_string());
+                                page_components.set(vec![]);
+                                error.set(None);
+                            }
+                            Err(e) => {
+                                error.set(Some(format!("Failed to delete page: {}", e)));
+                            }
+                        }
+                    });
+                }
+            }
         })
     };
 
+    // Handle title change
     let on_title_change = {
-        let current_page = current_page.clone();
+        let page_title = page_title.clone();
+        let page_slug = page_slug.clone();
+        
         Callback::from(move |e: Event| {
-            let target = e.target().unwrap().unchecked_into::<web_sys::HtmlInputElement>();
-            let mut page = (*current_page).clone();
-            page.title = target.value();
-            current_page.set(page);
+            let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+            let title = target.value();
+            page_title.set(title.clone());
+            
+            // Auto-generate slug from title
+            let slug = title
+                .to_lowercase()
+                .replace(' ', "-")
+                .chars()
+                .filter(|c| c.is_alphanumeric() || *c == '-')
+                .collect::<String>();
+            page_slug.set(slug);
         })
     };
 
+    // Handle slug change
     let on_slug_change = {
-        let current_page = current_page.clone();
+        let page_slug = page_slug.clone();
+        
         Callback::from(move |e: Event| {
-            let target = e.target().unwrap().unchecked_into::<web_sys::HtmlInputElement>();
-            let mut page = (*current_page).clone();
-            page.slug = target.value();
-            current_page.set(page);
+            let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+            page_slug.set(target.value());
         })
     };
 
-    let on_content_change = {
-        let current_page = current_page.clone();
-        Callback::from(move |e: Event| {
-            let target = e.target().unwrap().unchecked_into::<web_sys::HtmlTextAreaElement>();
-            let mut page = (*current_page).clone();
-            page.content = target.value();
-            current_page.set(page);
+    // Handle component save from drag-drop builder
+    let on_save_components = {
+        let page_components = page_components.clone();
+        
+        Callback::from(move |components: Vec<PageComponent>| {
+            page_components.set(components);
+        })
+    };
+
+    // Toggle preview
+    let toggle_preview = {
+        let show_preview = show_preview.clone();
+        
+        Callback::from(move |_| {
+            show_preview.set(!*show_preview);
         })
     };
 
     html! {
-        <div class="page-builder">
+        <div class="enhanced-page-builder">
             <div class="page-builder-header">
-                <h1>{"Page Builder"}</h1>
+                <div class="page-info">
+                    <div class="form-group">
+                        <label>{"Select Page"}</label>
+                        <select 
+                            class="form-control page-selector"
+                            onchange={
+                                let load_page = load_page.clone();
+                                let create_new_page_fn = create_new_page_fn.clone();
+                                let pages = pages.clone();
+                                Callback::from(move |e: Event| {
+                                    let target = e.target().unwrap().unchecked_into::<HtmlSelectElement>();
+                                    let selected_id = target.value();
+                                    
+                                    if selected_id == "new" {
+                                        create_new_page_fn();
+                                    } else if let Ok(page_id) = selected_id.parse::<i32>() {
+                                        if let Some(page) = pages.iter().find(|p| p.id == Some(page_id)) {
+                                            load_page.emit(page.clone());
+                                        }
+                                    }
+                                })
+                            }
+                        >
+                            <option value="new">{"+ New Page"}</option>
+                            {for pages.iter().map(|page| {
+                                let page_id = page.id.unwrap_or(0);
+                                let is_selected = current_page.as_ref().and_then(|p| p.id) == page.id;
+                                html! {
+                                    <option 
+                                        value={page_id.to_string()}
+                                        selected={is_selected}
+                                        key={page_id}
+                                    >
+                                        {format!("{} ({})", page.title, page.status)}
+                                    </option>
+                                }
+                            })}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>{"Page Title"}</label>
+                        <input
+                            type="text"
+                            value={(*page_title).clone()}
+                            onchange={on_title_change}
+                            placeholder="Enter page title"
+                            class="form-control"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label>{"Slug"}</label>
+                        <input
+                            type="text"
+                            value={(*page_slug).clone()}
+                            onchange={on_slug_change}
+                            placeholder="page-slug"
+                            class="form-control"
+                        />
+                    </div>
+                </div>
+                
                 <div class="page-actions">
-                    <button class="btn btn-secondary" onclick={create_new_page}>
+                    <button
+                        class="btn btn-secondary"
+                        onclick={create_new_page}
+                    >
                         {"New Page"}
                     </button>
-                    <button class="btn btn-primary" onclick={save_page} disabled={*saving}>
+                    <button
+                        class="btn btn-info"
+                        onclick={toggle_preview}
+                    >
+                        {if *show_preview { "Edit" } else { "Preview" }}
+                    </button>
+                    <button
+                        class="btn btn-primary"
+                        onclick={save_page}
+                        disabled={*saving}
+                    >
                         {if *saving { "Saving..." } else { "Save Page" }}
                     </button>
+                    {if current_page.is_some() {
+                        html! {
+                            <button
+                                class="btn btn-danger"
+                                onclick={delete_page_callback}
+                            >
+                                {"Delete"}
+                            </button>
+                        }
+                    } else {
+                        html! {}
+                    }}
                 </div>
             </div>
 
-            if let Some(ref error_msg) = *error {
-                <div class="error-message">
-                    <strong>{"Error: "}</strong>{error_msg}
-                </div>
-            }
+            {if let Some(error_msg) = error.as_ref() {
+                html! {
+                    <div class="alert alert-danger">
+                        {error_msg}
+                    </div>
+                }
+            } else {
+                html! {}
+            }}
 
             <div class="page-builder-content">
-                <div class="page-list">
-                    <h3>{"Pages"}</h3>
-                    if *loading {
-                        <div class="loading">{"Loading pages..."}</div>
-                    } else {
-                        <div class="pages-grid">
-                            {pages.iter().map(|page| {
-                                let page_clone = page.clone();
-                                html! {
-                                    <div class="page-card" onclick={let page = page_clone.clone(); let load_page = load_page.clone(); Callback::from(move |_| load_page.emit(page.clone()))}>
-                                        <h4>{&page.title}</h4>
-                                        <p class="page-slug">{&page.slug}</p>
-                                        <p class="page-status">{&page.status}</p>
-                                        <p class="page-date">{page.created_at.as_deref().unwrap_or("Unknown")}</p>
-                                    </div>
-                                }
-                            }).collect::<Html>()}
-                        </div>
-                    }
-                </div>
-
-                <div class="page-editor">
-                    <div class="page-info">
-                        <div class="form-group">
-                            <label for="page-title">{"Page Title"}</label>
-                            <input 
-                                id="page-title"
-                                type="text" 
-                                class="page-title-input"
-                                value={current_page.title.clone()}
-                                onchange={on_title_change}
-                                placeholder="Page Title"
-                            />
-                        </div>
-                        <div class="form-group">
-                            <label for="page-slug">{"Page Slug"}</label>
-                            <input 
-                                id="page-slug"
-                                type="text" 
-                                class="page-slug-input"
-                                value={current_page.slug.clone()}
-                                onchange={on_slug_change}
-                                placeholder="page-slug"
-                            />
-                        </div>
-                        <div class="form-group">
-                            <label for="page-status">{"Status"}</label>
-                            <select 
-                                id="page-status"
-                                value={current_page.status.clone()}
-                                onchange={let current_page = current_page.clone(); Callback::from(move |e: Event| {
-                                    let target = e.target().unwrap().unchecked_into::<web_sys::HtmlSelectElement>();
-                                    let mut page = (*current_page).clone();
-                                    page.status = target.value();
-                                    current_page.set(page);
-                                })}
-                            >
-                                <option value="draft">{"Draft"}</option>
-                                <option value="published">{"Published"}</option>
-                                <option value="archived">{"Archived"}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="page-content-editor">
-                        <label for="page-content">{"Page Content"}</label>
-                        <textarea 
-                            id="page-content"
-                            class="page-content-textarea"
-                            value={current_page.content.clone()}
-                            onchange={on_content_change}
-                            placeholder="Enter your page content here..."
-                            rows={20}
-                        />
-                    </div>
-
-                    <div class="page-preview">
-                        <h3>{"Preview"}</h3>
-                        <div class="preview-content">
-                            <h1>{&current_page.title}</h1>
-                            <div class="content-preview">
-                                {&current_page.content}
+                <div class="expanded-builder-area">
+                    {if *show_preview {
+                        html! {
+                            <div class="page-preview">
+                                <h1>{(*page_title).clone()}</h1>
+                                <div class="preview-content">
+                                    {for page_components.iter().map(|component| {
+                                        html! {
+                                            <div class="preview-component" key={component.id.clone()}>
+                                                <div class="component-content">
+                                                    {component.content.clone()}
+                                                </div>
+                                            </div>
+                                        }
+                                    })}
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        }
+                    } else {
+                        html! {
+                            <DragDropPageBuilder
+                                page_id={current_page.as_ref().and_then(|p| p.id)}
+                                on_save={on_save_components}
+                                initial_components={(*page_components).clone()}
+                            />
+                        }
+                    }}
                 </div>
             </div>
         </div>
     }
-} 
+}

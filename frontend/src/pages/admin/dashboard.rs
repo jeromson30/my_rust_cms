@@ -299,7 +299,11 @@ pub fn dashboard() -> Html {
                                                 <div class="media-info">
                                                     <h4>{&media.name}</h4>
                                                     <p class="media-meta">
-                                                        <span class="media-size">{&media.size}</span>
+                                                        {if let Some(ref size) = media.size {
+                                                            html! { <span class="media-size">{size}</span> }
+                                                        } else {
+                                                            html! {}
+                                                        }}
                                                         <span class="media-date">
                                                             {media.created_at.as_ref().unwrap_or(&"Unknown date".to_string())}
                                                         </span>

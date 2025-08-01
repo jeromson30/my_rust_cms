@@ -1,5 +1,6 @@
 use yew::prelude::*;
 use crate::services::api_service::{create_post, update_post, Post};
+use crate::components::markdown_editor::MarkdownEditor;
 
 #[derive(Properties, PartialEq)]
 pub struct PostEditorProps {
@@ -159,12 +160,16 @@ pub fn post_editor(props: &PostEditorProps) -> Html {
 
                 <div class="form-group">
                     <label for="post-content">{"Content *"}</label>
-                    <textarea
-                        id="post-content"
+                    <MarkdownEditor
                         value={(*content).clone()}
-                        oninput={on_content_change}
-                        placeholder="Enter post content"
-                        rows="15"
+                        on_change={{
+                            let content = content.clone();
+                            Callback::from(move |new_content: String| {
+                                content.set(new_content);
+                            })
+                        }}
+                        placeholder={Some("Write your post content in Markdown...".to_string())}
+                        rows={Some(20)}
                     />
                 </div>
             </div>

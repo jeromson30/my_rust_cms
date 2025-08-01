@@ -10,7 +10,7 @@ use axum::{
     http::StatusCode,
     response::IntoResponse,
     Json, Router,
-    extract::{State, Path},
+    extract::{State, Path, Multipart},
 };
 use std::net::SocketAddr;
 use tracing::info;
@@ -21,6 +21,8 @@ use models::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use diesel::prelude::*;
+use std::path::Path as StdPath;
+use tokio::fs;
 
 // Database connection pool state
 use std::sync::Arc;
@@ -141,7 +143,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .route("/", get(root))
         .route("/health", get(health))
-        // Authentication endpoints
+        // Auth endpoints
         .route("/api/auth/login", post(login))
         .route("/api/auth/logout", post(logout))
         .route("/api/auth/me", get(get_current_user))
@@ -153,7 +155,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/posts/:id", get(get_post).put(update_post).delete(delete_post))
         .route("/api/comments", get(get_comments).post(create_comment))
         .route("/api/comments/:id", put(update_comment).delete(delete_comment))
-        .route("/api/media", get(get_media).post(create_media))
+        .route("/api/media", get(get_media))
+        .route("/api/media/upload", post(upload_media))
         .route("/api/media/:id", delete(delete_media))
         .route("/api/sessions", get(get_sessions))
         .route("/api/settings", get(get_settings))
@@ -166,6 +169,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/pages/slug/:slug", get(get_page_by_slug))
         .route("/api/stats", get(get_stats))
         .route("/api/test", get(test_endpoint))
+        .nest_service("/uploads", tower_http::services::ServeDir::new("backend/uploads"))
         .with_state(state)
         .layer(cors);
 
@@ -188,6 +192,7 @@ async fn root() -> impl IntoResponse {
 async fn health() -> impl IntoResponse {
     (StatusCode::OK, "OK")
 }
+
 
 // Users API
 async fn get_users(axum::extract::State(state): axum::extract::State<AppState>) -> Result<Json<Vec<User>>, StatusCode> {
@@ -221,26 +226,13 @@ async fn get_post(State(state): State<AppState>, Path(id): Path<i32>) -> Result<
 }
 
 async fn create_post(State(state): State<AppState>, Json(frontend_post): Json<FrontendPost>) -> Result<(StatusCode, Json<FrontendPost>), StatusCode> {
-    // For now, return a mock response to verify the endpoint works
-    let response = FrontendPost {
-        id: Some(1),
-        title: frontend_post.title,
-        content: frontend_post.content,
-        author: frontend_post.author,
-        status: frontend_post.status,
-        created_at: Some(chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string()),
-    };
-    Ok((StatusCode::CREATED, Json(response)))
-    
-    // TODO: Implement actual database creation
-    /*
     let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     
     let new_post = NewPost {
         title: frontend_post.title.clone(),
         content: frontend_post.content.clone(),
-        category_id: None,
-        user_id: Some(1),
+        category_id: None, // You might want to add category support later
+        user_id: Some(2), // Use existing admin user
     };
     
     match Post::create(&mut conn, new_post) {
@@ -253,14 +245,13 @@ async fn create_post(State(state): State<AppState>, Json(frontend_post): Json<Fr
                 status: frontend_post.status,
                 created_at: created_post.created_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
             };
-            Ok(Json(response))
+            Ok((StatusCode::CREATED, Json(response)))
         },
         Err(e) => {
             eprintln!("Database error creating post: {:?}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         },
     }
-    */
 }
 
 async fn update_post(State(state): State<AppState>, Path(id): Path<i32>, Json(frontend_post): Json<FrontendPost>) -> Result<Json<FrontendPost>, StatusCode> {
@@ -291,30 +282,93 @@ async fn delete_post(State(state): State<AppState>, Path(id): Path<i32>) -> Resu
 
 // Users API
 async fn create_user(State(state): State<AppState>, Json(user_data): Json<serde_json::Value>) -> Result<(StatusCode, Json<serde_json::Value>), StatusCode> {
-    // For now, return a simple success response - implement proper user creation later
-    Ok((StatusCode::CREATED, Json(serde_json::json!({
-        "id": 1,
-        "username": "newuser",
-        "email": "user@example.com", 
-        "role": "user",
-        "status": "active"
-    }))))
+    let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let username = user_data["username"].as_str().unwrap_or("").to_string();
+    let email = user_data["email"].as_str().map(|s| s.to_string());
+    let password = user_data["password"].as_str().unwrap_or("password").to_string();
+    let role = user_data["role"].as_str().unwrap_or("user").to_string();
+    let status = user_data["status"].as_str().unwrap_or("active").to_string();
+    
+    if username.is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    
+    // Hash the password
+    let hashed_password = bcrypt::hash(&password, bcrypt::DEFAULT_COST)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let new_user = NewUser {
+        username: username.clone(),
+        password: hashed_password,
+        email,
+        role: role.clone(),
+        status: status.clone(),
+    };
+    
+    match User::create(&mut conn, new_user) {
+        Ok(created_user) => {
+            Ok((StatusCode::CREATED, Json(serde_json::json!({
+                "id": created_user.id,
+                "username": created_user.username,
+                "email": created_user.email,
+                "role": created_user.role,
+                "status": created_user.status
+            }))))
+        },
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
 async fn update_user(State(state): State<AppState>, Path(id): Path<i32>, Json(user_data): Json<serde_json::Value>) -> Result<Json<serde_json::Value>, StatusCode> {
-    // For now, return a simple success response - implement proper user update later
-    Ok(Json(serde_json::json!({
-        "id": id,
-        "username": "updateduser",
-        "email": "updated@example.com",
-        "role": "user", 
-        "status": "active"
-    })))
+    let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let username = user_data["username"].as_str().map(|s| s.to_string());
+    let email = user_data["email"].as_str().map(|s| s.to_string());
+    let role = user_data["role"].as_str().map(|s| s.to_string());
+    let status = user_data["status"].as_str().map(|s| s.to_string());
+    
+    // Hash password if provided
+    let password = if let Some(pwd) = user_data["password"].as_str() {
+        if !pwd.is_empty() {
+            Some(bcrypt::hash(pwd, bcrypt::DEFAULT_COST)
+                .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+    
+    let update_user = UpdateUser {
+        username,
+        password,
+        email,
+        role,
+        status,
+    };
+    
+    match User::update(&mut conn, id, update_user) {
+        Ok(updated_user) => {
+            Ok(Json(serde_json::json!({
+                "id": updated_user.id,
+                "username": updated_user.username,
+                "email": updated_user.email,
+                "role": updated_user.role,
+                "status": updated_user.status
+            })))
+        },
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
 async fn delete_user(State(state): State<AppState>, Path(id): Path<i32>) -> Result<StatusCode, StatusCode> {
-    // For now, return success - implement proper user deletion later
-    Ok(StatusCode::NO_CONTENT)
+    let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    match User::delete(&mut conn, id) {
+        Ok(_) => Ok(StatusCode::NO_CONTENT),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
 // Comments API
@@ -325,32 +379,68 @@ async fn get_comments(State(state): State<AppState>) -> Result<Json<Vec<Comment>
 }
 
 async fn create_comment(State(state): State<AppState>, Json(comment_data): Json<serde_json::Value>) -> Result<(StatusCode, Json<serde_json::Value>), StatusCode> {
-    // For now, return a simple success response - implement proper comment creation later
-    Ok((StatusCode::CREATED, Json(serde_json::json!({
-        "id": 1,
-        "content": "New comment",
-        "author": "User",
-        "post_id": 1,
-        "status": "published",
-        "created_at": "2025-01-01 00:00:00"
-    }))))
+    let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let content = comment_data["content"].as_str().unwrap_or("").to_string();
+    let post_id = comment_data["post_id"].as_i64().map(|id| id as i32);
+    let user_id = comment_data["user_id"].as_i64().map(|id| id as i32);
+    
+    if content.is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    
+    let new_comment = NewComment {
+        post_id,
+        user_id,
+        content: content.clone(),
+    };
+    
+    match Comment::create(&mut conn, new_comment) {
+        Ok(created_comment) => {
+            Ok((StatusCode::CREATED, Json(serde_json::json!({
+                "id": created_comment.id,
+                "content": created_comment.content,
+                "post_id": created_comment.post_id,
+                "user_id": created_comment.user_id,
+                "created_at": created_comment.created_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
+            }))))
+        },
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
 async fn update_comment(State(state): State<AppState>, Path(id): Path<i32>, Json(comment_data): Json<serde_json::Value>) -> Result<Json<serde_json::Value>, StatusCode> {
-    // For now, return a simple success response - implement proper comment update later
-    Ok(Json(serde_json::json!({
-        "id": id,
-        "content": "Updated comment",
-        "author": "User",
-        "post_id": 1,
-        "status": "published",
-        "created_at": "2025-01-01 00:00:00"
-    })))
+    let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let content = comment_data["content"].as_str().map(|s| s.to_string());
+    
+    let update_comment = UpdateComment {
+        content,
+        updated_at: Some(chrono::Utc::now().naive_utc()),
+    };
+    
+    match Comment::update(&mut conn, id, update_comment) {
+        Ok(updated_comment) => {
+            Ok(Json(serde_json::json!({
+                "id": updated_comment.id,
+                "content": updated_comment.content,
+                "post_id": updated_comment.post_id,
+                "user_id": updated_comment.user_id,
+                "created_at": updated_comment.created_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
+                "updated_at": updated_comment.updated_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
+            })))
+        },
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
 async fn delete_comment(State(state): State<AppState>, Path(id): Path<i32>) -> Result<StatusCode, StatusCode> {
-    // For now, return success - implement proper comment deletion later
-    Ok(StatusCode::NO_CONTENT)
+    let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    match Comment::delete(&mut conn, id) {
+        Ok(_) => Ok(StatusCode::NO_CONTENT),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
 // Media API
@@ -361,20 +451,128 @@ async fn get_media(State(state): State<AppState>) -> Result<Json<Vec<Media>>, St
 }
 
 async fn create_media(State(state): State<AppState>, Json(media_data): Json<serde_json::Value>) -> Result<(StatusCode, Json<serde_json::Value>), StatusCode> {
-    // For now, return a simple success response - implement proper media creation later
-    Ok((StatusCode::CREATED, Json(serde_json::json!({
-        "id": 1,
-        "name": "new-file.jpg",
-        "type_": "image",
-        "size": "1.2MB",
-        "url": "/uploads/new-file.jpg",
-        "created_at": "2025-01-01 00:00:00"
+    let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    // Extract media info from the request
+    let file_name = media_data["name"].as_str().unwrap_or("unknown").to_string();
+    let media_type = media_data["type_"].as_str().unwrap_or("unknown").to_string();
+    let url = media_data["url"].as_str().unwrap_or("").to_string();
+    
+    let new_media = NewMedia {
+        file_name,
+        url,
+        media_type: Some(media_type.clone()),
+        user_id: Some(2), // Use existing admin user
+    };
+    
+    match Media::create(&mut conn, new_media) {
+        Ok(created_media) => {
+            Ok((StatusCode::CREATED, Json(serde_json::json!({
+                "id": created_media.id,
+                "name": created_media.file_name,
+                "type_": created_media.media_type.unwrap_or_else(|| "unknown".to_string()),
+                "size": media_data["size"].as_str().unwrap_or("0"), // Pass through from frontend
+                "url": created_media.url,
+                "created_at": created_media.uploaded_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
+            }))))
+        },
+        Err(e) => {
+            eprintln!("Database error creating media: {:?}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        },
+    }
+}
+
+async fn upload_media(State(state): State<AppState>, mut multipart: Multipart) -> Result<(StatusCode, Json<serde_json::Value>), StatusCode> {
+    // Create upload directory if it doesn't exist
+    let upload_dir = "backend/uploads";
+    if !StdPath::new(upload_dir).exists() {
+        if let Err(e) = fs::create_dir_all(upload_dir).await {
+            return Ok((StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({
+                "success": false,
+                "message": format!("Failed to create upload directory: {}", e),
+                "media": null
+            }))));
+        }
+    }
+
+    while let Some(field) = multipart.next_field().await.map_err(|_| StatusCode::BAD_REQUEST)? {
+        let name = field.name().unwrap_or("").to_string();
+        
+        if name == "file" {
+            let file_name = field.file_name().unwrap_or("unknown").to_string();
+            let content_type = field.content_type().unwrap_or("application/octet-stream").to_string();
+            let data = field.bytes().await.map_err(|_| StatusCode::BAD_REQUEST)?;
+            
+            // Generate unique filename
+            let file_extension = StdPath::new(&file_name)
+                .extension()
+                .and_then(|ext| ext.to_str())
+                .unwrap_or("");
+            let unique_filename = format!("{}.{}", Uuid::new_v4(), file_extension);
+            let file_path = format!("{}/{}", upload_dir, unique_filename);
+            
+            // Save file
+            if let Err(e) = fs::write(&file_path, &data).await {
+                return Ok((StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({
+                    "success": false,
+                    "message": format!("Failed to save file: {}", e),
+                    "media": null
+                }))));
+            }
+            
+            // Save to database
+            let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            
+            let new_media = NewMedia {
+                file_name: file_name.clone(),
+                url: format!("/uploads/{}", unique_filename),
+                media_type: Some(content_type.clone()),
+                user_id: None, // Temporarily remove user association to fix foreign key constraint
+            };
+            
+            match Media::create(&mut conn, new_media) {
+                Ok(created_media) => {
+                    return Ok((StatusCode::CREATED, Json(serde_json::json!({
+                        "success": true,
+                        "message": "File uploaded successfully",
+                        "media": {
+                            "id": created_media.id,
+                            "name": file_name,
+                            "type_": content_type,
+                            "size": format!("{} bytes", data.len()),
+                            "url": format!("/uploads/{}", unique_filename),
+                            "created_at": created_media.uploaded_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
+                        }
+                    }))));
+                }
+                Err(e) => {
+                    // File was saved but database failed - ideally we'd clean up the file
+                    eprintln!("Database error creating media: {:?}", e);
+                    return Ok((StatusCode::INTERNAL_SERVER_ERROR, Json(serde_json::json!({
+                        "success": false,
+                        "message": format!("File saved but database error: {}", e),
+                        "media": null
+                    }))));
+                }
+            }
+        }
+    }
+    
+    Ok((StatusCode::BAD_REQUEST, Json(serde_json::json!({
+        "success": false,
+        "message": "No file provided",
+        "media": null
     }))))
 }
 
 async fn delete_media(State(state): State<AppState>, Path(id): Path<i32>) -> Result<StatusCode, StatusCode> {
-    // For now, return success - implement proper media deletion later
-    Ok(StatusCode::NO_CONTENT)
+    let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    match Media::delete(&mut conn, id) {
+        Ok(_) => Ok(StatusCode::NO_CONTENT),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
 // Sessions API
@@ -578,22 +776,28 @@ async fn get_page(State(state): State<AppState>, Path(id): Path<i32>) -> Result<
 }
 
 async fn update_page(State(state): State<AppState>, Path(id): Path<i32>, Json(page): Json<FrontendPage>) -> Result<Json<FrontendPage>, StatusCode> {
-    // Mock implementation
-    let response = FrontendPage {
-        id: Some(id),
-        title: page.title,
-        slug: page.slug,
-        content: page.content,
-        status: page.status,
-        created_at: page.created_at,
-        updated_at: Some(chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string()),
+    let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    let update_page = UpdatePage {
+        title: Some(page.title),
+        content: Some(page.content),
+        user_id: None,
+        updated_at: Some(chrono::Utc::now().naive_utc()),
     };
-    Ok(Json(response))
+    
+    match Page::update(&mut conn, id, update_page) {
+        Ok(updated_page) => Ok(Json(FrontendPage::from(updated_page))),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
 async fn delete_page(State(state): State<AppState>, Path(id): Path<i32>) -> Result<StatusCode, StatusCode> {
-    // Mock implementation
-    Ok(StatusCode::NO_CONTENT)
+    let mut conn = state.get().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    
+    match Page::delete(&mut conn, id) {
+        Ok(_) => Ok(StatusCode::NO_CONTENT),
+        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }
 
 async fn get_page_by_slug(State(state): State<AppState>, Path(slug): Path<String>) -> Result<Json<FrontendPage>, StatusCode> {

@@ -82,24 +82,60 @@ async fn upload_file(
                 );
             }
             
-            // Create media item
-            let media = MediaItem {
-                id: Some(1), // In a real app, this would come from the database
-                name: file_name,
-                type_: content_type,
-                size: format!("{} bytes", data.len()),
-                url: format!("/uploads/{}", unique_filename),
-                created_at: Some(chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string()),
+            // Save to database
+            let mut conn = match _pool.get() {
+                Ok(conn) => conn,
+                Err(e) => {
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(UploadResponse {
+                            success: false,
+                            message: format!("Database connection error: {}", e),
+                            media: None,
+                        }),
+                    );
+                }
             };
             
-            return (
-                StatusCode::CREATED,
-                Json(UploadResponse {
-                    success: true,
-                    message: "File uploaded successfully".to_string(),
-                    media: Some(media),
-                }),
-            );
+            let new_media = crate::models::media::NewMedia {
+                file_name: file_name.clone(),
+                url: format!("/uploads/{}", unique_filename),
+                media_type: Some(content_type.clone()),
+                user_id: Some(1), // Default to admin user
+            };
+            
+            match crate::models::media::Media::create(&mut conn, new_media) {
+                Ok(created_media) => {
+                    let media = MediaItem {
+                        id: Some(created_media.id),
+                        name: file_name,
+                        type_: content_type,
+                        size: format!("{} bytes", data.len()),
+                        url: format!("/uploads/{}", unique_filename),
+                        created_at: created_media.uploaded_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
+                    };
+                    
+                    return (
+                        StatusCode::CREATED,
+                        Json(UploadResponse {
+                            success: true,
+                            message: "File uploaded successfully".to_string(),
+                            media: Some(media),
+                        }),
+                    );
+                }
+                Err(e) => {
+                    // File was saved but database failed - ideally we'd clean up the file
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(UploadResponse {
+                            success: false,
+                            message: format!("File saved but database error: {}", e),
+                            media: None,
+                        }),
+                    );
+                }
+            }
         }
     }
     
@@ -113,35 +149,43 @@ async fn upload_file(
     )
 }
 
-async fn get_media(State(_pool): State<DbPool>) -> impl IntoResponse {
-    // In a real app, this would fetch from the database
-    let media_items = vec![
-        serde_json::json!({
-            "id": 1,
-            "name": "sample-image.jpg",
-            "type_": "image/jpeg",
-            "size": "1.2 MB",
-            "url": "/uploads/sample-image.jpg",
-            "created_at": "2024-01-15 10:30:00"
-        }),
-        serde_json::json!({
-            "id": 2,
-            "name": "document.pdf",
-            "type_": "application/pdf",
-            "size": "2.5 MB",
-            "url": "/uploads/document.pdf",
-            "created_at": "2024-01-14 15:45:00"
-        }),
-    ];
+async fn get_media(State(pool): State<DbPool>) -> impl IntoResponse {
+    let mut conn = match pool.get() {
+        Ok(conn) => conn,
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(vec![])).into_response(),
+    };
     
-    Json(media_items)
+    match crate::models::media::Media::list(&mut conn) {
+        Ok(media_list) => {
+            let media_items: Vec<serde_json::Value> = media_list.into_iter().map(|media| {
+                serde_json::json!({
+                    "id": media.id,
+                    "name": media.file_name,
+                    "type_": media.media_type.unwrap_or_else(|| "unknown".to_string()),
+                    "size": "Unknown", // We don't store size in DB currently
+                    "url": media.url,
+                    "created_at": media.uploaded_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
+                })
+            }).collect();
+            
+            Json(media_items).into_response()
+        }
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json(vec![])).into_response(),
+    }
 }
 
 async fn delete_media(
-    State(_pool): State<DbPool>,
+    State(pool): State<DbPool>,
     axum::extract::Path(id): axum::extract::Path<i32>,
 ) -> impl IntoResponse {
-    // In a real app, this would delete from the database and remove the file
-    // For now, just return success
-    StatusCode::NO_CONTENT
+    let mut conn = match pool.get() {
+        Ok(conn) => conn,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR,
+    };
+    
+    // TODO: In a production app, you'd also want to delete the actual file from disk
+    match crate::models::media::Media::delete(&mut conn, id) {
+        Ok(_) => StatusCode::NO_CONTENT,
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+    }
 } 

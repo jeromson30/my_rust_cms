@@ -37,11 +37,26 @@ pub struct Comment {
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct MediaItem {
     pub id: Option<i32>,
+    #[serde(rename = "file_name")]
     pub name: String,
+    #[serde(rename = "media_type")]
     pub type_: String,
-    pub size: String,
     pub url: String,
+    #[serde(rename = "uploaded_at")]
     pub created_at: Option<String>,
+    pub user_id: Option<i32>,
+    pub size: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct PageItem {
+    pub id: Option<i32>,
+    pub title: String,
+    pub slug: String,
+    pub content: String,
+    pub status: String,
+    pub created_at: Option<String>,
+    pub updated_at: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
@@ -359,5 +374,59 @@ pub async fn get_stats() -> Result<Stats, ApiServiceError> {
         Ok(stats)
     } else {
         Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
+    }
+}
+
+// Pages API
+pub async fn get_pages() -> Result<Vec<PageItem>, ApiServiceError> {
+    let request = Request::get(&format!("{}/pages", API_BASE_URL));
+    let response = request.send().await.map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+    
+    if response.ok() {
+        let pages: Vec<PageItem> = response.json().await.map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(pages)
+    } else {
+        Err(ApiServiceError::NetworkError(format!("HTTP {}", response.status())))
+    }
+}
+
+pub async fn create_page(page: &PageItem) -> Result<PageItem, ApiServiceError> {
+    let request = Request::post(&format!("{}/pages", API_BASE_URL))
+        .json(page)
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+    
+    let response = request.send().await.map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+    
+    if response.ok() {
+        let created_page: PageItem = response.json().await.map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(created_page)
+    } else {
+        Err(ApiServiceError::NetworkError(format!("HTTP {}", response.status())))
+    }
+}
+
+pub async fn update_page(id: i32, page: &PageItem) -> Result<PageItem, ApiServiceError> {
+    let request = Request::put(&format!("{}/pages/{}", API_BASE_URL, id))
+        .json(page)
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+    
+    let response = request.send().await.map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+    
+    if response.ok() {
+        let updated_page: PageItem = response.json().await.map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(updated_page)
+    } else {
+        Err(ApiServiceError::NetworkError(format!("HTTP {}", response.status())))
+    }
+}
+
+pub async fn delete_page(id: i32) -> Result<(), ApiServiceError> {
+    let request = Request::delete(&format!("{}/pages/{}", API_BASE_URL, id));
+    let response = request.send().await.map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+    
+    if response.ok() {
+        Ok(())
+    } else {
+        Err(ApiServiceError::NetworkError(format!("HTTP {}", response.status())))
     }
 }

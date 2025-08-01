@@ -1,0 +1,773 @@
+/* Drag and Drop Page Builder Styles */
+.drag-drop-page-builder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fa;
+}
+
+.builder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.builder-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.builder-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.builder-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Component Library Sidebar - Two Column Design */
+.component-library {
+    width: 400px;
+    min-width: 400px;
+    background: white;
+    border-right: 1px solid #e9ecef;
+    padding: 24px;
+    overflow-y: auto;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+.component-library h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.component-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+}
+
+.component-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 8px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    cursor: grab;
+    transition: all 0.3s ease;
+    user-select: none;
+    min-height: 70px;
+    justify-content: center;
+    text-align: center;
+}
+
+.component-item:hover {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f8f9ff 100%);
+    border-color: #2196f3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+}
+
+.component-item:active {
+    cursor: grabbing;
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(33, 150, 243, 0.2);
+}
+
+.component-icon {
+    font-size: 20px;
+    width: auto;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.component-name {
+    font-weight: 600;
+    color: #495057;
+    font-size: 10px;
+    line-height: 1.2;
+}
+
+/* Main Canvas Area */
+.builder-canvas {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f1f3f4;
+    position: relative;
+}
+
+.drop-zone {
+    flex: 1;
+    margin: 24px;
+    background: white;
+    border: 3px dashed #dee2e6;
+    border-radius: 16px;
+    position: relative;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    min-height: 600px;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.drop-zone.drag-over {
+    border-color: #007bff;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);
+    border-style: solid;
+    border-width: 3px;
+    box-shadow: inset 0 0 20px rgba(0, 123, 255, 0.1);
+}
+
+.empty-canvas {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 40px;
+}
+
+.empty-message {
+    max-width: 400px;
+}
+
+.empty-message h3 {
+    color: #495057;
+    margin-bottom: 16px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.empty-message p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.canvas-components {
+    padding: 20px;
+    min-height: 100%;
+}
+
+.canvas-component {
+    position: relative;
+    margin-bottom: 16px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    min-height: 40px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.canvas-component:hover {
+    border-color: #007bff;
+}
+
+.canvas-component.selected {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.component-controls {
+    position: absolute;
+    top: -35px;
+    right: 0;
+    display: flex;
+    gap: 4px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.control-btn {
+    background: none;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+}
+
+.control-btn:hover {
+    background: #f8f9fa;
+}
+
+/* Component Editor */
+.component-editor {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.editor-header h4 {
+    margin: 0;
+    color: #333;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Modal Properties Panel */
+.properties-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.properties-modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Modal Header Styling */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background: #f8f9fa;
+    color: #495057;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+/* Enhanced Properties Panel Styling */
+.panel-header {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+}
+
+.properties-panel h3 {
+    margin: 0 0 12px 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.component-type-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.badge-icon {
+    font-size: 16px;
+}
+
+.badge-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.property-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.property-section {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 16px;
+    background: #fafbfc;
+}
+
+.section-title {
+    margin: 0 0 16px 0;
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 8px;
+}
+
+.property-group {
+    margin-bottom: 16px;
+}
+
+.property-group:last-child {
+    margin-bottom: 0;
+}
+
+.property-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #495057;
+    font-size: 13px;
+}
+
+.property-value {
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    color: #6c757d;
+    font-size: 13px;
+    font-family: monospace;
+}
+
+.property-preview {
+    padding: 12px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    max-height: 100px;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.property-group input,
+.property-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.property-group input:focus,
+.property-group select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    background: white;
+    color: #333;
+}
+
+.color-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.color-input-group input[type="color"] {
+    width: 50px;
+    height: 36px;
+    padding: 2px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.color-input-group input[type="text"] {
+    flex: 1;
+}
+
+.alignment-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.align-btn {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: white;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.align-btn:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.align-btn.active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.action-btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.action-btn.primary {
+    background: #007bff;
+    color: white;
+}
+
+.action-btn.primary:hover {
+    background: #0056b3;
+}
+
+.action-btn.secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.action-btn.secondary:hover {
+    background: #545b62;
+}
+
+.action-btn.danger {
+    background: #dc3545;
+    color: white;
+}
+
+.action-btn.danger:hover {
+    background: #c82333;
+}
+
+.no-selection {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+.no-selection-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.no-selection h4 {
+    margin: 0 0 12px 0;
+    color: #495057;
+    font-size: 16px;
+}
+
+.no-selection p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.property-group input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    background: #fff;
+    color: #333;
+}
+
+/* Ensure readable text in all states */
+.property-group input:active,
+.property-group input:focus-visible {
+    background: #fff !important;
+    color: #333 !important;
+}
+
+/* Placeholder styling */
+.property-group input::placeholder {
+    color: #6c757d;
+    opacity: 0.8;
+}
+
+/* Webkit autofill fix */
+.property-group input:-webkit-autofill,
+.property-group input:-webkit-autofill:hover,
+.property-group input:-webkit-autofill:focus,
+.property-group input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #fff inset !important;
+    -webkit-text-fill-color: #333 !important;
+}
+
+/* Component Specific Styles */
+.placeholder-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.component-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.component-button:hover {
+    background: #0056b3;
+}
+
+.component-container {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    min-height: 100px;
+    padding: 20px;
+}
+
+.component-container .placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.component-two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.component-three-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+.component-two-column .column,
+.component-three-column .column {
+    padding: 20px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    text-align: center;
+    color: #6c757d;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Two-Column Responsive Design */
+@media (max-width: 1200px) {
+    .component-library {
+        width: 280px;
+    }
+
+    .component-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .component-item {
+        flex-direction: row;
+        min-height: auto;
+        padding: 12px 16px;
+        text-align: left;
+    }
+
+    .component-name {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 992px) {
+    .component-library {
+        width: 260px;
+    }
+
+    .property-sections {
+        gap: 16px;
+    }
+
+    .property-section {
+        padding: 12px;
+    }
+
+    .properties-modal-content {
+        width: 95%;
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .builder-layout {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .component-library {
+        width: 100%;
+        order: 2;
+        max-height: 200px;
+        padding: 16px;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .builder-canvas {
+        order: 1;
+        min-height: 600px;
+    }
+
+    .drop-zone {
+        margin: 16px;
+        min-height: 500px;
+    }
+
+    .component-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .component-item {
+        padding: 10px;
+        min-height: 60px;
+    }
+
+    .component-name {
+        font-size: 11px;
+    }
+
+    .properties-modal-content {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .modal-header {
+        padding: 16px;
+    }
+
+    .modal-body {
+        padding: 16px;
+    }
+
+    .property-sections {
+        gap: 12px;
+    }
+
+    .action-buttons {
+        flex-direction: row;
+        gap: 8px;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .component-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .component-item {
+        flex-direction: row;
+        text-align: left;
+        min-height: 50px;
+        padding: 8px 12px;
+    }
+
+    .component-icon {
+        font-size: 18px;
+        height: 20px;
+    }
+
+    .drop-zone {
+        margin: 12px;
+        min-height: 400px;
+    }
+
+    .empty-message h3 {
+        font-size: 18px;
+    }
+
+    .empty-message p {
+        font-size: 14px;
+    }
+
+    .properties-modal-content {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        max-height: none;
+    }
+}
