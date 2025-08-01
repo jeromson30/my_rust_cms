@@ -61,10 +61,10 @@ impl Default for ComponentStyles {
     fn default() -> Self {
         Self {
             background_color: "transparent".to_string(),
-            text_color: "#333333".to_string(),
+            text_color: "inherit".to_string(), // Use inherit for better theme compatibility
             padding: "16px".to_string(),
             margin: "8px".to_string(),
-            border_radius: "4px".to_string(),
+            border_radius: "8px".to_string(), // Slightly more rounded for modern look
             font_size: "16px".to_string(),
             font_weight: "normal".to_string(),
             text_align: "left".to_string(),
@@ -111,26 +111,26 @@ impl ComponentType {
 
     pub fn default_content(&self) -> String {
         match self {
-            ComponentType::Text => "Your text content here...".to_string(),
-            ComponentType::Heading => "# Your Heading".to_string(),
-            ComponentType::Subheading => "## Your Subheading".to_string(),
-            ComponentType::Image => "![Alt text](image-url)".to_string(),
-            ComponentType::Button => "[Click Me](link-url)".to_string(),
-            ComponentType::Link => "[Link Text](link-url)".to_string(),
-            ComponentType::Container => "Container content...".to_string(),
-            ComponentType::TwoColumn => "## Column 1\nContent for first column\n\n## Column 2\nContent for second column".to_string(),
-            ComponentType::ThreeColumn => "## Column 1\nContent 1\n\n## Column 2\nContent 2\n\n## Column 3\nContent 3".to_string(),
-            ComponentType::Hero => "# Welcome to Your Site\n\nThis is your hero section with compelling content.\n\n[Get Started](cta-link)".to_string(),
-            ComponentType::Card => "## Card Title\n\nCard content goes here with a brief description.\n\n[Learn More](link)".to_string(),
-            ComponentType::List => "- Item 1\n- Item 2\n- Item 3".to_string(),
-            ComponentType::Quote => "> \"This is an inspiring quote that adds credibility to your content.\"\n\n*— Author Name*".to_string(),
-            ComponentType::Video => "[![Video Title](thumbnail-url)](video-url)\n\n**Video Description**\n\nWatch our latest video content.".to_string(),
+            ComponentType::Text => "Welcome to our comprehensive content management system built with Rust and modern web technologies. This platform provides powerful tools for creating, managing, and publishing content with ease.".to_string(),
+            ComponentType::Heading => "# Modern Content Management".to_string(),
+            ComponentType::Subheading => "## Built for Performance and Scalability".to_string(),
+            ComponentType::Image => "![Rust CMS Dashboard](https://via.placeholder.com/800x400/4299e1/ffffff?text=Rust+CMS+Dashboard)".to_string(),
+            ComponentType::Button => "[Start Building 🚀](/page-builder)".to_string(),
+            ComponentType::Link => "[Learn More About Our Features →](/features)".to_string(),
+            ComponentType::Container => "This container holds structured content that can be easily customized and styled to match your brand.".to_string(),
+            ComponentType::TwoColumn => "## 🚀 Performance First\n\nBuilt with Rust for maximum performance and reliability. Our backend delivers lightning-fast responses and handles high traffic with ease.\n\n## 🎨 Beautiful Design\n\nModern, responsive design that looks great on all devices. Clean interfaces and intuitive user experience.".to_string(),
+            ComponentType::ThreeColumn => "## ⚡ Fast\n\nRust-powered backend delivers exceptional performance\n\n## 🔒 Secure\n\nBuilt-in security features and best practices\n\n## 🎯 Flexible\n\nCustomizable components and layouts".to_string(),
+            ComponentType::Hero => "# Welcome to the Future of Content Management\n\nExperience the power of Rust-based CMS with WebAssembly frontend. Create stunning websites with our drag-and-drop page builder and comprehensive content management tools.\n\n[Get Started →](/register) [View Demo →](/demo)".to_string(),
+            ComponentType::Card => "## 🌟 Feature Highlight\n\nDrag-and-drop page builder with real-time preview. Create professional pages without coding knowledge.\n\n**Key Benefits:**\n- Visual editing\n- Real-time preview\n- Mobile responsive\n- SEO optimized\n\n[Try Page Builder →](/page-builder)".to_string(),
+            ComponentType::List => "✅ **Rust-powered backend** for maximum performance\n✅ **WebAssembly frontend** for modern user experience\n✅ **Drag-and-drop page builder** for easy content creation\n✅ **Media management** with file upload and organization\n✅ **User authentication** and role-based access\n✅ **Responsive design** that works on all devices".to_string(),
+            ComponentType::Quote => "> \"This Rust CMS has revolutionized how we manage our content. The performance is incredible and the page builder makes it easy for our team to create beautiful pages without technical knowledge.\"\n\n*— Sarah Johnson, Content Manager*".to_string(),
+            ComponentType::Video => "[![Rust CMS Demo Video](https://via.placeholder.com/800x450/2563eb/ffffff?text=▶️+Watch+Demo)](https://example.com/demo-video)\n\n**See our CMS in action!**\n\nWatch this 5-minute demo to see how easy it is to create and manage content with our platform.".to_string(),
             ComponentType::Spacer => "".to_string(),
             ComponentType::Divider => "---".to_string(),
-            ComponentType::ContactForm => "## Contact Us\n\nWe'd love to hear from you. Send us a message!\n\n[Contact Form Placeholder]".to_string(),
-            ComponentType::Newsletter => "## Subscribe to Our Newsletter\n\nStay updated with our latest news and offers.\n\n[Newsletter Signup Placeholder]".to_string(),
-            ComponentType::Map => "## Our Location\n\n123 Main Street, City, State 12345\n\n[Interactive Map Placeholder]".to_string(),
-            ComponentType::Gallery => "## Photo Gallery\n\nExplore our collection of images.\n\n[Gallery Placeholder]".to_string(),
+            ComponentType::ContactForm => "## 📧 Get in Touch\n\nReady to transform your content management? We'd love to hear from you and help you get started.\n\n**Why choose our CMS?**\n- Built with modern Rust technology\n- Intuitive drag-and-drop interface\n- Enterprise-grade security\n- 24/7 support\n\n[Contact Form - Name, Email, Message fields would appear here]".to_string(),
+            ComponentType::Newsletter => "## 📮 Stay Updated\n\nGet the latest updates about new features, best practices, and industry insights delivered to your inbox.\n\n**What you'll receive:**\n- Monthly feature updates\n- Content management tips\n- Industry insights\n- Exclusive tutorials\n\n[Email Signup Form - Email field and Subscribe button would appear here]".to_string(),
+            ComponentType::Map => "## 🗺️ Visit Our Office\n\n**Rust CMS Headquarters**\n123 Innovation Drive\nTech Valley, CA 94000\n\nOffice Hours: Monday - Friday, 9 AM - 6 PM PST\nPhone: (555) 123-4567\n\n[Interactive Map showing our location would appear here]".to_string(),
+            ComponentType::Gallery => "## 🖼️ Showcase Gallery\n\nExplore examples of websites built with our CMS. From simple blogs to complex e-commerce sites, see what's possible.\n\n[Image gallery with sample websites would appear here]".to_string(),
         }
     }
 

@@ -771,3 +771,73 @@
         max-height: none;
     }
 }
+
+/* Dark mode support for page builder */
+@media (prefers-color-scheme: dark) {
+    .drag-drop-page-builder {
+        background: #1e293b;
+        color: #e2e8f0;
+    }
+    
+    .component-library,
+    .page-canvas {
+        background: #334155;
+        border-color: #475569;
+    }
+    
+    .component-item {
+        background: #475569;
+        border-color: #64748b;
+        color: #e2e8f0 !important;
+    }
+    
+    .component-item:hover {
+        background: #64748b;
+    }
+    
+    .page-component {
+        background: #475569;
+        border-color: #64748b;
+        color: #e2e8f0 !important;
+    }
+    
+    .component-preview {
+        color: #e2e8f0 !important;
+    }
+    
+    .canvas-header {
+        background: #475569;
+        border-color: #64748b;
+        color: #e2e8f0;
+    }
+    
+    .empty-canvas {
+        color: #94a3b8;
+    }
+    
+    .markdown-editor {
+        background: #475569;
+        color: #e2e8f0;
+        border-color: #64748b;
+    }
+    
+    .properties-modal {
+        background: rgba(15, 23, 42, 0.9);
+    }
+    
+    .properties-modal-content {
+        background: #334155;
+        color: #e2e8f0;
+        border-color: #475569;
+    }
+    
+    .form-group label {
+        color: #e2e8f0;
+    }
+    
+    .form-control {
+        background: #475569;
+        color: #e2e8f0;
+        border-color: #64748b;
+    }
+}

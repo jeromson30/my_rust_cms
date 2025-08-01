@@ -2224,6 +2224,38 @@ tr:last-child td {
         color: #e2e8f0;
     }
     
+    /* Fix dark text on dark background issues */
+    .page-component,
+    .component-preview,
+    .markdown-content,
+    .form-control,
+    .btn,
+    .card,
+    .post-content,
+    .page-content,
+    .builder-content,
+    .editor-content {
+        color: #e2e8f0 !important;
+    }
+    
+    /* Ensure form elements are visible */
+    input, textarea, select {
+        background: rgba(45, 55, 72, 0.8) !important;
+        color: #e2e8f0 !important;
+        border-color: #4a5568 !important;
+    }
+    
+    /* Update buttons for dark mode */
+    .btn-primary {
+        background: #4299e1 !important;
+        color: #ffffff !important;
+    }
+    
+    .btn-secondary {
+        background: #4a5568 !important;
+        color: #e2e8f0 !important;
+    }
+    
     .sidebar {
         background: rgba(15, 23, 42, 0.95);
     }

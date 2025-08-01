@@ -30,10 +30,16 @@ pub fn public_router(props: &PublicRouterProps) -> Html {
 
     let content = match &props.current_page {
         PublicPage::Home => html! {
-            <HomeContent on_admin_click={props.on_admin_click.clone()} />
+            <HomeContent 
+                on_admin_click={props.on_admin_click.clone()} 
+                on_navigate={props.on_navigate.clone()}
+            />
         },
         PublicPage::Posts => html! {
-            <PostsContent on_admin_click={props.on_admin_click.clone()} />
+            <PostsContent 
+                on_admin_click={props.on_admin_click.clone()} 
+                on_navigate={props.on_navigate.clone()}
+            />
         },
         PublicPage::Post(id) => html! {
             <PostContent post_id={*id} on_admin_click={props.on_admin_click.clone()} />
@@ -57,10 +63,11 @@ pub fn public_router(props: &PublicRouterProps) -> Html {
 #[derive(Properties, PartialEq)]
 struct HomeContentProps {
     on_admin_click: Callback<()>,
+    on_navigate: Callback<PublicPage>,
 }
 
 #[function_component(HomeContent)]
-fn home_content(_props: &HomeContentProps) -> Html {
+fn home_content(props: &HomeContentProps) -> Html {
     let posts = use_state(Vec::new);
     let loading = use_state(|| true);
     let error = use_state(|| None::<String>);
@@ -105,15 +112,29 @@ fn home_content(_props: &HomeContentProps) -> Html {
                         {posts.iter().take(3).map(|post| {
                             html! {
                                 <article class="post-card">
-                                    <h4>{&post.title}</h4>
+                                    <h4>
+                                        <a href="#" onclick={
+                                            let post_id = post.id.unwrap_or(0);
+                                            let on_navigate = props.on_navigate.clone();
+                                            Callback::from(move |e: MouseEvent| {
+                                                e.prevent_default();
+                                                on_navigate.emit(PublicPage::Post(post_id));
+                                            })
+                                        } style="text-decoration: none; color: inherit;">
+                                            {&post.title}
+                                        </a>
+                                    </h4>
                                     <p class="post-meta">{"By "}{&post.author}{" • "}{post.created_at.as_deref().unwrap_or("Unknown")}</p>
                                     <p class="post-excerpt">{&post.content}</p>
-                                    <a href="#" class="read-more" onclick={let post_id = post.id.unwrap_or(0); Callback::from(move |e: MouseEvent| {
-                                        e.prevent_default();
-                                        // In a real app, this would navigate to the post
-                                        web_sys::console::log_1(&format!("Navigate to post {}", post_id).into());
-                                    })}>
-                                        {"Read More"}
+                                    <a href="#" class="read-more" onclick={
+                                        let post_id = post.id.unwrap_or(0); 
+                                        let on_navigate = props.on_navigate.clone();
+                                        Callback::from(move |e: MouseEvent| {
+                                            e.prevent_default();
+                                            on_navigate.emit(PublicPage::Post(post_id));
+                                        })
+                                    }>
+                                        {"Read Article"}
                                     </a>
                                 </article>
                             }
@@ -128,10 +149,11 @@ fn home_content(_props: &HomeContentProps) -> Html {
 #[derive(Properties, PartialEq)]
 struct PostsContentProps {
     on_admin_click: Callback<()>,
+    on_navigate: Callback<PublicPage>,
 }
 
 #[function_component(PostsContent)]
-fn posts_content(_props: &PostsContentProps) -> Html {
+fn posts_content(props: &PostsContentProps) -> Html {
     let posts = use_state(Vec::new);
     let loading = use_state(|| true);
     let error = use_state(|| None::<String>);
@@ -171,15 +193,29 @@ fn posts_content(_props: &PostsContentProps) -> Html {
                     {posts.iter().map(|post| {
                         html! {
                             <article class="post-card">
-                                <h2>{&post.title}</h2>
+                                <h2>
+                                    <a href="#" onclick={
+                                        let post_id = post.id.unwrap_or(0);
+                                        let on_navigate = props.on_navigate.clone();
+                                        Callback::from(move |e: MouseEvent| {
+                                            e.prevent_default();
+                                            on_navigate.emit(PublicPage::Post(post_id));
+                                        })
+                                    } style="text-decoration: none; color: inherit;">
+                                        {&post.title}
+                                    </a>
+                                </h2>
                                 <p class="post-meta">{"By "}{&post.author}{" • "}{post.created_at.as_deref().unwrap_or("Unknown")}</p>
                                 <p class="post-excerpt">{&post.content}</p>
-                                <a href="#" class="read-more" onclick={let post_id = post.id.unwrap_or(0); Callback::from(move |e: MouseEvent| {
-                                    e.prevent_default();
-                                    // In a real app, this would navigate to the post
-                                    web_sys::console::log_1(&format!("Navigate to post {}", post_id).into());
-                                })}>
-                                    {"Read More"}
+                                <a href="#" class="read-more" onclick={
+                                    let post_id = post.id.unwrap_or(0); 
+                                    let on_navigate = props.on_navigate.clone();
+                                    Callback::from(move |e: MouseEvent| {
+                                        e.prevent_default();
+                                        on_navigate.emit(PublicPage::Post(post_id));
+                                    })
+                                }>
+                                    {"Read Article"}
                                 </a>
                             </article>
                         }
