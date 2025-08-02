@@ -17,6 +17,7 @@ static USERNAME_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"^[a-zA-Z0-9_-]{3,50}$").unwrap()
 });
 
+#[allow(dead_code)]
 static SAFE_TEXT_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"^[a-zA-Z0-9\s\-_.,!?()]+$").unwrap()
 });
@@ -87,6 +88,7 @@ pub fn validate_password(password: &str) -> ApiResult<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub fn sanitize_text_input(input: &str) -> String {
     // Remove HTML tags and dangerous characters
     input
@@ -105,10 +107,10 @@ pub fn validate_text_content(content: &str, max_length: usize) -> ApiResult<()> 
         )));
     }
     
-    // Check for potential SQL injection patterns
+    // Check for potential XSS/injection patterns (more precise)
     let dangerous_patterns = [
-        "script", "javascript", "vbscript", "onload", "onerror", "onclick",
-        "drop table", "delete from", "insert into", "update set", "--", "/*", "*/"
+        "<script", "javascript:", "vbscript:", "onload=", "onerror=", "onclick=",
+        "drop table", "delete from", "insert into", "update set", "union select"
     ];
     
     let content_lower = content.to_lowercase();
@@ -118,6 +120,15 @@ pub fn validate_text_content(content: &str, max_length: usize) -> ApiResult<()> 
                 "Content contains potentially dangerous patterns".to_string()
             ));
         }
+    }
+    
+    // Check for standalone script tags or javascript execution
+    if content_lower.contains("<script>") || 
+       content_lower.contains("</script>") ||
+       (content_lower.contains("script") && content_lower.contains("src=")) {
+        return Err(AppError::ValidationError(
+            "Content contains potentially dangerous patterns".to_string()
+        ));
     }
     
     Ok(())
@@ -163,10 +174,12 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
+#[allow(dead_code)]
 static RATE_LIMITER: Lazy<Mutex<HashMap<String, (u32, Instant)>>> = Lazy::new(|| {
     Mutex::new(HashMap::new())
 });
 
+#[allow(dead_code)]
 pub async fn rate_limit_middleware(
     req: Request,
     next: Next,

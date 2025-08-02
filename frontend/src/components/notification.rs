@@ -1,6 +1,7 @@
 use yew::prelude::*;
 
 #[derive(Clone, PartialEq)]
+#[allow(dead_code)]
 pub enum NotificationType {
     Success,
     Error,
@@ -9,6 +10,7 @@ pub enum NotificationType {
 }
 
 #[derive(Clone, PartialEq)]
+#[allow(dead_code)]
 pub struct Notification {
     pub id: String,
     pub message: String,
@@ -17,6 +19,7 @@ pub struct Notification {
 }
 
 #[derive(Properties, PartialEq)]
+#[allow(dead_code)]
 pub struct NotificationProps {
     pub notification: Notification,
     pub on_close: Callback<String>,
@@ -48,6 +51,7 @@ pub fn notification_item(props: &NotificationProps) -> Html {
 }
 
 #[derive(Properties, PartialEq)]
+#[allow(dead_code)]
 pub struct NotificationContainerProps {
     pub notifications: Vec<Notification>,
     pub on_close: Callback<String>,

@@ -12,7 +12,9 @@ pub struct NavigationItem {
 
 #[derive(Debug)]
 pub enum NavigationServiceError {
+    #[allow(dead_code)]
     NetworkError(String),
+    #[allow(dead_code)]
     ParseError(String),
 }
 

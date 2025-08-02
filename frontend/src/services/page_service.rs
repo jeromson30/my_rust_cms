@@ -14,7 +14,9 @@ pub struct Page {
 
 #[derive(Debug)]
 pub enum PageServiceError {
+    #[allow(dead_code)]
     NetworkError(String),
+    #[allow(dead_code)]
     ParseError(String),
 }
 
@@ -37,6 +39,7 @@ pub async fn get_pages() -> Result<Vec<Page>, PageServiceError> {
     }
 }
 
+#[allow(dead_code)]
 pub async fn create_page(page: &Page) -> Result<Page, PageServiceError> {
     let token = get_auth_token().map_err(|_| PageServiceError::NetworkError("Not authenticated".to_string()))?;
     
@@ -60,6 +63,7 @@ pub async fn create_page(page: &Page) -> Result<Page, PageServiceError> {
     }
 }
 
+#[allow(dead_code)]
 pub async fn update_page(id: i32, page: &Page) -> Result<Page, PageServiceError> {
     let token = get_auth_token().map_err(|_| PageServiceError::NetworkError("Not authenticated".to_string()))?;
     
@@ -83,6 +87,7 @@ pub async fn update_page(id: i32, page: &Page) -> Result<Page, PageServiceError>
     }
 }
 
+#[allow(dead_code)]
 pub async fn delete_page(id: i32) -> Result<(), PageServiceError> {
     let token = get_auth_token().map_err(|_| PageServiceError::NetworkError("Not authenticated".to_string()))?;
     

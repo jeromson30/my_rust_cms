@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use crate::services::api_service::get_posts;
 
+#[allow(dead_code)]
 fn format_date(date_str: &str) -> String {
     // Try to parse and format the date nicely
     if let Ok(naive_datetime) = chrono::NaiveDateTime::parse_from_str(date_str, "%Y-%m-%d %H:%M:%S") {
@@ -10,6 +11,7 @@ fn format_date(date_str: &str) -> String {
     }
 }
 
+#[allow(dead_code)]
 fn truncate_content(content: &str, max_length: usize) -> String {
     if content.len() <= max_length {
         content.to_string()
@@ -66,9 +68,9 @@ pub fn posts() -> Html {
 
             <main class="site-main">
                 <div class="container">
-                    <header style="text-align: center; margin-bottom: 3rem;">
+                    <header class="page-header-section">
                         <h1 class="section-title">{"All Articles"}</h1>
-                        <p style="color: var(--text-light); font-size: 1.1rem;">
+                        <p class="section-subtitle">
                             {"Discover insights, tutorials, and thoughts on modern web development."}
                         </p>
                     </header>

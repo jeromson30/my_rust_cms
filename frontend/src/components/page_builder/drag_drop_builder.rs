@@ -111,6 +111,7 @@ pub enum ComponentType {
     Newsletter,
     Map,
     Gallery,
+    PostsList,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -152,7 +153,7 @@ impl Default for ComponentStyles {
     fn default() -> Self {
         Self {
             background_color: "transparent".to_string(),
-            text_color: "inherit".to_string(),
+            text_color: "var(--public-text-primary, #000000)".to_string(),
             padding: "16px".to_string(),
             margin: "8px".to_string(),
             border_radius: "8px".to_string(),
@@ -272,6 +273,7 @@ impl ComponentType {
             ComponentType::Newsletter => "Newsletter",
             ComponentType::Map => "Map",
             ComponentType::Gallery => "Gallery",
+            ComponentType::PostsList => "Posts List",
         }
     }
 
@@ -297,6 +299,7 @@ impl ComponentType {
             ComponentType::Newsletter => "## 📮 Stay Updated\n\nGet the latest updates about new features, best practices, and industry insights delivered to your inbox.\n\n**What you'll receive:**\n- Monthly feature updates\n- Content management tips\n- Industry insights\n- Exclusive tutorials\n\n[Email Signup Form - Email field and Subscribe button would appear here]".to_string(),
             ComponentType::Map => "## 🗺️ Visit Our Office\n\n**Rust CMS Headquarters**\n123 Innovation Drive\nTech Valley, CA 94000\n\nOffice Hours: Monday - Friday, 9 AM - 6 PM PST\nPhone: (555) 123-4567\n\n[Interactive Map showing our location would appear here]".to_string(),
             ComponentType::Gallery => "## 🖼️ Showcase Gallery\n\nExplore examples of websites built with our CMS. From simple blogs to complex e-commerce sites, see what's possible.\n\n[Image gallery with sample websites would appear here]".to_string(),
+            ComponentType::PostsList => "## 📄 Latest Posts\n\nDiscover our latest articles and insights. This dynamic list automatically displays your most recent blog posts.\n\n[This will show a list of your published posts]".to_string(),
         }
     }
 
@@ -322,6 +325,7 @@ impl ComponentType {
             ComponentType::Newsletter => "📮",
             ComponentType::Map => "🗺️",
             ComponentType::Gallery => "🖼️",
+            ComponentType::PostsList => "📄",
         }
     }
 }
@@ -395,6 +399,7 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
         ComponentType::Newsletter,
         ComponentType::Map,
         ComponentType::Gallery,
+        ComponentType::PostsList,
     ];
 
     let on_drag_start = {
@@ -414,6 +419,7 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                             "Hero" => ComponentType::Hero,
                             "Card" => ComponentType::Card,
                             "List" => ComponentType::List,
+                            "PostsList" => ComponentType::PostsList,
                             _ => ComponentType::Text,
                         };
                         dragging_component.set(Some(component_type));
@@ -555,14 +561,6 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                 }
             }
             components.set(current_components);
-        })
-    };
-
-    let on_save_page = {
-        let components = components.clone();
-        let on_save = props.on_save.clone();
-        Callback::from(move |_: MouseEvent| {
-            on_save.emit((*components).clone());
         })
     };
 
@@ -839,14 +837,14 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                 <label>{"Background Color"}</label>
                                                 <div class="color-input-group">
                                                     <input type="color" value={component.styles.background_color.clone()} />
-                                                    <input type="text" value={component.styles.background_color.clone()} placeholder="#ffffff" />
+                                                    <input type="text" value={component.styles.background_color.clone()} placeholder="transparent" />
                                                 </div>
                                             </div>
                                             <div class="property-group">
                                                 <label>{"Text Color"}</label>
                                                 <div class="color-input-group">
                                                     <input type="color" value={component.styles.text_color.clone()} />
-                                                    <input type="text" value={component.styles.text_color.clone()} placeholder="#000000" />
+                                                    <input type="text" value={component.styles.text_color.clone()} placeholder="var(--public-text-primary)" />
                                                 </div>
                                             </div>
                                             <div class="property-group">
@@ -942,7 +940,7 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                 <label>{"Border Color"}</label>
                                                 <div class="color-input-group">
                                                     <input type="color" value={component.styles.border_color.clone()} />
-                                                    <input type="text" value={component.styles.border_color.clone()} placeholder="#000000" />
+                                                    <input type="text" value={component.styles.border_color.clone()} placeholder="var(--public-border-light)" />
                                                 </div>
                                             </div>
                                             <div class="property-group">
@@ -1075,8 +1073,8 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                                 }
                                                             } else {
                                                                 html! {
-                                                                    <div class="image-placeholder" style="background: #f5f5f5; border: 2px dashed #ccc; padding: 40px; text-align: center; border-radius: 4px;">
-                                                                        <span style="color: #999;">{"📷 Enter an image URL above to see preview"}</span>
+                                                                    <div class="image-placeholder" style="background: var(--public-background-secondary, #f5f5f5); border: 2px dashed var(--public-border-light, #ccc); padding: 40px; text-align: center; border-radius: 4px;">
+                                                                        <span style="color: var(--public-text-muted, #999);">{"📷 Enter an image URL above to see preview"}</span>
                                                                     </div>
                                                                 }
                                                             }}
@@ -1348,7 +1346,7 @@ fn render_component_content(component: &PageComponent) -> Html {
         ComponentType::Image => {
             if component.properties.image_url.is_empty() {
                 html! { 
-                    <div class="placeholder-image" style="background: #f5f5f5; border: 2px dashed #ccc; padding: 40px; text-align: center; border-radius: 8px; color: #666;">
+                    <div class="placeholder-image" style="background: var(--public-background-secondary, #f5f5f5); border: 2px dashed var(--public-border-light, #ccc); padding: 40px; text-align: center; border-radius: 8px; color: var(--public-text-secondary, #666);">
                         {"📷 Configure image properties to display"} 
                     </div> 
                 }
@@ -1399,7 +1397,18 @@ fn render_component_content(component: &PageComponent) -> Html {
             html! { <div class="component-spacer" style="height: 40px; background: transparent;"></div> }
         }
         ComponentType::Divider => {
-            html! { <div class="component-divider"><hr style="border: 1px solid #ddd; margin: 20px 0;" /></div> }
+            html! { <div class="component-divider"><hr style="border: 1px solid var(--public-border-light, #ddd); margin: 20px 0;" /></div> }
+        }
+        ComponentType::PostsList => {
+            html! {
+                <div class="posts-list-component">
+                    <div class="posts-list-placeholder" style="padding: 20px; border: 2px dashed var(--public-border-light, #ccc); border-radius: 8px; text-align: center; background: var(--public-background-secondary, #f9f9f9);">
+                        {"📄 Posts List Component"}
+                        <br/>
+                        <small style="color: var(--public-text-secondary, #666);">{"Latest posts will be displayed here automatically"}</small>
+                    </div>
+                </div>
+            }
         }
         ComponentType::Container => {
             html! { 

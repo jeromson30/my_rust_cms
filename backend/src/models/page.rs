@@ -15,6 +15,8 @@ pub struct Page {
     pub user_id: Option<i32>,
     pub created_at: Option<NaiveDateTime>,
     pub updated_at: Option<NaiveDateTime>,
+    pub slug: String,
+    pub status: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Insertable)]
@@ -23,6 +25,8 @@ pub struct NewPage {
     pub title: String,
     pub content: String,
     pub user_id: Option<i32>,
+    pub slug: String,
+    pub status: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, AsChangeset)]
@@ -32,6 +36,8 @@ pub struct UpdatePage {
     pub content: Option<String>,
     pub user_id: Option<i32>,
     pub updated_at: Option<NaiveDateTime>,
+    pub slug: Option<String>,
+    pub status: Option<String>,
 }
 
 impl Page {

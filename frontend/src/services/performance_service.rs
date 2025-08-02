@@ -1,11 +1,10 @@
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex, OnceLock};
 
 /// Performance tracking service for frontend metrics
 #[derive(Debug, Clone)]
 pub struct PerformanceService {
-    metrics: Rc<RefCell<PerformanceMetrics>>,
+    metrics: Arc<Mutex<PerformanceMetrics>>,
 }
 
 #[derive(Debug, Clone)]
@@ -23,7 +22,9 @@ pub struct PerformanceMetrics {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct NetworkRequest {
+    #[allow(dead_code)]
     pub url: String,
     pub duration: f64,
     pub size: f64,
@@ -50,7 +51,7 @@ impl Default for PerformanceMetrics {
 impl PerformanceService {
     pub fn new() -> Result<Self, String> {
         let service = Self {
-            metrics: Rc::new(RefCell::new(PerformanceMetrics::default())),
+            metrics: Arc::new(Mutex::new(PerformanceMetrics::default())),
         };
         
         // Initialize with mock metrics
@@ -60,7 +61,7 @@ impl PerformanceService {
     }
     
     fn update_basic_metrics(&self) -> Result<(), String> {
-        let mut metrics = self.metrics.borrow_mut();
+        let mut metrics = self.metrics.lock().unwrap();
         
         // Set reasonable mock values for demonstration
         metrics.page_load_time = 2.1;
@@ -91,14 +92,16 @@ impl PerformanceService {
     }
     
     /// Track a component render time
+    #[allow(dead_code)]
     pub fn track_component_render(&self, component_name: &str, render_time: f64) {
-        let mut metrics = self.metrics.borrow_mut();
+        let mut metrics = self.metrics.lock().unwrap();
         metrics.component_render_times.insert(component_name.to_string(), render_time);
     }
     
     /// Track a network request
+    #[allow(dead_code)]
     pub fn track_network_request(&self, url: String, duration: f64, size: f64, status: u16) {
-        let mut metrics = self.metrics.borrow_mut();
+        let mut metrics = self.metrics.lock().unwrap();
         metrics.network_requests.push(NetworkRequest {
             url,
             duration,
@@ -109,33 +112,33 @@ impl PerformanceService {
     
     /// Update DOM nodes count (simplified)
     pub fn update_dom_nodes_count(&self) -> Result<(), String> {
-        let mut metrics = self.metrics.borrow_mut();
+        let mut metrics = self.metrics.lock().unwrap();
         metrics.dom_nodes_count = 1850; // Mock value
         Ok(())
     }
     
     /// Update memory usage (simplified version)
     pub fn update_memory_usage(&self) -> Result<(), String> {
-        let mut metrics = self.metrics.borrow_mut();
+        let mut metrics = self.metrics.lock().unwrap();
         metrics.memory_usage = 45.6; // MB - placeholder
         Ok(())
     }
     
     /// Estimate WASM bundle size
     pub fn estimate_wasm_bundle_size(&self) -> Result<(), String> {
-        let mut metrics = self.metrics.borrow_mut();
+        let mut metrics = self.metrics.lock().unwrap();
         metrics.wasm_bundle_size = 1250.4; // KB - placeholder
         Ok(())
     }
     
     /// Get current metrics
     pub fn get_metrics(&self) -> PerformanceMetrics {
-        self.metrics.borrow().clone()
+        self.metrics.lock().unwrap().clone()
     }
     
     /// Get aggregated network metrics
     pub fn get_network_metrics(&self) -> NetworkMetrics {
-        let metrics = self.metrics.borrow();
+        let metrics = self.metrics.lock().unwrap();
         
         if metrics.network_requests.is_empty() {
             return NetworkMetrics {
@@ -160,7 +163,7 @@ impl PerformanceService {
     
     /// Get average component render time
     pub fn get_avg_component_render_time(&self) -> f64 {
-        let metrics = self.metrics.borrow();
+        let metrics = self.metrics.lock().unwrap();
         
         if metrics.component_render_times.is_empty() {
             return 0.0;
@@ -181,30 +184,34 @@ impl PerformanceService {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct NetworkMetrics {
     pub avg_request_time: f64,
+    #[allow(dead_code)]
     pub total_requests: usize,
+    #[allow(dead_code)]
     pub total_data_transferred: f64,
+    #[allow(dead_code)]
     pub error_rate: f64,
 }
 
 /// Create a global performance service instance
-static mut PERFORMANCE_SERVICE: Option<PerformanceService> = None;
+static PERFORMANCE_SERVICE: OnceLock<PerformanceService> = OnceLock::new();
 
 /// Initialize the global performance service
 pub fn init_performance_service() -> Result<(), String> {
-    unsafe {
-        PERFORMANCE_SERVICE = Some(PerformanceService::new()?);
-    }
+    let service = PerformanceService::new()?;
+    PERFORMANCE_SERVICE.set(service).map_err(|_| "Performance service already initialized".to_string())?;
     Ok(())
 }
 
 /// Get the global performance service instance
 pub fn get_performance_service() -> Option<&'static PerformanceService> {
-    unsafe { PERFORMANCE_SERVICE.as_ref() }
+    PERFORMANCE_SERVICE.get()
 }
 
 /// Helper function for tracking component render time (simplified)
+#[allow(dead_code)]
 pub fn track_render_time<F, R>(component_name: &str, f: F) -> R 
 where
     F: FnOnce() -> R,

@@ -11,11 +11,5 @@ mod settings;
 mod comment_moderation;
 mod not_found;
 
-pub use dashboard::Dashboard;
-pub use post_list::PostList;
-pub use page_builder::PageBuilder;
-pub use media_library::MediaLibrary;
-pub use user_management::UserManagement;
-pub use settings::Settings;
-pub use comment_moderation::CommentModeration;
-pub use auth::Login; 
+// Export modules for direct access
+// Pages are accessed via module::Page syntax 

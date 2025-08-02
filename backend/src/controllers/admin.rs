@@ -5,9 +5,9 @@ use axum::{
 use crate::{
     AppServices,
     models::{User, Category, Post, Comment, Media, Page},
-    middleware::errors::{AppError, ApiResult},
+    middleware::errors::AppError,
 };
-use sysinfo::{System, SystemExt, CpuExt, DiskExt, ProcessExt, NetworksExt, NetworkExt};
+use sysinfo::{System, SystemExt, CpuExt, DiskExt, NetworksExt, NetworkExt};
 
 /// Get system statistics (admin only)
 /// 

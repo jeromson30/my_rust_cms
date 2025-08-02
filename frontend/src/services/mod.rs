@@ -2,14 +2,13 @@
 
 pub mod api_service;
 pub mod auth_service;
+pub mod auth_context;
 pub mod navigation_service;
 pub mod page_service;
 pub mod performance_service;
 pub mod sample_page_data;
+pub mod default_pages;
+pub mod migrate_pages;
 
-pub use api_service::*;
-pub use auth_service::*;
-pub use navigation_service::*;
-pub use page_service::*;
-pub use performance_service::*;
-pub use sample_page_data::*;
+// Export modules for direct access
+// Services are accessed via module::service syntax

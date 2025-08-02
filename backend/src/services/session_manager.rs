@@ -10,7 +10,7 @@ use crate::{
     database::DbPool,
     models::{Session, NewSession, User},
     middleware::errors::{AppError, ApiResult},
-    schema,
+
 };
 
 #[derive(Clone)]
@@ -69,7 +69,6 @@ impl SessionManager {
         let current_session_count = Session::count_active_sessions_for_user(&mut conn, user_id)?;
         
         if current_session_count >= self.config.max_sessions_per_user as i64 {
-            let sessions_to_remove = (current_session_count - self.config.max_sessions_per_user as i64 + 1) as usize;
             let removed = Session::delete_old_sessions_for_user(&mut conn, user_id, self.config.max_sessions_per_user - 1)?;
             info!("Removed {} old sessions for user {} to stay within limit", removed, user_id);
         }

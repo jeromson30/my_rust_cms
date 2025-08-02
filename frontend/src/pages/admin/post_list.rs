@@ -115,49 +115,51 @@ pub fn post_list() -> Html {
                             <button class="btn" onclick={on_create_post_clone}>{"Create Post"}</button>
                         </div>
                 } else {
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>{"Title"}</th>
-                                <th>{"Author"}</th>
-                                <th>{"Status"}</th>
-                                <th>{"Date"}</th>
-                                <th>{"Actions"}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {posts.iter().map(|post| {
-                                let on_delete = {
-                                    let on_delete_post = on_delete_post.clone();
-                                    let post_id = post.id.unwrap_or(0);
-                                    Callback::from(move |_| on_delete_post.emit(post_id))
-                                };
+                    <div class="admin-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>{"Title"}</th>
+                                    <th>{"Author"}</th>
+                                    <th>{"Status"}</th>
+                                    <th>{"Date"}</th>
+                                    <th>{"Actions"}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {posts.iter().map(|post| {
+                                    let on_delete = {
+                                        let on_delete_post = on_delete_post.clone();
+                                        let post_id = post.id.unwrap_or(0);
+                                        Callback::from(move |_| on_delete_post.emit(post_id))
+                                    };
 
-                                let on_edit = {
-                                    let on_edit_post = on_edit_post.clone();
-                                    let post = post.clone();
-                                    Callback::from(move |_| on_edit_post.emit(post.clone()))
-                                };
+                                    let on_edit = {
+                                        let on_edit_post = on_edit_post.clone();
+                                        let post = post.clone();
+                                        Callback::from(move |_| on_edit_post.emit(post.clone()))
+                                    };
 
-                                html! {
-                                    <tr>
-                                        <td>{&post.title}</td>
-                                        <td>{&post.author}</td>
-                                        <td>
-                                            <span class={classes!("status-badge", if post.status == "published" { "published" } else { "draft" })}>
-                                                {&post.status}
-                                            </span>
-                                        </td>
-                                        <td>{post.created_at.as_deref().unwrap_or("Unknown")}</td>
-                                        <td>
-                                            <button class="btn btn-secondary" onclick={on_edit}>{"Edit"}</button>
-                                            <button class="btn btn-secondary" onclick={on_delete}>{"Delete"}</button>
-                                        </td>
-                                    </tr>
-                                }
-                            }).collect::<Html>()}
-                        </tbody>
-                    </table>
+                                    html! {
+                                        <tr>
+                                            <td>{&post.title}</td>
+                                            <td>{&post.author}</td>
+                                            <td>
+                                                <span class={classes!("status-badge", if post.status == "published" { "published" } else { "draft" })}>
+                                                    {&post.status}
+                                                </span>
+                                            </td>
+                                            <td>{post.created_at.as_deref().unwrap_or("Unknown")}</td>
+                                            <td class="actions">
+                                                <button class="btn btn-secondary" onclick={on_edit}>{"Edit"}</button>
+                                                <button class="btn btn-danger" onclick={on_delete}>{"Delete"}</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }).collect::<Html>()}
+                            </tbody>
+                        </table>
+                    </div>
                 }
             </div>
             }

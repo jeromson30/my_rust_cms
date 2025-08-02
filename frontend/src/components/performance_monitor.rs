@@ -1,6 +1,6 @@
 use yew::prelude::*;
 use crate::services::api_service::{get_performance_metrics, PerformanceMetrics, BackendMetrics, FrontendMetrics, SystemMetrics};
-use crate::services::performance_service::{get_performance_service, NetworkMetrics};
+use crate::services::performance_service::get_performance_service;
 
 #[derive(Properties, PartialEq)]
 pub struct PerformanceMonitorProps {
@@ -13,7 +13,7 @@ pub fn performance_monitor(props: &PerformanceMonitorProps) -> Html {
     let loading = use_state(|| true);
     let error = use_state(|| None::<String>);
     let last_updated = use_state(|| "Never".to_string());
-    let show_real_time = props.show_real_time;
+    let _show_real_time = props.show_real_time;
 
     // Load performance data
     {

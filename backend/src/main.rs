@@ -17,18 +17,18 @@ use axum::{
 };
 use std::net::SocketAddr;
 use tracing::info;
-use tower_http::cors::{CorsLayer, Any};
+use tower_http::cors::CorsLayer;
 use config::Config;
 use database::{DbPool, establish_connection_pool};
 use models::*;
-use middleware::{auth::*, validation::*, errors::*};
+use middleware::auth::{auth_middleware_with_services, admin_auth_middleware_with_services};
 use services::{SessionManager, SessionConfig};
-use diesel::prelude::*;
+
 
 // Database connection pool state
 use std::sync::Arc;
 
-type AppState = Arc<DbPool>;
+
 
 #[derive(Clone)]
 pub struct AppServices {
@@ -67,7 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let session_manager = SessionManager::new(db_pool.clone(), session_config);
     
     // Start background session cleanup
-    let cleanup_task = session_manager.clone().start_background_cleanup().await;
+    let _cleanup_task = session_manager.clone().start_background_cleanup().await;
     info!("Session cleanup background task started");
     
     let app_services = AppServices {

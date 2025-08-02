@@ -26,7 +26,7 @@ pub fn post_editor(props: &PostEditorProps) -> Html {
         })
     };
 
-    let on_content_change = {
+    let _on_content_change = {
         let content = content.clone();
         Callback::from(move |e: InputEvent| {
             let input: web_sys::HtmlTextAreaElement = e.target_unchecked_into();

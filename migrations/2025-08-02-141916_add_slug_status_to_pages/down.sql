@@ -1,0 +1,3 @@
+DROP INDEX IF EXISTS pages_slug_idx;
+ALTER TABLE pages DROP COLUMN slug;
+ALTER TABLE pages DROP COLUMN status;

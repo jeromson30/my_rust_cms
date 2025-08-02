@@ -3,14 +3,14 @@ mod sidebar;
 mod notification;
 mod public_layout;
 pub mod admin;
+pub mod auth_guard;
+pub mod posts_list_widget;
 pub mod markdown_editor;
 pub mod page_builder;
 pub mod performance_monitor;
 
-pub use header::Header;
-pub use sidebar::Sidebar;
-pub use sidebar::ActiveTab;
-pub use notification::{NotificationContainer, Notification, NotificationType};
-pub use admin::{AdminHeader, AdminSidebar};
+// Export essential components that are used across the app
 pub use public_layout::PublicLayout;
-pub use performance_monitor::{PerformanceMonitor, BackendMetricsComponent, FrontendMetricsComponent, SystemMetricsComponent, MetricCard};
+pub use posts_list_widget::PostsListWidget;
+pub use auth_guard::AdminGuard;
+pub use performance_monitor::PerformanceMonitor;

@@ -1,16 +1,16 @@
 use axum::{
     extract::{State, Path, Json, Extension},
     response::Json as ResponseJson,
-    http::StatusCode,
+
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use crate::{
     AppServices,
     models::{User, NewUser, UpdateUser},
     middleware::{
         auth::AuthenticatedUser,
         validation::{validate_username, validate_email, validate_password},
-        errors::{AppError, ApiResult},
+        errors::AppError,
     },
 };
 

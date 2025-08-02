@@ -8,7 +8,7 @@ use crate::{
     models::{Navigation, NewNavigation, UpdateNavigation},
     middleware::{
         validation::validate_text_content,
-        errors::{AppError, ApiResult},
+        errors::AppError,
     },
 };
 

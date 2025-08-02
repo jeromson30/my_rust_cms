@@ -6,10 +6,10 @@ use crate::{
     AppServices,
     middleware::{
         auth::AuthenticatedUser,
-        errors::{AppError, ApiResult},
+        errors::AppError,
     },
     models::session::SessionInfo,
-    services::SessionStats,
+
 };
 
 /// Get current user's active sessions

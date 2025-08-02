@@ -1,6 +1,7 @@
 use yew::prelude::*;
 
 #[derive(Clone, PartialEq)]
+#[allow(dead_code)]
 pub enum ActiveTab {
     Dashboard,
     Posts,
@@ -13,6 +14,7 @@ pub enum ActiveTab {
 }
 
 #[derive(Properties, PartialEq)]
+#[allow(dead_code)]
 pub struct SidebarProps {
     pub on_tab_click: Callback<ActiveTab>,
     pub active_tab: ActiveTab,

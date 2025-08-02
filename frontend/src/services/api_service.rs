@@ -183,7 +183,7 @@ pub async fn get_post(id: i32) -> Result<Post, ApiServiceError> {
 }
 
 pub async fn create_post(post: &Post) -> Result<Post, ApiServiceError> {
-    let response = Request::post(&format!("{}/posts", API_BASE_URL))
+    let response = create_authenticated_request("POST", &format!("{}/posts", API_BASE_URL))?
         .json(post)
         .map_err(|e| ApiServiceError::ParseError(e.to_string()))?
         .send()
@@ -202,7 +202,7 @@ pub async fn create_post(post: &Post) -> Result<Post, ApiServiceError> {
 }
 
 pub async fn update_post(id: i32, post: &Post) -> Result<Post, ApiServiceError> {
-    let response = Request::put(&format!("{}/posts/{}", API_BASE_URL, id))
+    let response = create_authenticated_request("PUT", &format!("{}/posts/{}", API_BASE_URL, id))?
         .json(post)
         .map_err(|e| ApiServiceError::ParseError(e.to_string()))?
         .send()
@@ -221,12 +221,12 @@ pub async fn update_post(id: i32, post: &Post) -> Result<Post, ApiServiceError> 
 }
 
 pub async fn delete_post(id: i32) -> Result<(), ApiServiceError> {
-    let response = Request::delete(&format!("{}/posts/{}", API_BASE_URL, id))
+    let response = create_authenticated_request("DELETE", &format!("{}/posts/{}", API_BASE_URL, id))?
         .send()
         .await
         .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
 
-    if response.status() == 204 {
+    if response.status() == 200 {
         Ok(())
     } else {
         Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
@@ -320,6 +320,7 @@ pub async fn get_comments() -> Result<Vec<Comment>, ApiServiceError> {
     }
 }
 
+#[allow(dead_code)]
 pub async fn create_comment(comment: &Comment) -> Result<Comment, ApiServiceError> {
     let response = Request::post(&format!("{}/comments", API_BASE_URL))
         .json(comment)
@@ -389,6 +390,7 @@ pub async fn get_media() -> Result<Vec<MediaItem>, ApiServiceError> {
     }
 }
 
+#[allow(dead_code)]
 pub async fn create_media(media: &MediaItem) -> Result<MediaItem, ApiServiceError> {
     let response = Request::post(&format!("{}/media", API_BASE_URL))
         .json(media)
@@ -441,7 +443,7 @@ pub async fn get_stats() -> Result<Stats, ApiServiceError> {
 
 // Pages API
 pub async fn get_pages() -> Result<Vec<PageItem>, ApiServiceError> {
-    let request = Request::get(&format!("{}/pages", API_BASE_URL));
+    let request = create_authenticated_request("GET", &format!("{}/pages", API_BASE_URL))?;
     let response = request.send().await.map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
     
     if response.ok() {
@@ -453,7 +455,7 @@ pub async fn get_pages() -> Result<Vec<PageItem>, ApiServiceError> {
 }
 
 pub async fn create_page(page: &PageItem) -> Result<PageItem, ApiServiceError> {
-    let request = Request::post(&format!("{}/pages", API_BASE_URL))
+    let request = create_authenticated_request("POST", &format!("{}/pages", API_BASE_URL))?
         .json(page)
         .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
     
@@ -468,7 +470,7 @@ pub async fn create_page(page: &PageItem) -> Result<PageItem, ApiServiceError> {
 }
 
 pub async fn update_page(id: i32, page: &PageItem) -> Result<PageItem, ApiServiceError> {
-    let request = Request::put(&format!("{}/pages/{}", API_BASE_URL, id))
+    let request = create_authenticated_request("PUT", &format!("{}/pages/{}", API_BASE_URL, id))?
         .json(page)
         .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
     
@@ -483,7 +485,7 @@ pub async fn update_page(id: i32, page: &PageItem) -> Result<PageItem, ApiServic
 }
 
 pub async fn delete_page(id: i32) -> Result<(), ApiServiceError> {
-    let request = Request::delete(&format!("{}/pages/{}", API_BASE_URL, id));
+    let request = create_authenticated_request("DELETE", &format!("{}/pages/{}", API_BASE_URL, id))?;
     let response = request.send().await.map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
     
     if response.ok() {

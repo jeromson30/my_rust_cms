@@ -30,6 +30,7 @@ impl MediaFilter {
         }
     }
 
+    #[allow(dead_code)]
     fn label(&self) -> &'static str {
         match self {
             MediaFilter::All => "All Media",
@@ -243,7 +244,7 @@ pub fn media_library() -> Html {
 
     let on_drop = {
         let drag_over = drag_over.clone();
-        let handle_files = handle_files.clone();
+        let _handle_files = handle_files.clone();
         Callback::from(move |e: DragEvent| {
             e.prevent_default();
             drag_over.set(false);

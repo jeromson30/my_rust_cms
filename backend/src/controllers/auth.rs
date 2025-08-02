@@ -10,7 +10,7 @@ use crate::{
     middleware::{
         auth::{get_authenticated_user, AuthenticatedUser},
         validation::validate_username,
-        errors::{AppError, ApiResult},
+        errors::AppError,
     },
 };
 
@@ -91,7 +91,7 @@ pub async fn login(
 pub async fn get_current_user(
     req: axum::extract::Request,
 ) -> Result<ResponseJson<UserProfile>, AppError> {
-    let auth_user = get_authenticated_user(&req)?;
+    let auth_user: &AuthenticatedUser = get_authenticated_user(&req)?;
     
     Ok(ResponseJson(UserProfile {
         id: auth_user.id,

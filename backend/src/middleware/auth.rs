@@ -1,10 +1,9 @@
 use axum::{
     extract::{Request, State},
-    http::StatusCode,
     middleware::Next,
     response::Response,
 };
-use diesel::prelude::*;
+
 use crate::{
     database::DbPool,
     models::{Session, User},
@@ -23,15 +22,18 @@ pub struct AuthenticatedUser {
 }
 
 impl AuthenticatedUser {
+    #[allow(dead_code)]
     pub fn is_admin(&self) -> bool {
         self.role == "admin"
     }
-    
+
+    #[allow(dead_code)]
     pub fn is_active(&self) -> bool {
         self.status == "active"
     }
 }
 
+#[allow(dead_code)]
 pub async fn auth_middleware(
     State(pool): State<Arc<DbPool>>,
     mut req: Request,
@@ -83,6 +85,7 @@ pub async fn auth_middleware(
     Ok(next.run(req).await)
 }
 
+#[allow(dead_code)]
 pub async fn admin_auth_middleware(
     State(pool): State<Arc<DbPool>>,
     mut req: Request,

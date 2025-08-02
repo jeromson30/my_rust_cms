@@ -3,6 +3,7 @@ use crate::components::page_builder::drag_drop_builder::{PageComponent, Componen
 use crate::services::api_service::PageItem;
 
 // Helper function to create a component with default properties
+#[allow(dead_code)]
 fn create_component(component_type: ComponentType, content: &str) -> PageComponent {
     PageComponent {
         id: uuid::Uuid::new_v4().to_string(),
@@ -14,12 +15,14 @@ fn create_component(component_type: ComponentType, content: &str) -> PageCompone
     }
 }
 
+#[allow(dead_code)]
 pub fn generate_sample_pages() -> Vec<PageItem> {
     vec![
         create_home_page(),
     ]
 }
 
+#[allow(dead_code)]
 fn create_home_page() -> PageItem {
     PageItem {
         id: Some(1),

@@ -5,9 +5,6 @@ mod page;
 mod not_found;
 mod public_router;
 
-pub use home::Home;
-pub use posts::Posts;
-pub use post::Post;
-pub use page::Page;
-pub use not_found::NotFound;
+// Export modules for direct access  
+// Public pages are accessed via module::Page syntax
 pub use public_router::{PublicRouter, PublicPage}; 

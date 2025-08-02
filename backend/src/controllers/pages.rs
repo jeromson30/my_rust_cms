@@ -8,7 +8,7 @@ use crate::{
     models::{Page, NewPage, UpdatePage},
     middleware::{
         validation::validate_text_content,
-        errors::{AppError, ApiResult},
+        errors::AppError,
     },
 };
 
@@ -26,20 +26,12 @@ pub struct FrontendPage {
 
 impl From<Page> for FrontendPage {
     fn from(page: Page) -> Self {
-        // Create slug from title: lowercase, replace spaces with hyphens, remove special chars
-        let slug = page.title
-            .to_lowercase()
-            .replace(' ', "-")
-            .chars()
-            .filter(|c| c.is_alphanumeric() || *c == '-')
-            .collect::<String>();
-            
         FrontendPage {
             id: Some(page.id),
             title: page.title,
-            slug,
+            slug: page.slug,
             content: page.content,
-            status: "published".to_string(), // Default status
+            status: page.status,
             created_at: page.created_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
             updated_at: page.updated_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
         }
@@ -125,7 +117,9 @@ pub async fn create_page(
     let new_page = NewPage {
         title: page.title.trim().to_string(),
         content: page.content.trim().to_string(),
-        user_id: Some(1), // TODO: Use authenticated user ID
+        user_id: Some(2), // Using admin user ID (should get from auth in production)
+        slug: page.slug.trim().to_string(),
+        status: page.status.trim().to_string(),
     };
     
     let created_page = Page::create(&mut conn, new_page)?;
@@ -163,6 +157,8 @@ pub async fn update_page(
         content: Some(page.content.trim().to_string()),
         user_id: None,
         updated_at: Some(chrono::Utc::now().naive_utc()),
+        slug: Some(page.slug.trim().to_string()),
+        status: Some(page.status.trim().to_string()),
     };
     
     let updated_page = Page::update(&mut conn, id, update_page)?;

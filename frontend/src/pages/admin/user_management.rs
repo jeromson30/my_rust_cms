@@ -265,7 +265,7 @@ pub fn user_management() -> Html {
                             <div class="error-message">{"Error: "}{error_msg}</div>
                         }
 
-                        <div class="users-table">
+                        <div class="admin-table-container">
                             <table>
                                 <thead>
                                     <tr>

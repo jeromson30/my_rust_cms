@@ -1,10 +1,10 @@
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
-use std::sync::Arc;
+
 
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
-pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
+
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
@@ -29,6 +29,4 @@ pub fn run_migrations(pool: &DbPool) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn get_connection(pool: &DbPool) -> Result<DbConnection, Box<dyn std::error::Error>> {
-    pool.get().map_err(|e| e.into())
-} 
+ 

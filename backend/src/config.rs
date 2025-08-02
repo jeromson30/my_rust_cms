@@ -8,9 +8,13 @@ pub struct Config {
     pub backend_host: String,
     pub rust_env: String,
     pub rust_log: String,
+    #[allow(dead_code)]
     pub jwt_secret: String,
+    #[allow(dead_code)]
     pub session_secret: String,
+    #[allow(dead_code)]
     pub max_file_size: usize,
+    #[allow(dead_code)]
     pub upload_dir: String,
 }
 
@@ -45,10 +49,12 @@ impl Config {
         })
     }
 
+    #[allow(dead_code)]
     pub fn is_development(&self) -> bool {
         self.rust_env == "development"
     }
 
+    #[allow(dead_code)]
     pub fn is_production(&self) -> bool {
         self.rust_env == "production"
     }

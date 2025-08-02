@@ -4,7 +4,17 @@ mod pages;
 mod services;
 
 use app::App;
-use services::performance_service::init_performance_service;
+use services::{performance_service::init_performance_service, auth_context::AuthProvider};
+use yew::prelude::*;
+
+#[function_component(Root)]
+fn root() -> Html {
+    html! {
+        <AuthProvider>
+            <App />
+        </AuthProvider>
+    }
+}
 
 fn main() {
     // Initialize performance monitoring
@@ -12,5 +22,5 @@ fn main() {
         web_sys::console::warn_1(&format!("Failed to initialize performance service: {:?}", e).into());
     }
     
-    yew::Renderer::<App>::new().render();
+    yew::Renderer::<Root>::new().render();
 }

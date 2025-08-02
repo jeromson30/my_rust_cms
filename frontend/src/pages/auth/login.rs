@@ -1,5 +1,6 @@
 use yew::prelude::*;
-use crate::services::auth_service::{login, LoginCredentials, AuthError};
+use crate::services::auth_service::{LoginCredentials, AuthError};
+use crate::services::auth_context::{use_auth, login_and_update_context};
 
 #[derive(Properties, PartialEq)]
 pub struct LoginProps {
@@ -8,9 +9,9 @@ pub struct LoginProps {
 
 #[function_component(Login)]
 pub fn login_page(props: &LoginProps) -> Html {
+    let auth = use_auth();
     let username = use_state(String::new);
     let password = use_state(String::new);
-    let loading = use_state(|| false);
     let error = use_state(|| None::<String>);
 
     let on_username_change = {
@@ -32,8 +33,8 @@ pub fn login_page(props: &LoginProps) -> Html {
     let on_submit = {
         let username = username.clone();
         let password = password.clone();
-        let loading = loading.clone();
         let error = error.clone();
+        let auth = auth.clone();
         let on_login_success = props.on_login_success.clone();
 
         Callback::from(move |e: SubmitEvent| {
@@ -49,21 +50,18 @@ pub fn login_page(props: &LoginProps) -> Html {
                 password: (*password).clone(),
             };
 
-            let loading = loading.clone();
             let error = error.clone();
+            let auth = auth.clone();
             let on_login_success = on_login_success.clone();
 
-            loading.set(true);
             error.set(None);
 
             wasm_bindgen_futures::spawn_local(async move {
-                match login(&credentials).await {
+                match login_and_update_context(&auth, &credentials).await {
                     Ok(_) => {
-                        loading.set(false);
                         on_login_success.emit(());
                     }
                     Err(e) => {
-                        loading.set(false);
                         let error_msg = match e {
                             AuthError::InvalidCredentials => "Invalid username or password".to_string(),
                             _ => format!("Login failed: {}", e),
@@ -115,9 +113,9 @@ pub fn login_page(props: &LoginProps) -> Html {
                     <button 
                         type="submit" 
                         class="btn btn-primary" 
-                        disabled={*loading}
+                        disabled={auth.loading}
                     >
-                        if *loading {
+                        if auth.loading {
                             {"Signing in..."}
                         } else {
                             {"Sign In"}

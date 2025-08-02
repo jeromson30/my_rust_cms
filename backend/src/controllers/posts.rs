@@ -3,13 +3,13 @@ use axum::{
     response::Json as ResponseJson,
     http::StatusCode,
 };
-use diesel::prelude::*;
+
 use crate::{
     AppServices,
     models::{Post, NewPost, UpdatePost},
     middleware::{
         validation::validate_text_content,
-        errors::{AppError, ApiResult},
+        errors::AppError,
     },
 };
 

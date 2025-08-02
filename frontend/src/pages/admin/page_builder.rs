@@ -1,7 +1,8 @@
 use yew::prelude::*;
 use crate::components::page_builder::{DragDropPageBuilder, PageComponent};
 use crate::services::api_service::{get_pages, create_page, update_page, delete_page, PageItem};
-use crate::services::sample_page_data::generate_sample_pages;
+
+use crate::services::migrate_pages::create_essential_pages;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlInputElement, HtmlSelectElement, Event, MouseEvent};
 
@@ -17,6 +18,16 @@ pub fn page_builder() -> Html {
     let error = use_state(|| None::<String>);
     let saving = use_state(|| false);
     let show_preview = use_state(|| false);
+    
+    // Check if essential pages exist
+    let show_init_button = use_memo(
+        |pages| {
+            let has_home = pages.iter().any(|p: &PageItem| p.slug == "home");
+            let has_posts = pages.iter().any(|p: &PageItem| p.slug == "posts");
+            !(has_home && has_posts)
+        },
+        pages.clone()
+    );
 
     // Load pages on mount
     {
@@ -257,8 +268,10 @@ pub fn page_builder() -> Html {
         })
     };
 
-    // Generate sample pages
-    let generate_samples = {
+
+
+    // Initialize essential pages (Home and Posts)
+    let initialize_essential = {
         let pages = pages.clone();
         let loading = loading.clone();
         let error = error.clone();
@@ -271,29 +284,23 @@ pub fn page_builder() -> Html {
             loading.set(true);
             
             wasm_bindgen_futures::spawn_local(async move {
-                let sample_pages = generate_sample_pages();
-                let mut created_count = 0;
-                let mut current_pages = (*pages).clone();
-                
-                for sample_page in sample_pages {
-                    match create_page(&sample_page).await {
-                        Ok(created_page) => {
-                            current_pages.push(created_page);
-                            created_count += 1;
-                        }
-                        Err(e) => {
-                            gloo::console::warn!("Failed to create sample page:", &e.to_string());
+                match create_essential_pages().await {
+                    Ok(created_pages) => {
+                        let mut current_pages = (*pages).clone();
+                        current_pages.extend(created_pages.iter().cloned());
+                        pages.set(current_pages);
+                        loading.set(false);
+                        
+                        if created_pages.len() > 0 {
+                            error.set(Some(format!("✅ Successfully initialized {} essential pages!", created_pages.len())));
+                        } else {
+                            error.set(Some("✅ Essential pages (Home & Posts) already exist and are ready to edit!".to_string()));
                         }
                     }
-                }
-                
-                pages.set(current_pages);
-                loading.set(false);
-                
-                if created_count > 0 {
-                    error.set(Some(format!("✅ Successfully created {} sample pages!", created_count)));
-                } else {
-                    error.set(Some("⚠️ No sample pages were created. They may already exist.".to_string()));
+                    Err(e) => {
+                        error.set(Some(format!("❌ Failed to initialize essential pages: {}", e)));
+                        loading.set(false);
+                    }
                 }
             });
         })
@@ -370,14 +377,20 @@ pub fn page_builder() -> Html {
                     >
                         {"New Page"}
                     </button>
-                    <button
-                        class="btn btn-outline-secondary"
-                        onclick={generate_samples}
-                        disabled={*loading}
-                        title="Generate sample pages with component structures for testing"
-                    >
-                        {if *loading { "Generating..." } else { "Generate Samples" }}
-                    </button>
+                    {if *show_init_button {
+                        html! {
+                            <button
+                                class="btn btn-primary"
+                                onclick={initialize_essential}
+                                disabled={*loading}
+                                title="Initialize essential pages (Home & Posts) for your site"
+                            >
+                                {if *loading { "Initializing..." } else { "Initialize Essential Pages" }}
+                            </button>
+                        }
+                    } else {
+                        html! {}
+                    }}
                     <button
                         class="btn btn-info"
                         onclick={toggle_preview}

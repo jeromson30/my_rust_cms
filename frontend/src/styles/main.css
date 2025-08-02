@@ -10,8 +10,8 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background: #fff;
+    color: var(--public-text-secondary, #333);
+    background: var(--public-background-light, #fff);
 }
 
 /* Public Site Styles */
@@ -23,9 +23,9 @@ body {
 
 .site-header {
     background: #000;
-    color: #fff;
+    color: var(--public-header-text, #fff);
     padding: 1rem 0;
-    border-bottom: 2px solid #333;
+    border-bottom: 2px solid var(--public-border-light, #333);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -103,14 +103,14 @@ body {
 }
 
 .admin-button {
-    background: #fff;
-    color: #000;
-    border: 1px solid #fff;
+    background: var(--admin-bg-primary, var(--bg-primary));
+    color: var(--admin-text-primary, var(--text-primary));
+    border: 1px solid var(--admin-border-color, var(--border-color));
 }
 
 .admin-button:hover {
-    background: #f0f0f0;
-    border-color: #f0f0f0;
+    background: var(--admin-bg-secondary, var(--bg-secondary));
+    border-color: var(--admin-border-color, var(--border-color));
 }
 
 .site-main {
@@ -134,18 +134,18 @@ body {
 .hero h2 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
-    color: #000;
+    color: var(--public-heading-h1, #000);
 }
 
 .hero p {
     font-size: 1.2rem;
-    color: #666;
+    color: var(--public-text-meta, #666);
 }
 
 .recent-posts h3 {
     font-size: 1.8rem;
     margin-bottom: 1.5rem;
-    color: #000;
+    color: var(--public-heading-h2, #000);
 }
 
 .posts-grid {
@@ -169,30 +169,30 @@ body {
 .post-card h4 {
     font-size: 1.3rem;
     margin-bottom: 0.5rem;
-    color: #000;
+    color: var(--public-heading-h3, #000);
 }
 
 .post-meta {
-    color: #666;
+    color: var(--public-text-meta, #666);
     font-size: 0.9rem;
     margin-bottom: 1rem;
 }
 
 .post-excerpt {
-    color: #555;
+    color: var(--public-text-secondary, #555);
     margin-bottom: 1rem;
 }
 
 .read-more {
-    color: #000;
+    color: var(--public-link-primary, #000);
     text-decoration: none;
     font-weight: 600;
-    border-bottom: 2px solid #000;
+    border-bottom: 2px solid var(--public-link-primary, #000);
     transition: border-color 0.2s ease;
 }
 
 .read-more:hover {
-    border-color: #666;
+    border-color: var(--public-link-hover, #666);
 }
 
 .site-footer {
@@ -206,14 +206,14 @@ body {
 /* Admin Styles */
 .admin-layout {
     min-height: 100vh;
-    background: #f5f5f5;
+    background: var(--admin-bg-secondary, var(--bg-secondary));
 }
 
 .admin-header {
-    background: #000;
-    color: #fff;
+    background: var(--admin-header-gradient, var(--bg-primary));
+    color: var(--admin-header-text-color, var(--text-primary));
     padding: 1rem 0;
-    border-bottom: 2px solid #333;
+    border-bottom: 2px solid var(--admin-border-color, var(--border-color));
 }
 
 .admin-header-content {
@@ -237,7 +237,7 @@ body {
 }
 
 .admin-user {
-    color: #ccc;
+    color: var(--admin-text-secondary, var(--text-secondary));
 }
 
 .admin-content {
@@ -247,8 +247,8 @@ body {
 
 .admin-sidebar {
     width: 250px;
-    background: #f8f9fa;
-    border-right: 1px solid #eee;
+    background: var(--admin-sidebar-bg, var(--bg-primary));
+    border-right: 1px solid var(--admin-border-color, var(--border-color));
     padding: 1rem 0;
     overflow-y: auto;
 }
@@ -264,18 +264,18 @@ body {
 .section-title {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #666;
+    color: var(--admin-text-secondary, var(--text-secondary));
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin: 0 1rem 0.75rem 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--admin-border-color, var(--border-color));
 }
 
 /* Override section titles in admin sidebar for better contrast */
 .admin-sidebar .section-title {
-    color: rgba(255, 255, 255, 0.9) !important;
-    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--admin-text-secondary, var(--text-secondary)) !important;
+    border-bottom-color: var(--admin-border-color, var(--border-color)) !important;
 }
 
 .admin-nav {
@@ -296,7 +296,7 @@ body {
     background: none;
     border: none;
     text-align: left;
-    color: #333;
+    color: var(--admin-text-primary, var(--text-primary));
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -306,25 +306,25 @@ body {
 }
 
 .admin-nav-link:hover {
-    background: #e9ecef;
-    color: #000;
+    background: var(--admin-bg-tertiary, var(--bg-tertiary));
+    color: var(--admin-text-primary, var(--text-primary));
     transform: translateX(2px);
 }
 
 .admin-nav-link.active {
-    background: #000;
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    background: var(--admin-primary-color, var(--primary-color));
+    color: var(--admin-header-text-color, var(--text-light));
+    box-shadow: var(--admin-shadow-md, var(--shadow-md));
 }
 
 .admin-nav-link.public-link {
-    color: #007bff;
+    color: var(--admin-info-color, var(--info-color));
     font-weight: 500;
 }
 
 .admin-nav-link.public-link:hover {
-    background: #e3f2fd;
-    color: #0056b3;
+    background: var(--admin-bg-tertiary, var(--bg-tertiary));
+    color: var(--admin-info-color, var(--info-color));
     transform: translateX(2px);
 }
 
@@ -343,7 +343,7 @@ body {
 .admin-main {
     flex: 1;
     padding: 2rem;
-    background: #fff;
+    background: var(--admin-bg-primary, var(--bg-primary));
 }
 
 /* Buttons */
@@ -570,16 +570,16 @@ tr:hover {
 }
 
 .builder-sidebar {
-    background: #f9f9f9;
+    background: var(--public-background-secondary, #f9f9f9);
     padding: 1.5rem;
     border-radius: 4px;
-    border: 1px solid #eee;
+    border: 1px solid var(--public-border-light, #eee);
     height: fit-content;
 }
 
 .builder-sidebar h3 {
     margin-bottom: 1rem;
-    color: #000;
+    color: var(--public-text-primary, #000);
     font-size: 1.1rem;
 }
 
@@ -601,28 +601,28 @@ tr:hover {
 }
 
 .page-preview {
-    background: #fff;
-    border: 1px solid #eee;
+    background: var(--public-background-light, #fff);
+    border: 1px solid var(--public-border-light, #eee);
     border-radius: 4px;
     padding: 1.5rem;
 }
 
 .page-preview h3 {
     margin-bottom: 1rem;
-    color: #000;
+    color: var(--public-text-primary, #000);
     font-size: 1.1rem;
 }
 
 .preview-content {
     min-height: 200px;
-    border: 1px solid #eee;
+    border: 1px solid var(--public-border-light, #eee);
     border-radius: 4px;
     padding: 1rem;
-    background: #fff;
+    background: var(--public-background-light, #fff);
 }
 
 .preview-placeholder {
-    color: #999;
+    color: var(--public-text-muted, #999);
     font-style: italic;
     text-align: center;
     margin: 2rem 0;
@@ -1228,7 +1228,7 @@ tr:hover {
     .admin-sidebar {
         width: 100%;
         border-right: none;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--admin-border-color, var(--border-color));
     }
     
     .posts-grid {
@@ -2318,12 +2318,12 @@ tr:last-child td {
     align-items: center;
     margin-bottom: 2rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--public-border-light, #eee);
 }
 
 .page-builder-header h1 {
     margin: 0;
-    color: #333;
+    color: var(--public-text-primary, #333);
 }
 
 .page-actions {
@@ -2338,7 +2338,7 @@ tr:last-child td {
 }
 
 .page-list {
-    background: #f8f9fa;
+    background: var(--public-background-secondary, #f8f9fa);
     padding: 1.5rem;
     border-radius: 8px;
     height: fit-content;
@@ -2347,7 +2347,7 @@ tr:last-child td {
 .page-list h3 {
     margin-top: 0;
     margin-bottom: 1rem;
-    color: #333;
+    color: var(--public-text-primary, #333);
 }
 
 .pages-grid {
@@ -2357,50 +2357,50 @@ tr:last-child td {
 }
 
 .page-card {
-    background: #fff;
+    background: var(--public-background-light, #fff);
     padding: 1rem;
     border-radius: 6px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--public-border-light, #e0e0e0);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .page-card:hover {
-    border-color: #007bff;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+    border-color: var(--public-link-primary, #007bff);
+    box-shadow: 0 2px 8px var(--public-link-shadow, rgba(0, 123, 255, 0.1));
 }
 
 .page-card h4 {
     margin: 0 0 0.5rem 0;
-    color: #333;
+    color: var(--public-text-primary, #333);
     font-size: 1rem;
 }
 
 .page-slug {
     margin: 0.25rem 0;
-    color: #666;
+    color: var(--public-text-secondary, #666);
     font-size: 0.875rem;
     font-family: monospace;
 }
 
 .page-status {
     margin: 0.25rem 0;
-    color: #666;
+    color: var(--public-text-secondary, #666);
     font-size: 0.875rem;
     text-transform: capitalize;
 }
 
 .page-date {
     margin: 0.25rem 0 0 0;
-    color: #999;
+    color: var(--public-text-muted, #999);
     font-size: 0.75rem;
 }
 
 .page-editor {
-    background: #fff;
+    background: var(--public-background-light, #fff);
     padding: 2rem;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--public-border-light, #e0e0e0);
 }
 
 .page-info {
@@ -2418,14 +2418,14 @@ tr:last-child td {
 .form-group label {
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #333;
+    color: var(--public-text-primary, #333);
 }
 
 .page-title-input,
 .page-slug-input,
 .page-status-select {
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--public-border-light, #ddd);
     border-radius: 4px;
     font-size: 1rem;
 }
@@ -2438,14 +2438,14 @@ tr:last-child td {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #333;
+    color: var(--public-text-primary, #333);
 }
 
 .page-content-textarea {
     width: 100%;
     min-height: 400px;
     padding: 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--public-border-light, #ddd);
     border-radius: 4px;
     font-size: 1rem;
     font-family: inherit;
@@ -2453,31 +2453,31 @@ tr:last-child td {
 }
 
 .page-preview {
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--public-border-light, #eee);
     padding-top: 2rem;
 }
 
 .page-preview h3 {
     margin-top: 0;
     margin-bottom: 1rem;
-    color: #333;
+    color: var(--public-text-primary, #333);
 }
 
 .preview-content {
-    background: #f8f9fa;
+    background: var(--public-background-secondary, #f8f9fa);
     padding: 2rem;
     border-radius: 6px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--public-border-light, #e0e0e0);
 }
 
 .preview-content h1 {
     margin-top: 0;
-    color: #333;
+    color: var(--public-text-primary, #333);
 }
 
 .content-preview {
     line-height: 1.6;
-    color: #333;
+    color: var(--public-text-primary, #333);
 }
 
 /* Page Display Styles */
@@ -2489,15 +2489,15 @@ tr:last-child td {
 
 .page-detail h1 {
     margin-bottom: 1rem;
-    color: #333;
+    color: var(--public-text-primary, #333);
     font-size: 2.5rem;
 }
 
 .page-meta {
     margin-bottom: 2rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-    color: #666;
+    border-bottom: 1px solid var(--public-border-light, #eee);
+    color: var(--public-text-secondary, #666);
     font-size: 0.875rem;
 }
 
@@ -2507,12 +2507,12 @@ tr:last-child td {
 }
 
 .page-date {
-    color: #999;
+    color: var(--public-text-muted, #999);
 }
 
 .page-content {
     line-height: 1.8;
-    color: #333;
+    color: var(--public-text-primary, #333);
     font-size: 1.1rem;
 }
 
@@ -2524,7 +2524,7 @@ tr:last-child td {
 .page-content h6 {
     margin-top: 2rem;
     margin-bottom: 1rem;
-    color: #333;
+    color: var(--public-text-primary, #333);
 }
 
 .page-content p {
@@ -2544,13 +2544,13 @@ tr:last-child td {
 .page-content blockquote {
     margin: 2rem 0;
     padding: 1rem 2rem;
-    border-left: 4px solid #007bff;
-    background: #f8f9fa;
+    border-left: 4px solid var(--public-link-primary, #007bff);
+    background: var(--public-background-secondary, #f8f9fa);
     font-style: italic;
 }
 
 .page-content code {
-    background: #f1f3f4;
+    background: var(--public-background-secondary, #f1f3f4);
     padding: 0.2rem 0.4rem;
     border-radius: 3px;
     font-family: monospace;
@@ -2558,7 +2558,7 @@ tr:last-child td {
 }
 
 .page-content pre {
-    background: #f1f3f4;
+    background: var(--public-background-secondary, #f1f3f4);
     padding: 1rem;
     border-radius: 6px;
     overflow-x: auto;
@@ -2574,23 +2574,23 @@ tr:last-child td {
 .loading {
     text-align: center;
     padding: 2rem;
-    color: #666;
+    color: var(--public-text-secondary, #666);
 }
 
 .error {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--public-error-background, #f8d7da);
+    color: var(--public-error-text, #721c24);
     padding: 1rem;
     border-radius: 4px;
-    border: 1px solid #f5c6cb;
+    border: 1px solid var(--public-error-border, #f5c6cb);
     margin: 1rem 0;
 }
 
 .error-message {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--public-error-background, #f8d7da);
+    color: var(--public-error-text, #721c24);
     padding: 1rem;
     border-radius: 4px;
-    border: 1px solid #f5c6cb;
+    border: 1px solid var(--public-error-border, #f5c6cb);
     margin-bottom: 1rem;
 }

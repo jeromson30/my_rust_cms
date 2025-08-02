@@ -8,13 +8,5 @@ pub mod navigation;
 pub mod sessions;
 pub mod admin;
 
-// Re-export all controller functions for easy access
-pub use auth::*;
-pub use users::*;
-pub use posts::*;
-pub use comments::*;
-pub use media::*;
-pub use pages::*;
-pub use navigation::*;
-pub use sessions::*;
-pub use admin::*;
+// Export controller modules for direct access
+// Individual functions are accessed via module::function syntax

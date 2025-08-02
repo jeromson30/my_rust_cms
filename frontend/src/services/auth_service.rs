@@ -122,6 +122,18 @@ pub fn is_authenticated() -> bool {
     get_auth_token().is_ok()
 }
 
+#[allow(dead_code)]
+pub async fn verify_token() -> Result<User, AuthError> {
+    get_current_user().await
+}
+
+#[allow(dead_code)]
+pub async fn refresh_session() -> Result<User, AuthError> {
+    // For now, just verify the current token
+    // In the future, this could implement actual token refresh
+    get_current_user().await
+}
+
 pub fn clear_auth() {
     LocalStorage::delete("auth_token");
 } 

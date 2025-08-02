@@ -99,6 +99,7 @@ pub fn page_builder() -> Html {
 }
 
 #[derive(Clone, PartialEq)]
+#[allow(dead_code)]
 struct PageComponent {
     id: u32,
     component_type: String,

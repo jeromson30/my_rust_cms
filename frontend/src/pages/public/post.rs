@@ -2,10 +2,12 @@ use yew::prelude::*;
 use crate::services::api_service::{get_post, Post as PostData};
 
 #[derive(Properties, PartialEq)]
+#[allow(dead_code)]
 pub struct PostProps {
     pub id: String,
 }
 
+#[allow(dead_code)]
 fn format_date(date_str: &str) -> String {
     // Try to parse and format the date nicely
     if let Ok(naive_datetime) = chrono::NaiveDateTime::parse_from_str(date_str, "%Y-%m-%d %H:%M:%S") {
@@ -15,6 +17,7 @@ fn format_date(date_str: &str) -> String {
     }
 }
 
+#[allow(dead_code)]
 fn format_content_as_markdown(content: &str) -> Html {
     // For now, we'll just handle basic paragraph breaks
     // In a real implementation, you'd use a markdown parser

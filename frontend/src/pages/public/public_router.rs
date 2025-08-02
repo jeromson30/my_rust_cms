@@ -1,7 +1,8 @@
 use yew::prelude::*;
-use crate::components::PublicLayout;
+use crate::components::{PublicLayout, PostsListWidget};
 use crate::services::page_service::{get_page_by_slug, Page};
 use crate::components::page_builder::{PageComponent, ComponentType};
+use crate::services::default_pages::{get_default_home_page_components, get_default_posts_page_components};
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum PublicPage {
@@ -68,25 +69,37 @@ struct HomeContentProps {
 }
 
 #[function_component(HomeContent)]
-fn home_content(props: &HomeContentProps) -> Html {
-    let posts = use_state(Vec::new);
+fn home_content(_props: &HomeContentProps) -> Html {
+    let page = use_state(|| None::<Page>);
     let loading = use_state(|| true);
     let error = use_state(|| None::<String>);
 
     {
-        let posts = posts.clone();
+        let page = page.clone();
         let loading = loading.clone();
-        let error = error.clone();
+        let _error = error.clone();
 
         use_effect_with_deps(move |_| {
             wasm_bindgen_futures::spawn_local(async move {
-                match crate::services::api_service::get_posts().await {
-                    Ok(fetched_posts) => {
-                        posts.set(fetched_posts);
+                match get_page_by_slug("home").await {
+                    Ok(fetched_page) => {
+                        page.set(Some(fetched_page));
                         loading.set(false);
                     }
-                    Err(e) => {
-                        error.set(Some(e.to_string()));
+                    Err(_) => {
+                        // Page doesn't exist, use default components
+                        let default_components = get_default_home_page_components();
+                        let default_content = serde_json::to_string(&default_components).unwrap_or_default();
+                        let default_page = Page {
+                            id: None,
+                            title: "Home".to_string(),
+                            slug: "home".to_string(),
+                            content: default_content,
+                            status: "published".to_string(),
+                            created_at: None,
+                            updated_at: None,
+                        };
+                        page.set(Some(default_page));
                         loading.set(false);
                     }
                 }
@@ -96,54 +109,19 @@ fn home_content(props: &HomeContentProps) -> Html {
     }
 
     html! {
-        <>
-            <section class="hero">
-                <h2>{"Welcome to My Rust CMS"}</h2>
-                <p>{"A modern content management system built with Rust and WebAssembly"}</p>
-            </section>
-
-            <section class="recent-posts">
-                <h3>{"Recent Posts"}</h3>
-                if *loading {
-                    <div class="loading">{"Loading posts..."}</div>
-                } else if let Some(ref error_msg) = *error {
-                    <div class="error">{"Error loading posts: "}{error_msg}</div>
-                } else {
-                    <div class="posts-grid">
-                        {posts.iter().take(3).map(|post| {
-                            html! {
-                                <article class="post-card">
-                                    <h4>
-                                        <a href="#" onclick={
-                                            let post_id = post.id.unwrap_or(0);
-                                            let on_navigate = props.on_navigate.clone();
-                                            Callback::from(move |e: MouseEvent| {
-                                                e.prevent_default();
-                                                on_navigate.emit(PublicPage::Post(post_id));
-                                            })
-                                        } style="text-decoration: none; color: inherit;">
-                                            {&post.title}
-                                        </a>
-                                    </h4>
-                                    <p class="post-meta">{"By "}{&post.author}{" • "}{post.created_at.as_deref().unwrap_or("Unknown")}</p>
-                                    <p class="post-excerpt">{&post.content}</p>
-                                    <a href="#" class="read-more" onclick={
-                                        let post_id = post.id.unwrap_or(0); 
-                                        let on_navigate = props.on_navigate.clone();
-                                        Callback::from(move |e: MouseEvent| {
-                                            e.prevent_default();
-                                            on_navigate.emit(PublicPage::Post(post_id));
-                                        })
-                                    }>
-                                        {"Read Article"}
-                                    </a>
-                                </article>
-                            }
-                        }).collect::<Html>()}
-                    </div>
-                }
-            </section>
-        </>
+        <div class="home-content">
+            if *loading {
+                <div class="loading">{"Loading page..."}</div>
+            } else if let Some(ref error_msg) = *error {
+                <div class="error">{"Error loading page: "}{error_msg}</div>
+            } else if let Some(ref page_data) = *page {
+                <div class="page-content">
+                    {render_page_builder_content(&page_data.content)}
+                </div>
+            } else {
+                <div class="error">{"Page not found"}</div>
+            }
+        </div>
     }
 }
 
@@ -154,25 +132,37 @@ struct PostsContentProps {
 }
 
 #[function_component(PostsContent)]
-fn posts_content(props: &PostsContentProps) -> Html {
-    let posts = use_state(Vec::new);
+fn posts_content(_props: &PostsContentProps) -> Html {
+    let page = use_state(|| None::<Page>);
     let loading = use_state(|| true);
     let error = use_state(|| None::<String>);
 
     {
-        let posts = posts.clone();
+        let page = page.clone();
         let loading = loading.clone();
-        let error = error.clone();
+        let _error = error.clone();
 
         use_effect_with_deps(move |_| {
             wasm_bindgen_futures::spawn_local(async move {
-                match crate::services::api_service::get_posts().await {
-                    Ok(fetched_posts) => {
-                        posts.set(fetched_posts);
+                match get_page_by_slug("posts").await {
+                    Ok(fetched_page) => {
+                        page.set(Some(fetched_page));
                         loading.set(false);
                     }
-                    Err(e) => {
-                        error.set(Some(e.to_string()));
+                    Err(_) => {
+                        // Page doesn't exist, use default components
+                        let default_components = get_default_posts_page_components();
+                        let default_content = serde_json::to_string(&default_components).unwrap_or_default();
+                        let default_page = Page {
+                            id: None,
+                            title: "All Posts".to_string(),
+                            slug: "posts".to_string(),
+                            content: default_content,
+                            status: "published".to_string(),
+                            created_at: None,
+                            updated_at: None,
+                        };
+                        page.set(Some(default_page));
                         loading.set(false);
                     }
                 }
@@ -182,48 +172,19 @@ fn posts_content(props: &PostsContentProps) -> Html {
     }
 
     html! {
-        <>
-            <h1>{"All Posts"}</h1>
-
+        <div class="posts-content">
             if *loading {
-                <div class="loading">{"Loading posts..."}</div>
+                <div class="loading">{"Loading page..."}</div>
             } else if let Some(ref error_msg) = *error {
-                <div class="error">{"Error loading posts: "}{error_msg}</div>
-            } else {
-                <div class="posts-grid">
-                    {posts.iter().map(|post| {
-                        html! {
-                            <article class="post-card">
-                                <h2>
-                                    <a href="#" onclick={
-                                        let post_id = post.id.unwrap_or(0);
-                                        let on_navigate = props.on_navigate.clone();
-                                        Callback::from(move |e: MouseEvent| {
-                                            e.prevent_default();
-                                            on_navigate.emit(PublicPage::Post(post_id));
-                                        })
-                                    } style="text-decoration: none; color: inherit;">
-                                        {&post.title}
-                                    </a>
-                                </h2>
-                                <p class="post-meta">{"By "}{&post.author}{" • "}{post.created_at.as_deref().unwrap_or("Unknown")}</p>
-                                <p class="post-excerpt">{&post.content}</p>
-                                <a href="#" class="read-more" onclick={
-                                    let post_id = post.id.unwrap_or(0); 
-                                    let on_navigate = props.on_navigate.clone();
-                                    Callback::from(move |e: MouseEvent| {
-                                        e.prevent_default();
-                                        on_navigate.emit(PublicPage::Post(post_id));
-                                    })
-                                }>
-                                    {"Read Article"}
-                                </a>
-                            </article>
-                        }
-                    }).collect::<Html>()}
+                <div class="error">{"Error loading page: "}{error_msg}</div>
+            } else if let Some(ref page_data) = *page {
+                <div class="page-content">
+                    {render_page_builder_content(&page_data.content)}
                 </div>
+            } else {
+                <div class="error">{"Page not found"}</div>
             }
-        </>
+        </div>
     }
 }
 
@@ -415,6 +376,15 @@ fn render_component_content_public(component: &PageComponent) -> Html {
                     <div class="column">{render_markdown_content(parts.get(1).unwrap_or(&""))}</div>
                     <div class="column">{render_markdown_content(parts.get(2).unwrap_or(&""))}</div>
                 </div> 
+            }
+        }
+        ComponentType::PostsList => {
+            // Determine if this should show full list based on component context
+            let show_full = component.content.contains("All Posts") || component.content.contains("all-posts");
+            html! {
+                <div class="component posts-list-component" style={format_component_styles(&component.styles)}>
+                    <PostsListWidget show_full_list={show_full} limit={if show_full { 100 } else { 6 }} />
+                </div>
             }
         }
         _ => {

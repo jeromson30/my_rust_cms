@@ -8,7 +8,7 @@ use crate::{
     models::{Comment, NewComment, UpdateComment},
     middleware::{
         validation::validate_text_content,
-        errors::{AppError, ApiResult},
+        errors::AppError,
     },
 };
 

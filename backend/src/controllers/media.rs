@@ -11,7 +11,7 @@ use crate::{
     models::{Media, NewMedia},
     middleware::{
         validation::validate_file_upload,
-        errors::{AppError, ApiResult},
+        errors::AppError,
     },
 };
 

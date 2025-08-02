@@ -16,11 +16,34 @@ pub struct AdminColorScheme {
     pub text_primary: String,
     pub text_secondary: String,
     pub border: String,
+    
+    // Header styling
     pub header_gradient: String,
-    // Extended admin-specific colors
+    pub header_text_color: String,
+    pub header_border_color: String,
+    pub header_shadow: String,
+    pub header_text_shadow: String,
+    pub header_logo_gradient: String,
+    
+    // Sidebar styling
     pub sidebar_bg: String,
-    pub sidebar_hover: String,
-    pub sidebar_active: String,
+    pub sidebar_border_color: String,
+    pub sidebar_shadow: String,
+    pub sidebar_section_title_color: String,
+    pub sidebar_section_border_color: String,
+    
+    // Navigation links
+    pub nav_link_text_color: String,
+    pub nav_link_hover_bg: String,
+    pub nav_link_hover_text: String,
+    pub nav_link_active_bg: String,
+    pub nav_link_active_shadow: String,
+    pub nav_link_active_indicator: String,
+    pub nav_link_public_text: String,
+    pub nav_link_public_hover_bg: String,
+    pub nav_link_public_hover_text: String,
+    
+    // General layout
     pub card_bg: String,
     pub shadow_color: String,
     pub accent_color: String,
@@ -29,47 +52,95 @@ pub struct AdminColorScheme {
 #[derive(Debug, Clone, PartialEq)]
 pub struct PublicColorScheme {
     pub name: String,
-    pub primary: String,
+    // Primary text hierarchy
+    pub text_primary: String,
+    pub text_secondary: String,
+    pub text_meta: String,
     pub text_light: String,
-    pub text_lighter: String,
-    pub border_light: String,
-    pub background_light: String,
+    pub text_muted: String,
+    
+    // Link colors with states
+    pub link_primary: String,
+    pub link_hover: String,
+    pub link_visited: String,
+    pub link_active: String,
+    
+    // Heading hierarchy
+    pub heading_h1: String,
+    pub heading_h2: String,
+    pub heading_h3: String,
+    pub heading_h4: String,
+    pub heading_h5: String,
+    pub heading_h6: String,
+    
+    // Context-specific text
+    pub header_text: String,
+    pub header_text_hover: String,
+    pub footer_text: String,
+    pub footer_text_muted: String,
+    
+    // Semantic colors
     pub success: String,
     pub warning: String,
     pub danger: String,
     pub info: String,
-    // Enhanced public-specific colors
+    
+    // Layout colors
+    pub border_light: String,
+    pub background_light: String,
     pub hero_bg: String,
     pub card_shadow: String,
-    pub link_color: String,
-    pub button_hover: String,
 }
 
 impl Default for AdminColorScheme {
     fn default() -> Self {
         Self {
-            name: "Admin Default".to_string(),
-            primary: "#2563eb".to_string(),
-            secondary: "#64748b".to_string(),
-            success: "#059669".to_string(),
-            warning: "#d97706".to_string(),
-            danger: "#dc2626".to_string(),
-            info: "#0891b2".to_string(),
-            // Dark mode colors (what's actually displayed when system is in dark mode)
-            background: "#0f172a".to_string(),     // --bg-secondary in dark mode
-            surface: "#1e293b".to_string(),        // --bg-primary in dark mode
-            // Light text colors for dark background
-            text_primary: "#f1f5f9".to_string(),   // --text-primary in dark mode (light gray)
-            text_secondary: "#cbd5e1".to_string(), // --text-secondary in dark mode (medium light gray)
-            border: "#334155".to_string(),         // --border-color in dark mode
-            header_gradient: "linear-gradient(135deg, #4c1d95 0%, #312e81 50%, #1e1b4b 100%)".to_string(),
-            // Extended admin-specific colors - matching actual admin CSS
-            sidebar_bg: "linear-gradient(180deg, #4c1d95 0%, #312e81 50%, #1e1b4b 100%)".to_string(),
-            sidebar_hover: "rgba(255, 255, 255, 0.1)".to_string(),
-            sidebar_active: "linear-gradient(135deg, #667eea, #764ba2)".to_string(),
-            card_bg: "#1e293b".to_string(),        // --bg-primary in dark mode
-            shadow_color: "0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)".to_string(),
-            accent_color: "#667eea".to_string(),
+            name: "Admin Dark Theme".to_string(),
+            // Dark theme color palette
+            primary: "#3b82f6".to_string(),        // Vibrant blue
+            secondary: "#6b7280".to_string(),      // Gray 500
+            success: "#10b981".to_string(),        // Emerald green
+            warning: "#f59e0b".to_string(),        // Amber
+            danger: "#ef4444".to_string(),         // Red
+            info: "#06b6d4".to_string(),           // Cyan
+            
+            // Dark layout colors
+            background: "#1f2937".to_string(),     // Gray 800 - dark background
+            surface: "#374151".to_string(),        // Gray 700 - surface color
+            text_primary: "#f9fafb".to_string(),   // Gray 50 - primary text
+            text_secondary: "#d1d5db".to_string(), // Gray 300 - secondary text
+            border: "#4b5563".to_string(),         // Gray 600 - borders
+            
+            // Dark theme header styling
+            header_gradient: "linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)".to_string(),
+            header_text_color: "#f9fafb".to_string(),
+            header_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
+            header_shadow: "0 4px 20px rgba(0, 0, 0, 0.5)".to_string(),
+            header_text_shadow: "0 2px 4px rgba(0, 0, 0, 0.5)".to_string(),
+            header_logo_gradient: "linear-gradient(135deg, #3b82f6, #1e40af)".to_string(),
+            
+            // Dark theme sidebar
+            sidebar_bg: "linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%)".to_string(),
+            sidebar_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
+            sidebar_shadow: "4px 0 20px rgba(0, 0, 0, 0.5)".to_string(),
+            sidebar_section_title_color: "rgba(255, 255, 255, 0.9)".to_string(),
+            sidebar_section_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
+            
+            // Dark theme navigation
+            nav_link_text_color: "rgba(255, 255, 255, 0.9)".to_string(),
+            nav_link_hover_bg: "rgba(255, 255, 255, 0.15)".to_string(),
+            nav_link_hover_text: "#ffffff".to_string(),
+            nav_link_active_bg: "linear-gradient(135deg, #3b82f6, #1e40af)".to_string(),
+            nav_link_active_shadow: "0 4px 15px rgba(59, 130, 246, 0.4)".to_string(),
+            nav_link_active_indicator: "#ffffff".to_string(),
+            nav_link_public_text: "rgba(255, 255, 255, 0.7)".to_string(),
+            nav_link_public_hover_bg: "rgba(255, 255, 255, 0.08)".to_string(),
+            nav_link_public_hover_text: "rgba(255, 255, 255, 0.9)".to_string(),
+            
+            // Dark theme layout styling
+            card_bg: "#374151".to_string(),
+            shadow_color: "0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)".to_string(),
+            accent_color: "#3b82f6".to_string(),
         }
     }
 }
@@ -77,21 +148,45 @@ impl Default for AdminColorScheme {
 impl Default for PublicColorScheme {
     fn default() -> Self {
         Self {
-            name: "Public Default".to_string(),
-            primary: "#1a1a1a".to_string(),
-            text_light: "#666666".to_string(),
-            text_lighter: "#999999".to_string(),
-            border_light: "#e5e5e5".to_string(),
-            background_light: "#fafafa".to_string(),
-            success: "#059669".to_string(),
-            warning: "#d97706".to_string(),
-            danger: "#dc2626".to_string(),
-            info: "#0891b2".to_string(),
-            // Enhanced public-specific colors
-            hero_bg: "#f8f9fa".to_string(),
-            card_shadow: "rgba(0, 0, 0, 0.1)".to_string(),
-            link_color: "#0066cc".to_string(),
-            button_hover: "#333333".to_string(),
+            name: "Modern Editorial".to_string(),
+            // Enhanced typography hierarchy for optimal readability
+            text_primary: "#0f172a".to_string(),    // Slate 900 - strong readability
+            text_secondary: "#334155".to_string(),  // Slate 700 - body text
+            text_meta: "#64748b".to_string(),       // Slate 500 - metadata
+            text_light: "#94a3b8".to_string(),      // Slate 400 - captions
+            text_muted: "#cbd5e1".to_string(),      // Slate 300 - subtle text
+            
+            // Sophisticated link system
+            link_primary: "#2563eb".to_string(),    // Blue 600 - accessible primary
+            link_hover: "#1d4ed8".to_string(),      // Blue 700 - hover state
+            link_visited: "#7c3aed".to_string(),    // Violet 600 - visited
+            link_active: "#1e40af".to_string(),     // Blue 800 - active state
+            
+            // Professional heading hierarchy
+            heading_h1: "#0f172a".to_string(),      // Slate 900 - maximum impact
+            heading_h2: "#1e293b".to_string(),      // Slate 800 - section headers
+            heading_h3: "#334155".to_string(),      // Slate 700 - subsections
+            heading_h4: "#475569".to_string(),      // Slate 600 - minor headings
+            heading_h5: "#64748b".to_string(),      // Slate 500 - small headings
+            heading_h6: "#64748b".to_string(),      // Slate 500 - smallest headings
+            
+            // Modern header and footer styling
+            header_text: "#f8fafc".to_string(),         // Slate 50 - clean contrast
+            header_text_hover: "#e2e8f0".to_string(),   // Slate 200 - subtle hover
+            footer_text: "#f1f5f9".to_string(),         // Slate 100 - footer clarity
+            footer_text_muted: "#cbd5e1".to_string(),   // Slate 300 - footer secondary
+            
+            // Professional semantic colors
+            success: "#10b981".to_string(),         // Emerald 500 - positive actions
+            warning: "#f59e0b".to_string(),         // Amber 500 - cautions
+            danger: "#ef4444".to_string(),          // Red 500 - errors
+            info: "#06b6d4".to_string(),            // Cyan 500 - information
+            
+            // Refined layout and styling
+            border_light: "#e2e8f0".to_string(),    // Slate 200 - subtle borders
+            background_light: "#f8fafc".to_string(), // Slate 50 - clean backgrounds
+            hero_bg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)".to_string(), // Elegant gradient
+            card_shadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)".to_string(), // Modern shadow
         }
     }
 }
@@ -131,10 +226,34 @@ pub fn design_system_page() -> Html {
                 "text_primary" => scheme.text_primary = value,
                 "text_secondary" => scheme.text_secondary = value,
                 "border" => scheme.border = value,
+                
+                // Header styling
                 "header_gradient" => scheme.header_gradient = value,
+                "header_text_color" => scheme.header_text_color = value,
+                "header_border_color" => scheme.header_border_color = value,
+                "header_shadow" => scheme.header_shadow = value,
+                "header_text_shadow" => scheme.header_text_shadow = value,
+                "header_logo_gradient" => scheme.header_logo_gradient = value,
+                
+                // Sidebar styling
                 "sidebar_bg" => scheme.sidebar_bg = value,
-                "sidebar_hover" => scheme.sidebar_hover = value,
-                "sidebar_active" => scheme.sidebar_active = value,
+                "sidebar_border_color" => scheme.sidebar_border_color = value,
+                "sidebar_shadow" => scheme.sidebar_shadow = value,
+                "sidebar_section_title_color" => scheme.sidebar_section_title_color = value,
+                "sidebar_section_border_color" => scheme.sidebar_section_border_color = value,
+                
+                // Navigation links
+                "nav_link_text_color" => scheme.nav_link_text_color = value,
+                "nav_link_hover_bg" => scheme.nav_link_hover_bg = value,
+                "nav_link_hover_text" => scheme.nav_link_hover_text = value,
+                "nav_link_active_bg" => scheme.nav_link_active_bg = value,
+                "nav_link_active_shadow" => scheme.nav_link_active_shadow = value,
+                "nav_link_active_indicator" => scheme.nav_link_active_indicator = value,
+                "nav_link_public_text" => scheme.nav_link_public_text = value,
+                "nav_link_public_hover_bg" => scheme.nav_link_public_hover_bg = value,
+                "nav_link_public_hover_text" => scheme.nav_link_public_hover_text = value,
+                
+                // General layout
                 "card_bg" => scheme.card_bg = value,
                 "shadow_color" => scheme.shadow_color = value,
                 "accent_color" => scheme.accent_color = value,
@@ -149,19 +268,45 @@ pub fn design_system_page() -> Html {
         Callback::from(move |(property, value): (String, String)| {
             let mut scheme = (*public_scheme).clone();
             match property.as_str() {
-                "primary" => scheme.primary = value,
+                // Primary text hierarchy
+                "text_primary" => scheme.text_primary = value,
+                "text_secondary" => scheme.text_secondary = value,
+                "text_meta" => scheme.text_meta = value,
                 "text_light" => scheme.text_light = value,
-                "text_lighter" => scheme.text_lighter = value,
-                "border_light" => scheme.border_light = value,
-                "background_light" => scheme.background_light = value,
+                "text_muted" => scheme.text_muted = value,
+                
+                // Link colors with states
+                "link_primary" => scheme.link_primary = value,
+                "link_hover" => scheme.link_hover = value,
+                "link_visited" => scheme.link_visited = value,
+                "link_active" => scheme.link_active = value,
+                
+                // Heading hierarchy
+                "heading_h1" => scheme.heading_h1 = value,
+                "heading_h2" => scheme.heading_h2 = value,
+                "heading_h3" => scheme.heading_h3 = value,
+                "heading_h4" => scheme.heading_h4 = value,
+                "heading_h5" => scheme.heading_h5 = value,
+                "heading_h6" => scheme.heading_h6 = value,
+                
+                // Context-specific text
+                "header_text" => scheme.header_text = value,
+                "header_text_hover" => scheme.header_text_hover = value,
+                "footer_text" => scheme.footer_text = value,
+                "footer_text_muted" => scheme.footer_text_muted = value,
+                
+                // Semantic colors
                 "success" => scheme.success = value,
                 "warning" => scheme.warning = value,
                 "danger" => scheme.danger = value,
                 "info" => scheme.info = value,
+                
+                // Layout colors
+                "border_light" => scheme.border_light = value,
+                "background_light" => scheme.background_light = value,
                 "hero_bg" => scheme.hero_bg = value,
                 "card_shadow" => scheme.card_shadow = value,
-                "link_color" => scheme.link_color = value,
-                "button_hover" => scheme.button_hover = value,
+                
                 _ => {}
             }
             public_scheme.set(scheme);
@@ -229,8 +374,29 @@ pub fn design_system_page() -> Html {
                         border: "#4b5563".to_string(),
                         header_gradient: "linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)".to_string(),
                         sidebar_bg: "linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%)".to_string(),
-                        sidebar_hover: "rgba(255, 255, 255, 0.1)".to_string(),
-                        sidebar_active: "linear-gradient(135deg, #3b82f6, #1e40af)".to_string(),
+                        // Header styling - dark theme defaults
+                        header_text_color: "#f9fafb".to_string(),
+                        header_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
+                        header_shadow: "0 4px 20px rgba(0, 0, 0, 0.5)".to_string(),
+                        header_text_shadow: "0 2px 4px rgba(0, 0, 0, 0.5)".to_string(),
+                        header_logo_gradient: "linear-gradient(135deg, #3b82f6, #1e40af)".to_string(),
+                        
+                        // Sidebar styling - dark theme defaults
+                        sidebar_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
+                        sidebar_shadow: "4px 0 20px rgba(0, 0, 0, 0.5)".to_string(),
+                        sidebar_section_title_color: "rgba(255, 255, 255, 0.9)".to_string(),
+                        sidebar_section_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
+                        
+                        // Navigation link styling - dark theme defaults
+                        nav_link_text_color: "rgba(255, 255, 255, 0.9)".to_string(),
+                        nav_link_hover_bg: "rgba(255, 255, 255, 0.15)".to_string(),
+                        nav_link_hover_text: "#ffffff".to_string(),
+                        nav_link_active_bg: "linear-gradient(135deg, #3b82f6, #1e40af)".to_string(),
+                        nav_link_active_shadow: "0 4px 15px rgba(59, 130, 246, 0.4)".to_string(),
+                        nav_link_active_indicator: "#ffffff".to_string(),
+                        nav_link_public_text: "rgba(255, 255, 255, 0.7)".to_string(),
+                        nav_link_public_hover_bg: "rgba(255, 255, 255, 0.08)".to_string(),
+                        nav_link_public_hover_text: "rgba(255, 255, 255, 0.9)".to_string(),
                         card_bg: "#374151".to_string(),
                         shadow_color: "0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)".to_string(),
                         accent_color: "#60a5fa".to_string(),
@@ -255,8 +421,29 @@ pub fn design_system_page() -> Html {
                         border: "#e2e8f0".to_string(),         // Light gray border
                         header_gradient: "linear-gradient(135deg, #4c1d95 0%, #312e81 50%, #1e1b4b 100%)".to_string(),
                         sidebar_bg: "linear-gradient(180deg, #4c1d95 0%, #312e81 50%, #1e1b4b 100%)".to_string(),
-                        sidebar_hover: "rgba(255, 255, 255, 0.1)".to_string(),
-                        sidebar_active: "linear-gradient(135deg, #667eea, #764ba2)".to_string(),
+                        // Header styling - light theme defaults (same as default)
+                        header_text_color: "white".to_string(),
+                        header_border_color: "rgba(255, 255, 255, 0.1)".to_string(),
+                        header_shadow: "0 4px 20px rgba(0, 0, 0, 0.3)".to_string(),
+                        header_text_shadow: "0 2px 4px rgba(0, 0, 0, 0.3)".to_string(),
+                        header_logo_gradient: "linear-gradient(135deg, #667eea, #764ba2)".to_string(),
+                        
+                        // Sidebar styling - light theme defaults (same as default)
+                        sidebar_border_color: "rgba(255, 255, 255, 0.1)".to_string(),
+                        sidebar_shadow: "4px 0 20px rgba(0, 0, 0, 0.3)".to_string(),
+                        sidebar_section_title_color: "rgba(255, 255, 255, 0.8)".to_string(),
+                        sidebar_section_border_color: "rgba(255, 255, 255, 0.1)".to_string(),
+                        
+                        // Navigation link styling - light theme defaults (same as default)
+                        nav_link_text_color: "rgba(255, 255, 255, 0.8)".to_string(),
+                        nav_link_hover_bg: "rgba(255, 255, 255, 0.1)".to_string(),
+                        nav_link_hover_text: "white".to_string(),
+                        nav_link_active_bg: "linear-gradient(135deg, #667eea, #764ba2)".to_string(),
+                        nav_link_active_shadow: "0 4px 15px rgba(102, 126, 234, 0.3)".to_string(),
+                        nav_link_active_indicator: "white".to_string(),
+                        nav_link_public_text: "rgba(255, 255, 255, 0.6)".to_string(),
+                        nav_link_public_hover_bg: "rgba(255, 255, 255, 0.05)".to_string(),
+                        nav_link_public_hover_text: "rgba(255, 255, 255, 0.8)".to_string(),
                         card_bg: "#ffffff".to_string(),
                         shadow_color: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)".to_string(),
                         accent_color: "#667eea".to_string(),
@@ -267,19 +454,44 @@ pub fn design_system_page() -> Html {
                 ("public", "Dark Preset") => {
                     let scheme = PublicColorScheme {
                         name: "Public Dark Theme".to_string(),
-                        primary: "#f8fafc".to_string(),
-                        text_light: "#cbd5e1".to_string(),
-                        text_lighter: "#94a3b8".to_string(),
-                        border_light: "#334155".to_string(),
-                        background_light: "#1e293b".to_string(),
+                        // Dark theme text hierarchy
+                        text_primary: "#f8fafc".to_string(),
+                        text_secondary: "#e2e8f0".to_string(),
+                        text_meta: "#cbd5e1".to_string(),
+                        text_light: "#94a3b8".to_string(),
+                        text_muted: "#64748b".to_string(),
+                        
+                        // Dark theme link colors
+                        link_primary: "#60a5fa".to_string(),
+                        link_hover: "#93c5fd".to_string(),
+                        link_visited: "#a78bfa".to_string(),
+                        link_active: "#3b82f6".to_string(),
+                        
+                        // Dark theme heading hierarchy
+                        heading_h1: "#f8fafc".to_string(),
+                        heading_h2: "#f1f5f9".to_string(),
+                        heading_h3: "#e2e8f0".to_string(),
+                        heading_h4: "#cbd5e1".to_string(),
+                        heading_h5: "#94a3b8".to_string(),
+                        heading_h6: "#64748b".to_string(),
+                        
+                        // Dark theme context-specific text
+                        header_text: "#f8fafc".to_string(),
+                        header_text_hover: "#cbd5e1".to_string(),
+                        footer_text: "#e2e8f0".to_string(),
+                        footer_text_muted: "#94a3b8".to_string(),
+                        
+                        // Dark theme semantic colors
                         success: "#10b981".to_string(),
                         warning: "#f59e0b".to_string(),
                         danger: "#ef4444".to_string(),
                         info: "#06b6d4".to_string(),
+                        
+                        // Dark theme layout colors
+                        border_light: "#334155".to_string(),
+                        background_light: "#1e293b".to_string(),
                         hero_bg: "#0f172a".to_string(),
                         card_shadow: "rgba(0, 0, 0, 0.3)".to_string(),
-                        link_color: "#60a5fa".to_string(),
-                        button_hover: "#f1f5f9".to_string(),
                     };
                     public_scheme.set(scheme.clone());
                     apply_public_css_variables(&scheme);
@@ -297,7 +509,7 @@ pub fn design_system_page() -> Html {
     let save_theme = {
         let theme_name_input = theme_name_input.clone();
         let saved_themes = saved_themes.clone();
-        let current_tab = current_tab.clone();
+        let _current_tab = current_tab.clone();
         Callback::from(move |_: MouseEvent| {
             let theme_name = (*theme_name_input).clone();
             if !theme_name.is_empty() {
@@ -473,23 +685,101 @@ pub fn design_system_page() -> Html {
                                         </div>
 
                                         <div class="color-group">
-                                            <h4>{"Sidebar & Navigation"}</h4>
+                                            <h4>{"Header Styling"}</h4>
                                             <AdminColorInput 
-                                                label="Sidebar Background" 
-                                                value={admin_scheme.sidebar_bg.clone()}
-                                                property="sidebar_bg"
+                                                label="Header Text Color" 
+                                                value={admin_scheme.header_text_color.clone()}
+                                                property="header_text_color"
                                                 on_change={update_admin_color.clone()}
                                             />
                                             <AdminColorInput 
-                                                label="Sidebar Hover" 
-                                                value={admin_scheme.sidebar_hover.clone()}
-                                                property="sidebar_hover"
+                                                label="Header Border Color" 
+                                                value={admin_scheme.header_border_color.clone()}
+                                                property="header_border_color"
                                                 on_change={update_admin_color.clone()}
                                             />
                                             <AdminColorInput 
-                                                label="Sidebar Active" 
-                                                value={admin_scheme.sidebar_active.clone()}
-                                                property="sidebar_active"
+                                                label="Header Shadow" 
+                                                value={admin_scheme.header_shadow.clone()}
+                                                property="header_shadow"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                        </div>
+
+                                        <div class="color-group">
+                                            <h4>{"Sidebar Styling"}</h4>
+                                            <AdminColorInput 
+                                                label="Sidebar Border Color" 
+                                                value={admin_scheme.sidebar_border_color.clone()}
+                                                property="sidebar_border_color"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                            <AdminColorInput 
+                                                label="Sidebar Shadow" 
+                                                value={admin_scheme.sidebar_shadow.clone()}
+                                                property="sidebar_shadow"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                            <AdminColorInput 
+                                                label="Section Title Color" 
+                                                value={admin_scheme.sidebar_section_title_color.clone()}
+                                                property="sidebar_section_title_color"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                            <AdminColorInput 
+                                                label="Section Border Color" 
+                                                value={admin_scheme.sidebar_section_border_color.clone()}
+                                                property="sidebar_section_border_color"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                        </div>
+
+                                        <div class="color-group">
+                                            <h4>{"Navigation Links"}</h4>
+                                            <AdminColorInput 
+                                                label="Link Text Color" 
+                                                value={admin_scheme.nav_link_text_color.clone()}
+                                                property="nav_link_text_color"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                            <AdminColorInput 
+                                                label="Link Hover Background" 
+                                                value={admin_scheme.nav_link_hover_bg.clone()}
+                                                property="nav_link_hover_bg"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                            <AdminColorInput 
+                                                label="Link Hover Text" 
+                                                value={admin_scheme.nav_link_hover_text.clone()}
+                                                property="nav_link_hover_text"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                            <AdminColorInput 
+                                                label="Active Link Shadow" 
+                                                value={admin_scheme.nav_link_active_shadow.clone()}
+                                                property="nav_link_active_shadow"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                        </div>
+
+                                        <div class="color-group">
+                                            <h4>{"Public Navigation Links"}</h4>
+                                            <AdminColorInput 
+                                                label="Public Link Text" 
+                                                value={admin_scheme.nav_link_public_text.clone()}
+                                                property="nav_link_public_text"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                            <AdminColorInput 
+                                                label="Public Link Hover BG" 
+                                                value={admin_scheme.nav_link_public_hover_bg.clone()}
+                                                property="nav_link_public_hover_bg"
+                                                on_change={update_admin_color.clone()}
+                                            />
+                                            <AdminColorInput 
+                                                label="Public Link Hover Text" 
+                                                value={admin_scheme.nav_link_public_hover_text.clone()}
+                                                property="nav_link_public_hover_text"
                                                 on_change={update_admin_color.clone()}
                                             />
                                         </div>
@@ -517,7 +807,7 @@ pub fn design_system_page() -> Html {
                                         </div>
 
                                         <div class="color-group">
-                                            <h4>{"Header Gradient"}</h4>
+                                            <h4>{"Gradients & Complex Styles"}</h4>
                                             <div class="color-input">
                                                 <label>{"Header Gradient"}</label>
                                                 <div class="color-input-group">
@@ -529,6 +819,60 @@ pub fn design_system_page() -> Html {
                                                             move |e: Event| {
                                                                 let input = e.target().unwrap().dyn_into::<HtmlInputElement>().unwrap();
                                                                 update_admin_color.emit(("header_gradient".to_string(), input.value()));
+                                                            }
+                                                        }
+                                                        placeholder="linear-gradient(...)"
+                                                        style="width: 100%; font-family: monospace; font-size: 0.8rem;"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div class="color-input">
+                                                <label>{"Sidebar Background"}</label>
+                                                <div class="color-input-group">
+                                                    <input 
+                                                        type="text" 
+                                                        value={admin_scheme.sidebar_bg.clone()}
+                                                        onchange={
+                                                            let update_admin_color = update_admin_color.clone();
+                                                            move |e: Event| {
+                                                                let input = e.target().unwrap().dyn_into::<HtmlInputElement>().unwrap();
+                                                                update_admin_color.emit(("sidebar_bg".to_string(), input.value()));
+                                                            }
+                                                        }
+                                                        placeholder="linear-gradient(...)"
+                                                        style="width: 100%; font-family: monospace; font-size: 0.8rem;"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div class="color-input">
+                                                <label>{"Header Logo Gradient"}</label>
+                                                <div class="color-input-group">
+                                                    <input 
+                                                        type="text" 
+                                                        value={admin_scheme.header_logo_gradient.clone()}
+                                                        onchange={
+                                                            let update_admin_color = update_admin_color.clone();
+                                                            move |e: Event| {
+                                                                let input = e.target().unwrap().dyn_into::<HtmlInputElement>().unwrap();
+                                                                update_admin_color.emit(("header_logo_gradient".to_string(), input.value()));
+                                                            }
+                                                        }
+                                                        placeholder="linear-gradient(...)"
+                                                        style="width: 100%; font-family: monospace; font-size: 0.8rem;"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div class="color-input">
+                                                <label>{"Active Nav Background"}</label>
+                                                <div class="color-input-group">
+                                                    <input 
+                                                        type="text" 
+                                                        value={admin_scheme.nav_link_active_bg.clone()}
+                                                        onchange={
+                                                            let update_admin_color = update_admin_color.clone();
+                                                            move |e: Event| {
+                                                                let input = e.target().unwrap().dyn_into::<HtmlInputElement>().unwrap();
+                                                                update_admin_color.emit(("nav_link_active_bg".to_string(), input.value()));
                                                             }
                                                         }
                                                         placeholder="linear-gradient(...)"
@@ -555,7 +899,7 @@ pub fn design_system_page() -> Html {
                     },
                     "public" => html! {
                         <div class="theme-tab public-theme-tab">
-                            <div class="color-editor-layout">
+                            <div class="public-theme-layout">
                                 <div class="color-editor">
                                     <div class="editor-header">
                                         <h3>{"Public Theme Editor"}</h3>
@@ -589,17 +933,25 @@ pub fn design_system_page() -> Html {
                                     
                                     <div class="color-groups">
                                         <div class="color-group">
-                                            <h4>{"Brand Colors"}</h4>
+                                            <h4>{"Primary Text Hierarchy"}</h4>
                                             <PublicColorInput 
-                                                label="Primary" 
-                                                value={public_scheme.primary.clone()}
-                                                property="primary"
+                                                label="Primary Text" 
+                                                value={public_scheme.text_primary.clone()}
+                                                property="text_primary"
                                                 on_change={update_public_color.clone()}
                                             />
-                                        </div>
-
-                                        <div class="color-group">
-                                            <h4>{"Text Colors"}</h4>
+                                            <PublicColorInput 
+                                                label="Secondary Text" 
+                                                value={public_scheme.text_secondary.clone()}
+                                                property="text_secondary"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Meta Text" 
+                                                value={public_scheme.text_meta.clone()}
+                                                property="text_meta"
+                                                on_change={update_public_color.clone()}
+                                            />
                                             <PublicColorInput 
                                                 label="Light Text" 
                                                 value={public_scheme.text_light.clone()}
@@ -607,31 +959,99 @@ pub fn design_system_page() -> Html {
                                                 on_change={update_public_color.clone()}
                                             />
                                             <PublicColorInput 
-                                                label="Lighter Text" 
-                                                value={public_scheme.text_lighter.clone()}
-                                                property="text_lighter"
+                                                label="Muted Text" 
+                                                value={public_scheme.text_muted.clone()}
+                                                property="text_muted"
                                                 on_change={update_public_color.clone()}
                                             />
                                         </div>
 
                                         <div class="color-group">
-                                            <h4>{"Layout Colors"}</h4>
+                                            <h4>{"Heading Colors"}</h4>
                                             <PublicColorInput 
-                                                label="Border Light" 
-                                                value={public_scheme.border_light.clone()}
-                                                property="border_light"
+                                                label="Heading H1" 
+                                                value={public_scheme.heading_h1.clone()}
+                                                property="heading_h1"
                                                 on_change={update_public_color.clone()}
                                             />
                                             <PublicColorInput 
-                                                label="Background Light" 
-                                                value={public_scheme.background_light.clone()}
-                                                property="background_light"
+                                                label="Heading H2" 
+                                                value={public_scheme.heading_h2.clone()}
+                                                property="heading_h2"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Heading H3" 
+                                                value={public_scheme.heading_h3.clone()}
+                                                property="heading_h3"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Heading H4-H6" 
+                                                value={public_scheme.heading_h4.clone()}
+                                                property="heading_h4"
                                                 on_change={update_public_color.clone()}
                                             />
                                         </div>
 
                                         <div class="color-group">
-                                            <h4>{"Status Colors"}</h4>
+                                            <h4>{"Link & Interactive Colors"}</h4>
+                                            <PublicColorInput 
+                                                label="Primary Links" 
+                                                value={public_scheme.link_primary.clone()}
+                                                property="link_primary"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Link Hover" 
+                                                value={public_scheme.link_hover.clone()}
+                                                property="link_hover"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Link Visited" 
+                                                value={public_scheme.link_visited.clone()}
+                                                property="link_visited"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Link Active" 
+                                                value={public_scheme.link_active.clone()}
+                                                property="link_active"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                        </div>
+
+                                        <div class="color-group">
+                                            <h4>{"Header & Footer Text"}</h4>
+                                            <PublicColorInput 
+                                                label="Header Text" 
+                                                value={public_scheme.header_text.clone()}
+                                                property="header_text"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Header Text Hover" 
+                                                value={public_scheme.header_text_hover.clone()}
+                                                property="header_text_hover"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Footer Text" 
+                                                value={public_scheme.footer_text.clone()}
+                                                property="footer_text"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Footer Text Muted" 
+                                                value={public_scheme.footer_text_muted.clone()}
+                                                property="footer_text_muted"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                        </div>
+
+                                        <div class="color-group">
+                                            <h4>{"Semantic Status Colors"}</h4>
                                             <PublicColorInput 
                                                 label="Success" 
                                                 value={public_scheme.success.clone()}
@@ -645,7 +1065,7 @@ pub fn design_system_page() -> Html {
                                                 on_change={update_public_color.clone()}
                                             />
                                             <PublicColorInput 
-                                                label="Danger" 
+                                                label="Error" 
                                                 value={public_scheme.danger.clone()}
                                                 property="danger"
                                                 on_change={update_public_color.clone()}
@@ -659,23 +1079,19 @@ pub fn design_system_page() -> Html {
                                         </div>
 
                                         <div class="color-group">
-                                            <h4>{"Interactive Elements"}</h4>
+                                            <h4>{"Layout & Background"}</h4>
                                             <PublicColorInput 
-                                                label="Link Color" 
-                                                value={public_scheme.link_color.clone()}
-                                                property="link_color"
+                                                label="Border Light" 
+                                                value={public_scheme.border_light.clone()}
+                                                property="border_light"
                                                 on_change={update_public_color.clone()}
                                             />
                                             <PublicColorInput 
-                                                label="Button Hover" 
-                                                value={public_scheme.button_hover.clone()}
-                                                property="button_hover"
+                                                label="Background Light" 
+                                                value={public_scheme.background_light.clone()}
+                                                property="background_light"
                                                 on_change={update_public_color.clone()}
                                             />
-                                        </div>
-
-                                        <div class="color-group">
-                                            <h4>{"Special Areas"}</h4>
                                             <PublicColorInput 
                                                 label="Hero Background" 
                                                 value={public_scheme.hero_bg.clone()}
@@ -697,10 +1113,94 @@ pub fn design_system_page() -> Html {
                                         </button>
                                     </div>
                                 </div>
-
-                                <div class="color-preview">
+                                
+                                <div class="color-preview-row">
                                     <h3>{"Public Preview"}</h3>
                                     <PublicPreview scheme={(*public_scheme).clone()} />
+                                    
+                                    <div class="public-text-preview">
+                                        <h3>{"Text System Overview"}</h3>
+                                        <div class="text-hierarchy-grid">
+                                            <div class="text-column">
+                                                <h4>{"Headings"}</h4>
+                                                <div class="text-sample-compact">
+                                                    <span class="var-label">{"--heading-h1"}</span>
+                                                    <h1 style={format!("color: {}; font-size: 1.5rem; font-weight: 700; margin: 0.25rem 0;", public_scheme.heading_h1)}>{"Page Title"}</h1>
+                                                </div>
+                                                <div class="text-sample-compact">
+                                                    <span class="var-label">{"--heading-h2"}</span>
+                                                    <h2 style={format!("color: {}; font-size: 1.25rem; font-weight: 600; margin: 0.25rem 0;", public_scheme.heading_h2)}>{"Section"}</h2>
+                                                </div>
+                                                <div class="text-sample-compact">
+                                                    <span class="var-label">{"--heading-h3"}</span>
+                                                    <h3 style={format!("color: {}; font-size: 1.1rem; font-weight: 600; margin: 0.25rem 0;", public_scheme.heading_h3)}>{"Subsection"}</h3>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="text-column">
+                                                <h4>{"Body Text"}</h4>
+                                                <div class="text-sample-compact">
+                                                    <span class="var-label">{"--text-primary"}</span>
+                                                    <p style={format!("color: {}; margin: 0.25rem 0; font-weight: 600; font-size: 0.9rem;", public_scheme.text_primary)}>{"Primary content"}</p>
+                                                </div>
+                                                <div class="text-sample-compact">
+                                                    <span class="var-label">{"--text-secondary"}</span>
+                                                    <p style={format!("color: {}; margin: 0.25rem 0; font-size: 0.9rem;", public_scheme.text_secondary)}>{"Body paragraphs"}</p>
+                                                </div>
+                                                <div class="text-sample-compact">
+                                                    <span class="var-label">{"--text-meta"}</span>
+                                                    <p style={format!("color: {}; margin: 0.25rem 0; font-size: 0.8rem;", public_scheme.text_meta)}>{"Meta info"}</p>
+                                                </div>
+                                                <div class="text-sample-compact">
+                                                    <span class="var-label">{"--text-light"}</span>
+                                                    <p style={format!("color: {}; margin: 0.25rem 0; font-size: 0.75rem;", public_scheme.text_light)}>{"Captions"}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="text-column">
+                                                <h4>{"Interactive"}</h4>
+                                                <div class="text-sample-compact">
+                                                    <span class="var-label">{"--link-primary"}</span>
+                                                    <a href="#" style={format!("color: {}; text-decoration: none; font-weight: 500; font-size: 0.9rem;", public_scheme.link_primary)}>{"Primary Link"}</a>
+                                                </div>
+                                                <div class="text-sample-compact">
+                                                    <span class="var-label">{"--link-hover"}</span>
+                                                    <a href="#" style={format!("color: {}; text-decoration: none; font-weight: 500; font-size: 0.9rem;", public_scheme.link_hover)}>{"Hover State"}</a>
+                                                </div>
+                                                <div class="text-sample-compact">
+                                                    <span class="var-label">{"--link-visited"}</span>
+                                                    <a href="#" style={format!("color: {}; text-decoration: none; font-weight: 500; font-size: 0.9rem;", public_scheme.link_visited)}>{"Visited"}</a>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="text-column">
+                                                <h4>{"Semantic"}</h4>
+                                                <div class="semantic-preview">
+                                                    <div class="semantic-item" style={format!("color: {}; font-size: 0.8rem; margin: 0.25rem 0;", public_scheme.success)}>
+                                                        {"✓ Success message"}
+                                                    </div>
+                                                    <div class="semantic-item" style={format!("color: {}; font-size: 0.8rem; margin: 0.25rem 0;", public_scheme.warning)}>
+                                                        {"⚠ Warning message"}
+                                                    </div>
+                                                    <div class="semantic-item" style={format!("color: {}; font-size: 0.8rem; margin: 0.25rem 0;", public_scheme.danger)}>
+                                                        {"✗ Error message"}
+                                                    </div>
+                                                    <div class="semantic-item" style={format!("color: {}; font-size: 0.8rem; margin: 0.25rem 0;", public_scheme.info)}>
+                                                        {"ℹ Info message"}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="header-footer-preview">
+                                            <h4>{"Navigation & Footer"}</h4>
+                                            <div style={format!("background: #000; padding: 0.75rem; border-radius: 6px; margin: 0.5rem 0; display: flex; gap: 1rem; align-items: center;")}>
+                                                <span style={format!("color: {}; font-weight: 500; font-size: 0.9rem;", public_scheme.header_text)}>{"Nav Item"}</span>
+                                                <span style={format!("color: {}; font-weight: 500; font-size: 0.9rem;", public_scheme.header_text_hover)}>{"Nav Hover"}</span>
+                                                <span style={format!("color: {}; font-size: 0.8rem;", public_scheme.footer_text_muted)}>{"Footer Text"}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -863,12 +1363,12 @@ pub fn design_system_page() -> Html {
                                         </div>
                                         
                                         <div class="theme-sample public-sample">
-                                            <div class="sample-header" style={format!("background: {}; color: {}", public_scheme.primary, public_scheme.background_light)}>
+                                            <div class="sample-header" style={format!("background: {}; color: {}", public_scheme.text_primary, public_scheme.background_light)}>
                                                 <h5>{"Public Theme"}</h5>
                                             </div>
                                             <div class="sample-content" style={format!("background: {}; color: {}", public_scheme.background_light, public_scheme.text_light)}>
                                                 <div class="sample-colors">
-                                                    <div class="color-dot" style={format!("background: {}", public_scheme.primary)}></div>
+                                                    <div class="color-dot" style={format!("background: {}", public_scheme.text_primary)}></div>
                                                     <div class="color-dot" style={format!("background: {}", public_scheme.success)}></div>
                                                     <div class="color-dot" style={format!("background: {}", public_scheme.warning)}></div>
                                                     <div class="color-dot" style={format!("background: {}", public_scheme.danger)}></div>
@@ -1027,14 +1527,14 @@ fn public_preview(props: &PublicPreviewProps) -> Html {
     html! {
         <div class="color-preview-container public-preview" style={format!(
             "background: white; color: {}; border: 1px solid {};",
-            props.scheme.primary, props.scheme.border_light
+            props.scheme.text_primary, props.scheme.border_light
         )}>
             <div class="preview-content">
                 <div class="preview-header" style={format!(
                     "background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid {}; padding: 1rem; margin: -1.5rem -1.5rem 1rem -1.5rem;",
                     props.scheme.border_light
                 )}>
-                    <h4 style={format!("color: {}; margin: 0; font-weight: 700;", props.scheme.primary)}>{"Public Site Preview"}</h4>
+                    <h4 style={format!("color: {}; margin: 0; font-weight: 700;", props.scheme.text_primary)}>{"Public Site Preview"}</h4>
                 </div>
                 <p style={format!("color: {}; margin-bottom: 1rem;", props.scheme.text_light)}>
                     {"This is how your public site will look with the minimalist design."}
@@ -1042,22 +1542,22 @@ fn public_preview(props: &PublicPreviewProps) -> Html {
                 <div class="preview-buttons">
                     <button class="btn" style={format!(
                         "background: {}; color: white; border: none; padding: 0.75rem 1.5rem; margin: 0.25rem; border-radius: 8px; font-weight: 500;",
-                        props.scheme.primary
+                        props.scheme.text_primary
                     )}>{"Primary CTA"}</button>
                     <button class="btn" style={format!(
                         "background: transparent; color: {}; border: 1px solid {}; padding: 0.75rem 1.5rem; margin: 0.25rem; border-radius: 8px;",
-                        props.scheme.primary, props.scheme.border_light
+                        props.scheme.text_primary, props.scheme.border_light
                     )}>{"Secondary"}</button>
                 </div>
                 <div class="preview-card" style={format!(
                     "background: {}; border: 1px solid {}; padding: 1.5rem; margin-top: 1rem; border-radius: 8px;",
                     props.scheme.background_light, props.scheme.border_light
                 )}>
-                    <h5 style={format!("color: {}", props.scheme.primary)}>{"Article Card"}</h5>
+                    <h5 style={format!("color: {}", props.scheme.text_primary)}>{"Article Card"}</h5>
                     <p style={format!("color: {}; line-height: 1.6;", props.scheme.text_light)}>
                         {"This shows how content cards will appear on your public site."}
                     </p>
-                    <small style={format!("color: {}", props.scheme.text_lighter)}>
+                    <small style={format!("color: {}", props.scheme.text_muted)}>
                         {"Published on January 1, 2024"}
                     </small>
                 </div>
@@ -1134,42 +1634,61 @@ fn public_component_preview(props: &PublicComponentPreviewProps) -> Html {
     html! {
         <div class="component-preview-grid public-components">
             <div class="component-demo">
-                <h4>{"Public Buttons"}</h4>
-                <div class="button-group">
-                    <button class="save-controls-button save-theme-button" style={format!("background: {}; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; margin: 0.25rem; font-weight: 500;", props.scheme.primary)}>{"Primary CTA"}</button>
-                    <button class="preset-controls-button reset-button" style={format!("background: transparent; color: {}; border: 1px solid {}; padding: 0.75rem 1.5rem; border-radius: 8px; margin: 0.25rem;", props.scheme.primary, props.scheme.border_light)}>{"Secondary"}</button>
+                <h4>{"Typography Hierarchy"}</h4>
+                <div style="padding: 1rem; background: white; border-radius: 8px; border: 1px solid #eee;">
+                    <h1 style={format!("color: {}; font-size: 2rem; font-weight: 700; margin: 0.5rem 0;", props.scheme.heading_h1)}>{"H1 Main Title"}</h1>
+                    <h2 style={format!("color: {}; font-size: 1.5rem; font-weight: 600; margin: 0.5rem 0;", props.scheme.heading_h2)}>{"H2 Section Title"}</h2>
+                    <h3 style={format!("color: {}; font-size: 1.25rem; font-weight: 600; margin: 0.5rem 0;", props.scheme.heading_h3)}>{"H3 Subsection"}</h3>
+                    <p style={format!("color: {}; margin: 0.5rem 0; line-height: 1.6;", props.scheme.text_secondary)}>{"Body text for articles and content with proper readability."}</p>
+                    <p style={format!("color: {}; font-size: 0.9rem; margin: 0.5rem 0;", props.scheme.text_meta)}>{"Meta information like dates and categories"}</p>
+                    <small style={format!("color: {}; font-size: 0.8rem;", props.scheme.text_light)}>{"Caption and auxiliary text"}</small>
                 </div>
             </div>
 
             <div class="component-demo">
-                <h4>{"Contact Form"}</h4>
-                <div class="form-group">
-                    <label style={format!("color: {}; font-weight: 500; margin-bottom: 0.5rem; display: block;", props.scheme.primary)}>{"Email"}</label>
-                    <input type="email" placeholder="your@email.com" style={format!("border: 1px solid {}; background: white; color: {}; padding: 0.75rem; border-radius: 8px; width: 100%;", props.scheme.border_light, props.scheme.primary)} />
-                </div>
-                <div class="form-group">
-                    <label style={format!("color: {}; font-weight: 500; margin-bottom: 0.5rem; display: block;", props.scheme.primary)}>{"Message"}</label>
-                    <textarea placeholder="Your message..." style={format!("border: 1px solid {}; background: white; color: {}; padding: 0.75rem; border-radius: 8px; width: 100%; height: 80px; resize: vertical;", props.scheme.border_light, props.scheme.primary)}></textarea>
-                </div>
-            </div>
-
-            <div class="component-demo">
-                <h4>{"Content Tags"}</h4>
-                <div class="badge-group">
-                    <span style={format!("background: {}; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; margin: 0.25rem;", props.scheme.primary)}>{"Technology"}</span>
-                    <span style={format!("background: {}; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; margin: 0.25rem;", props.scheme.success)}>{"Featured"}</span>
-                    <span style={format!("background: {}; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; margin: 0.25rem;", props.scheme.info)}>{"Tutorial"}</span>
-                </div>
-            </div>
-
-            <div class="component-demo">
-                <h4>{"Article Card"}</h4>
-                <div class="card" style={format!("background: {}; border: 1px solid {}; border-radius: 8px; padding: 1.5rem;", props.scheme.background_light, props.scheme.border_light)}>
-                    <div class="card-header">
-                        <h5 style={format!("color: {}; margin: 0 0 0.75rem 0; font-weight: 700;", props.scheme.primary)}>{"Getting Started with Rust"}</h5>
+                <h4>{"Interactive Links"}</h4>
+                <div style="padding: 1rem; background: white; border-radius: 8px; border: 1px solid #eee;">
+                    <p>
+                        <a href="#" style={format!("color: {}; text-decoration: none; font-weight: 500; margin-right: 1rem;", props.scheme.link_primary)}>{"Primary Link"}</a>
+                        <a href="#" style={format!("color: {}; text-decoration: none; font-weight: 500; margin-right: 1rem;", props.scheme.link_hover)}>{"Hover State"}</a>
+                        <a href="#" style={format!("color: {}; text-decoration: none; font-weight: 500;", props.scheme.link_visited)}>{"Visited Link"}</a>
+                    </p>
+                    <div style="margin-top: 1rem;">
+                        <span style={format!("background: {}; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; margin-right: 0.5rem;", props.scheme.link_primary)}>{"Primary Button"}</span>
+                        <span style={format!("background: transparent; color: {}; border: 1px solid {}; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500;", props.scheme.link_primary, props.scheme.border_light)}>{"Secondary Button"}</span>
                     </div>
-                    <p style={format!("color: {}; margin: 0 0 1rem 0; line-height: 1.6;", props.scheme.text_light)}>{"Learn the fundamentals of Rust programming with this comprehensive guide."}</p>
-                    <small style={format!("color: {}", props.scheme.text_lighter)}>{"Published on January 15, 2024"}</small>
+                </div>
+            </div>
+
+            <div class="component-demo">
+                <h4>{"Status Messages"}</h4>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <div style={format!("background: #f0fdf4; border: 1px solid #bbf7d0; color: {}; padding: 0.75rem; border-radius: 6px; font-size: 0.875rem;", props.scheme.success)}>
+                        {"✅ Success: Your changes have been saved successfully."}
+                    </div>
+                    <div style={format!("background: #fffbeb; border: 1px solid #fed7aa; color: {}; padding: 0.75rem; border-radius: 6px; font-size: 0.875rem;", props.scheme.warning)}>
+                        {"⚠️ Warning: Please review your input before continuing."}
+                    </div>
+                    <div style={format!("background: #fef2f2; border: 1px solid #fecaca; color: {}; padding: 0.75rem; border-radius: 6px; font-size: 0.875rem;", props.scheme.danger)}>
+                        {"❌ Error: Something went wrong. Please try again."}
+                    </div>
+                    <div style={format!("background: #f0f9ff; border: 1px solid #bae6fd; color: {}; padding: 0.75rem; border-radius: 6px; font-size: 0.875rem;", props.scheme.info)}>
+                        {"ℹ️ Info: Here's some helpful information for you."}
+                    </div>
+                </div>
+            </div>
+
+            <div class="component-demo">
+                <h4>{"Article Card Preview"}</h4>
+                <div style={format!("background: {}; border: 1px solid {}; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px {};", props.scheme.background_light, props.scheme.border_light, props.scheme.card_shadow)}>
+                    <div class="card-header">
+                        <h3 style={format!("color: {}; margin: 0 0 0.75rem 0; font-weight: 700; font-size: 1.25rem;", props.scheme.heading_h3)}>{"Building Modern Web Apps"}</h3>
+                    </div>
+                    <p style={format!("color: {}; margin: 0 0 1rem 0; line-height: 1.6;", props.scheme.text_secondary)}>{"A comprehensive guide to building modern, responsive web applications using the latest technologies and best practices."}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <small style={format!("color: {}", props.scheme.text_meta)}>{"Published on January 15, 2024"}</small>
+                        <a href="#" style={format!("color: {}; text-decoration: none; font-weight: 600; font-size: 0.875rem;", props.scheme.link_primary)}>{"Read More →"}</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1177,45 +1696,50 @@ fn public_component_preview(props: &PublicComponentPreviewProps) -> Html {
 }
 
 // Function to apply admin CSS variables dynamically
-fn apply_admin_css_variables(scheme: &AdminColorScheme) {
+pub fn apply_admin_css_variables(scheme: &AdminColorScheme) {
     if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+        // Override body background for admin interface by adding admin class
+        if let Some(body) = document.body() {
+            // Get existing class name and append admin-body
+            let existing_class = body.class_name();
+            let new_class = if existing_class.is_empty() {
+                "admin-body".to_string()
+            } else {
+                format!("{} admin-body", existing_class)
+            };
+            body.set_class_name(&new_class);
+        }
+        
         if let Some(root) = document.document_element() {
-            // Apply admin-specific CSS variables without affecting public ones
+            // Apply comprehensive admin-specific CSS variables
             let admin_vars = format!(
-                "--admin-primary-color: {}; --admin-secondary-color: {}; --admin-success-color: {}; --admin-warning-color: {}; --admin-danger-color: {}; --admin-info-color: {}; --admin-bg-primary: {}; --admin-bg-secondary: {}; --admin-text-primary: {}; --admin-text-secondary: {}; --admin-border-color: {}; --admin-shadow-md: {}; --admin-accent-color: {};",
+                "--admin-primary-color: {}; --admin-secondary-color: {}; --admin-success-color: {}; --admin-warning-color: {}; --admin-danger-color: {}; --admin-info-color: {}; --admin-bg-primary: {}; --admin-bg-secondary: {}; --admin-text-primary: {}; --admin-text-secondary: {}; --admin-border-color: {}; --admin-shadow-md: {}; --admin-accent-color: {}; --admin-header-gradient: {}; --admin-header-text-color: {}; --admin-header-border-color: {}; --admin-header-shadow: {}; --admin-header-text-shadow: {}; --admin-header-logo-gradient: {}; --admin-sidebar-bg: {}; --admin-sidebar-border-color: {}; --admin-sidebar-shadow: {}; --admin-sidebar-section-title-color: {}; --admin-sidebar-section-border-color: {}; --admin-nav-link-text-color: {}; --admin-nav-link-hover-bg: {}; --admin-nav-link-hover-text: {}; --admin-nav-link-active-bg: {}; --admin-nav-link-active-shadow: {}; --admin-nav-link-active-indicator: {}; --admin-nav-link-public-text: {}; --admin-nav-link-public-hover-bg: {}; --admin-nav-link-public-hover-text: {}; --admin-card-bg: {};",
                 scheme.primary, scheme.secondary, scheme.success, scheme.warning, scheme.danger, scheme.info,
-                scheme.background, scheme.surface, scheme.text_primary, scheme.text_secondary, scheme.border, scheme.shadow_color, scheme.accent_color
+                scheme.surface, scheme.background, scheme.text_primary, scheme.text_secondary, scheme.border, scheme.shadow_color, scheme.accent_color,
+                scheme.header_gradient, scheme.header_text_color, scheme.header_border_color, scheme.header_shadow, scheme.header_text_shadow, scheme.header_logo_gradient,
+                scheme.sidebar_bg, scheme.sidebar_border_color, scheme.sidebar_shadow, scheme.sidebar_section_title_color, scheme.sidebar_section_border_color,
+                scheme.nav_link_text_color, scheme.nav_link_hover_bg, scheme.nav_link_hover_text, scheme.nav_link_active_bg, scheme.nav_link_active_shadow, scheme.nav_link_active_indicator,
+                scheme.nav_link_public_text, scheme.nav_link_public_hover_bg, scheme.nav_link_public_hover_text, scheme.card_bg
             );
             
-            // Apply to root element with admin prefix
+            // Apply to root element with admin prefix only
             let current_style = root.get_attribute("style").unwrap_or_default();
-            let new_style = if current_style.is_empty() {
+            
+            // Remove any existing admin variables to prevent conflicts
+            let cleaned_style = current_style
+                .split(';')
+                .filter(|s| !s.trim().starts_with("--admin-"))
+                .collect::<Vec<_>>()
+                .join(";");
+            
+            let new_style = if cleaned_style.trim().is_empty() {
                 admin_vars
             } else {
-                format!("{}; {}", current_style, admin_vars)
+                format!("{}; {}", cleaned_style, admin_vars)
             };
             let _ = root.set_attribute("style", &new_style);
             
-            // Apply actual admin colors to core CSS variables for immediate effect
-            let core_vars = format!(
-                "--primary-color: {}; --secondary-color: {}; --success-color: {}; --warning-color: {}; --danger-color: {}; --info-color: {}; --bg-primary: {}; --bg-secondary: {}; --text-primary: {}; --text-secondary: {}; --border-color: {}; --shadow-md: {};",
-                scheme.primary, scheme.secondary, scheme.success, scheme.warning, scheme.danger, scheme.info,
-                scheme.background, scheme.surface, scheme.text_primary, scheme.text_secondary, scheme.border, scheme.shadow_color
-            );
-            
-            let final_style = format!("{}; {}", new_style, core_vars);
-            let _ = root.set_attribute("style", &final_style);
-            
-            // Apply admin-specific styling
-            if let Some(admin_header) = document.query_selector(".admin-header").ok().flatten() {
-                let _ = admin_header.set_attribute("style", &format!("background: {} !important;", scheme.header_gradient));
-            }
-            
-            if let Some(admin_sidebar) = document.query_selector(".admin-sidebar").ok().flatten() {
-                let _ = admin_sidebar.set_attribute("style", &format!("background: {} !important;", scheme.sidebar_bg));
-            }
-            
-            // Update sidebar navigation hover and active states
+            // Update admin-specific styling with comprehensive style injection
             if let Some(style_element) = document.query_selector("style#admin-theme-overrides").ok().flatten() {
                 let _ = style_element.remove();
             }
@@ -1223,14 +1747,53 @@ fn apply_admin_css_variables(scheme: &AdminColorScheme) {
             if let Some(head) = document.head() {
                 if let Ok(style_element) = document.create_element("style") {
                     style_element.set_id("admin-theme-overrides");
+                    // Only refresh CSS variables - let the CSS cascade handle the rest
                     let css_overrides = format!(r#"
-                        .admin-nav-link:hover {{
-                            background: {} !important;
+                        /* Refresh admin theme CSS variables only */
+                        :root {{
+                            --admin-primary-color: {} !important;
+                            --admin-secondary-color: {} !important;
+                            --admin-success-color: {} !important;
+                            --admin-warning-color: {} !important;
+                            --admin-danger-color: {} !important;
+                            --admin-info-color: {} !important;
+                            --admin-bg-primary: {} !important;
+                            --admin-bg-secondary: {} !important;
+                            --admin-text-primary: {} !important;
+                            --admin-text-secondary: {} !important;
+                            --admin-border-color: {} !important;
+                            --admin-shadow-md: {} !important;
+                            --admin-accent-color: {} !important;
+                            --admin-header-gradient: {} !important;
+                            --admin-header-text-color: {} !important;
+                            --admin-header-border-color: {} !important;
+                            --admin-header-shadow: {} !important;
+                            --admin-header-text-shadow: {} !important;
+                            --admin-header-logo-gradient: {} !important;
+                            --admin-sidebar-bg: {} !important;
+                            --admin-sidebar-border-color: {} !important;
+                            --admin-sidebar-shadow: {} !important;
+                            --admin-sidebar-section-title-color: {} !important;
+                            --admin-sidebar-section-border-color: {} !important;
+                            --admin-nav-link-text-color: {} !important;
+                            --admin-nav-link-hover-bg: {} !important;
+                            --admin-nav-link-hover-text: {} !important;
+                            --admin-nav-link-active-bg: {} !important;
+                            --admin-nav-link-active-shadow: {} !important;
+                            --admin-nav-link-active-indicator: {} !important;
+                            --admin-nav-link-public-text: {} !important;
+                            --admin-nav-link-public-hover-bg: {} !important;
+                            --admin-nav-link-public-hover-text: {} !important;
+                            --admin-card-bg: {} !important;
                         }}
-                        .admin-nav-link.active {{
-                            background: {} !important;
-                        }}
-                    "#, scheme.sidebar_hover, scheme.sidebar_active);
+                    "#, 
+                    scheme.primary, scheme.secondary, scheme.success, scheme.warning, scheme.danger, scheme.info,
+                    scheme.surface, scheme.background, scheme.text_primary, scheme.text_secondary, scheme.border, scheme.shadow_color, scheme.accent_color,
+                    scheme.header_gradient, scheme.header_text_color, scheme.header_border_color, scheme.header_shadow, scheme.header_text_shadow, scheme.header_logo_gradient,
+                    scheme.sidebar_bg, scheme.sidebar_border_color, scheme.sidebar_shadow, scheme.sidebar_section_title_color, scheme.sidebar_section_border_color,
+                    scheme.nav_link_text_color, scheme.nav_link_hover_bg, scheme.nav_link_hover_text, scheme.nav_link_active_bg, scheme.nav_link_active_shadow, scheme.nav_link_active_indicator,
+                    scheme.nav_link_public_text, scheme.nav_link_public_hover_bg, scheme.nav_link_public_hover_text, scheme.card_bg
+                    );
                     style_element.set_text_content(Some(&css_overrides));
                     let _ = head.append_child(&style_element);
                 }
@@ -1248,11 +1811,15 @@ fn apply_admin_css_variables(scheme: &AdminColorScheme) {
 fn apply_public_css_variables(scheme: &PublicColorScheme) {
     if let Some(document) = web_sys::window().and_then(|w| w.document()) {
         if let Some(root) = document.document_element() {
-            // Apply public-specific CSS variables without affecting admin ones
+            // Apply comprehensive public-specific CSS variables
             let public_vars = format!(
-                "--public-primary: {}; --public-text-light: {}; --public-text-lighter: {}; --public-border-light: {}; --public-background-light: {}; --public-success: {}; --public-warning: {}; --public-danger: {}; --public-info: {}; --public-hero-bg: {}; --public-card-shadow: {}; --public-link-color: {}; --public-button-hover: {};",
-                scheme.primary, scheme.text_light, scheme.text_lighter, scheme.border_light, scheme.background_light,
-                scheme.success, scheme.warning, scheme.danger, scheme.info, scheme.hero_bg, scheme.card_shadow, scheme.link_color, scheme.button_hover
+                "--public-text-primary: {}; --public-text-secondary: {}; --public-text-meta: {}; --public-text-light: {}; --public-text-muted: {}; --public-link-primary: {}; --public-link-hover: {}; --public-link-visited: {}; --public-link-active: {}; --public-heading-h1: {}; --public-heading-h2: {}; --public-heading-h3: {}; --public-heading-h4: {}; --public-heading-h5: {}; --public-heading-h6: {}; --public-header-text: {}; --public-header-text-hover: {}; --public-footer-text: {}; --public-footer-text-muted: {}; --public-text-success: {}; --public-text-warning: {}; --public-text-error: {}; --public-text-info: {}; --public-border-light: {}; --public-background-light: {}; --public-hero-bg: {}; --public-card-shadow: {};",
+                scheme.text_primary, scheme.text_secondary, scheme.text_meta, scheme.text_light, scheme.text_muted,
+                scheme.link_primary, scheme.link_hover, scheme.link_visited, scheme.link_active,
+                scheme.heading_h1, scheme.heading_h2, scheme.heading_h3, scheme.heading_h4, scheme.heading_h5, scheme.heading_h6,
+                scheme.header_text, scheme.header_text_hover, scheme.footer_text, scheme.footer_text_muted,
+                scheme.success, scheme.warning, scheme.danger, scheme.info,
+                scheme.border_light, scheme.background_light, scheme.hero_bg, scheme.card_shadow
             );
             
             // Apply to root element with public prefix only
@@ -1272,7 +1839,7 @@ fn apply_public_css_variables(scheme: &PublicColorScheme) {
             };
             let _ = root.set_attribute("style", &new_style);
             
-            // Update public-specific styling with style injection
+            // Update public-specific styling with comprehensive style injection
             if let Some(style_element) = document.query_selector("style#public-theme-overrides").ok().flatten() {
                 let _ = style_element.remove();
             }
@@ -1280,28 +1847,66 @@ fn apply_public_css_variables(scheme: &PublicColorScheme) {
             if let Some(head) = document.head() {
                 if let Ok(style_element) = document.create_element("style") {
                     style_element.set_id("public-theme-overrides");
+                    // Only refresh CSS variables - let the CSS cascade handle the rest
                     let css_overrides = format!(r#"
-                        .public-site {{
-                            --site-primary: {} !important;
-                            --site-text-light: {} !important;
-                            --site-background: {} !important;
-                        }}
-                        .site-header {{
-                            background: {} !important;
-                        }}
-                        .hero {{
-                            background: {} !important;
-                        }}
-                        .post-card {{
-                            box-shadow: 0 4px 12px {} !important;
-                        }}
-                        .nav-link:hover,
-                        .read-more:hover {{
-                            color: {} !important;
+                        /* Refresh public theme CSS variables only */
+                        :root {{
+                            --public-text-primary: {} !important;
+                            --public-text-secondary: {} !important;
+                            --public-text-meta: {} !important;
+                            --public-text-light: {} !important;
+                            --public-text-muted: {} !important;
+                            --public-link-primary: {} !important;
+                            --public-link-hover: {} !important;
+                            --public-link-visited: {} !important;
+                            --public-link-active: {} !important;
+                            --public-heading-h1: {} !important;
+                            --public-heading-h2: {} !important;
+                            --public-heading-h3: {} !important;
+                            --public-heading-h4: {} !important;
+                            --public-heading-h5: {} !important;
+                            --public-heading-h6: {} !important;
+                            --public-header-text: {} !important;
+                            --public-header-text-hover: {} !important;
+                            --public-footer-text: {} !important;
+                            --public-footer-text-muted: {} !important;
+                            --public-text-success: {} !important;
+                            --public-text-warning: {} !important;
+                            --public-text-error: {} !important;
+                            --public-text-info: {} !important;
+                            --public-border-light: {} !important;
+                            --public-background-light: {} !important;
+                            --public-hero-bg: {} !important;
+                            --public-card-shadow: {} !important;
                         }}
                     "#, 
-                    scheme.primary, scheme.text_light, scheme.background_light,
-                    scheme.primary, scheme.hero_bg, scheme.card_shadow, scheme.button_hover
+                    scheme.text_primary,
+                    scheme.text_secondary,
+                    scheme.text_meta,
+                    scheme.text_light,
+                    scheme.text_muted,
+                    scheme.link_primary,
+                    scheme.link_hover,
+                    scheme.link_visited,
+                    scheme.link_active,
+                    scheme.heading_h1,
+                    scheme.heading_h2,
+                    scheme.heading_h3,
+                    scheme.heading_h4,
+                    scheme.heading_h5,
+                    scheme.heading_h6,
+                    scheme.header_text,
+                    scheme.header_text_hover,
+                    scheme.footer_text,
+                    scheme.footer_text_muted,
+                    scheme.success,
+                    scheme.warning,
+                    scheme.danger,
+                    scheme.info,
+                    scheme.border_light,
+                    scheme.background_light,
+                    scheme.hero_bg,
+                    scheme.card_shadow
                     );
                     style_element.set_text_content(Some(&css_overrides));
                     let _ = head.append_child(&style_element);
@@ -1309,7 +1914,7 @@ fn apply_public_css_variables(scheme: &PublicColorScheme) {
             }
             
             web_sys::console::log_1(&format!(
-                "✅ Applied public theme: {} - Variables updated in DOM", 
+                "✅ Applied comprehensive public theme: {} - All text colors updated in DOM", 
                 scheme.name
             ).into());
         }
