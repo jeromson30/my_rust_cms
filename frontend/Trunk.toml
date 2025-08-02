@@ -3,7 +3,7 @@ target = "index.html"
 dist = "../dist"
 
 [watch]
-watch = ["src", "../static"]
+watch = ["src"]
 
 [serve]
 address = "127.0.0.1"
