@@ -1,5 +1,5 @@
 use axum::{
-    extract::{State, Path, Multipart},
+    extract::{State, Path, Multipart, Extension},
     response::Json as ResponseJson,
     http::StatusCode,
 };
@@ -12,6 +12,7 @@ use crate::{
     middleware::{
         validation::validate_file_upload,
         errors::AppError,
+        auth::AuthenticatedUser,
     },
 };
 
@@ -35,6 +36,7 @@ pub async fn get_media(
 /// Generates unique filenames to prevent conflicts.
 /// Requires admin authentication.
 pub async fn upload_media(
+    Extension(auth_user): Extension<AuthenticatedUser>,
     State(services): State<AppServices>, 
     mut multipart: Multipart
 ) -> Result<(StatusCode, ResponseJson<serde_json::Value>), AppError> {
@@ -83,7 +85,7 @@ pub async fn upload_media(
                 file_name: file_name.clone(),
                 url: format!("/uploads/{}", unique_filename),
                 media_type: Some(content_type.clone()),
-                user_id: None, // TODO: Use authenticated user ID
+                user_id: Some(auth_user.id),
             };
             
             let created_media = Media::create(&mut conn, new_media)?;
@@ -124,7 +126,7 @@ pub async fn delete_media(
     // Delete from database
     Media::delete(&mut conn, id)?;
     
-    // TODO: Delete actual file from disk
+    // Delete actual file from disk
     // Extract filename from URL and delete physical file
     if let Some(filename) = media.url.strip_prefix("/uploads/") {
         let file_path = format!("backend/uploads/{}", filename);

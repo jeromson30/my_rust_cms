@@ -1,5 +1,5 @@
 use axum::{
-    extract::{State, Path, Json},
+    extract::{State, Path, Json, Extension},
     response::Json as ResponseJson,
     http::StatusCode,
 };
@@ -10,6 +10,7 @@ use crate::{
     middleware::{
         validation::validate_text_content,
         errors::AppError,
+        auth::AuthenticatedUser,
     },
 };
 
@@ -21,6 +22,7 @@ pub struct FrontendPost {
     pub content: String,
     pub author: String,
     pub status: String,
+    pub category_id: Option<i32>,
     pub created_at: Option<String>,
 }
 
@@ -32,6 +34,7 @@ impl From<Post> for FrontendPost {
             content: post.content,
             author: "Admin".to_string(), // Default for now
             status: "published".to_string(), // Default for now
+            category_id: post.category_id,
             created_at: post.created_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
         }
     }
@@ -74,6 +77,7 @@ pub async fn get_post(
 /// Content is sanitized and validated for security.
 /// Requires admin authentication.
 pub async fn create_post(
+    Extension(auth_user): Extension<AuthenticatedUser>,
     State(services): State<AppServices>, 
     Json(frontend_post): Json<FrontendPost>
 ) -> Result<(StatusCode, ResponseJson<FrontendPost>), AppError> {
@@ -91,8 +95,8 @@ pub async fn create_post(
     let new_post = NewPost {
         title: frontend_post.title.trim().to_string(),
         content: frontend_post.content.trim().to_string(),
-        category_id: None, // TODO: Add category support
-        user_id: Some(1), // TODO: Use authenticated user ID
+        category_id: frontend_post.category_id,
+        user_id: Some(auth_user.id),
     };
     
     let created_post = Post::create(&mut conn, new_post)?;
@@ -102,6 +106,7 @@ pub async fn create_post(
         content: created_post.content,
         author: frontend_post.author,
         status: frontend_post.status,
+        category_id: created_post.category_id,
         created_at: created_post.created_at.map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string()),
     };
     
@@ -135,7 +140,7 @@ pub async fn update_post(
     let update_post = UpdatePost {
         title: Some(frontend_post.title.trim().to_string()),
         content: Some(frontend_post.content.trim().to_string()),
-        category_id: None,
+        category_id: frontend_post.category_id,
         user_id: None,
         updated_at: Some(chrono::Utc::now().naive_utc()),
     };

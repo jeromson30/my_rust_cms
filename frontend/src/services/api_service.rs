@@ -28,6 +28,7 @@ pub struct Post {
     pub content: String,
     pub author: String,
     pub status: String,
+    pub category_id: Option<i32>,
     pub created_at: Option<String>,
 }
 
@@ -73,6 +74,12 @@ pub struct PageItem {
     pub status: String,
     pub created_at: Option<String>,
     pub updated_at: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct Category {
+    pub id: i32,
+    pub name: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
@@ -492,6 +499,24 @@ pub async fn delete_page(id: i32) -> Result<(), ApiServiceError> {
         Ok(())
     } else {
         Err(ApiServiceError::NetworkError(format!("HTTP {}", response.status())))
+    }
+}
+
+// Categories API
+pub async fn get_categories() -> Result<Vec<Category>, ApiServiceError> {
+    let response = create_authenticated_request("GET", &format!("{}/categories", API_BASE_URL))?
+        .send()
+        .await
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+
+    if response.status() == 200 {
+        let categories: Vec<Category> = response
+            .json()
+            .await
+            .map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(categories)
+    } else {
+        Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
     }
 }
 

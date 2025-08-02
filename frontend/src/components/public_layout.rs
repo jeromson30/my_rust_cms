@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use crate::services::navigation_service::get_navigation_items;
 use crate::pages::public::PublicPage;
+use crate::pages::admin::design_system::{PublicColorScheme, apply_public_css_variables};
 
 #[derive(Properties, PartialEq)]
 pub struct PublicLayoutProps {
@@ -16,6 +17,7 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
     let navigation_items = use_state(Vec::new);
     let loading = use_state(|| true);
 
+    // Load navigation items
     {
         let navigation_items = navigation_items.clone();
         let loading = loading.clone();
@@ -35,6 +37,16 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
                     }
                 }
             });
+            || ()
+        }, ());
+    }
+
+    // Apply default public theme on component mount
+    {
+        use_effect_with_deps(move |_| {
+            web_sys::console::log_1(&"PublicLayout: Applying default public theme".into());
+            let default_scheme = PublicColorScheme::default();
+            apply_public_css_variables(&default_scheme);
             || ()
         }, ());
     }

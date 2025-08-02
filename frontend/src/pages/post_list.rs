@@ -75,6 +75,7 @@ pub fn post_list() -> Html {
                     content: (*content).clone(),
                     author: (*author).clone(),
                     status: (*status).clone(),
+                    category_id: None,
                     created_at: None,
                 };
 
@@ -137,6 +138,7 @@ pub fn post_list() -> Html {
                         content: (*content).clone(),
                         author: (*author).clone(),
                         status: (*status).clone(),
+                        category_id: post.category_id,
                         created_at: post.created_at,
                     };
 

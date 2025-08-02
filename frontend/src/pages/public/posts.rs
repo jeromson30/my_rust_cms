@@ -115,7 +115,7 @@ pub fn posts() -> Html {
                                             {"By "}{&post.author}{" • "}{formatted_date}
                                         </p>
                                         <p class="post-excerpt">{excerpt}</p>
-                                        <a href={format!("/posts/{}", post.id.unwrap_or(0))} class="read-more">
+                                        <a href={format!("/post/{}", post.id.unwrap_or(0))} class="read-more">
                                             {"Read Article"}
                                         </a>
                                     </article>

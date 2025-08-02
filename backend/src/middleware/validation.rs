@@ -174,12 +174,12 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
+
 #[allow(dead_code)]
 static RATE_LIMITER: Lazy<Mutex<HashMap<String, (u32, Instant)>>> = Lazy::new(|| {
     Mutex::new(HashMap::new())
 });
 
-#[allow(dead_code)]
 pub async fn rate_limit_middleware(
     req: Request,
     next: Next,

@@ -22,6 +22,7 @@ use config::Config;
 use database::{DbPool, establish_connection_pool};
 use models::*;
 use middleware::auth::{auth_middleware_with_services, admin_auth_middleware_with_services};
+use middleware::validation::rate_limit_middleware;
 use services::{SessionManager, SessionConfig};
 
 
@@ -218,7 +219,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(auth_routes)
         .merge(admin_routes)
         .nest_service("/uploads", tower_http::services::ServeDir::new("backend/uploads"))
-        // TODO: Fix rate limiting middleware - temporarily disabled
+        // TODO: Re-enable rate limiting with proper Axum 0.7 compatible middleware
         // .layer(axum_middleware::from_fn(rate_limit_middleware))
         .with_state(app_services)
         .layer(cors);

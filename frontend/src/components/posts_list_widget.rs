@@ -1,5 +1,6 @@
 use yew::prelude::*;
 use crate::services::api_service::{get_posts, Post as PostData};
+use crate::pages::public::PublicPage;
 
 fn format_date(date_str: &str) -> String {
     // Try to parse and format the date nicely
@@ -31,6 +32,7 @@ pub struct PostsListWidgetProps {
     pub show_full_list: bool,
     #[prop_or(200)]
     pub excerpt_length: usize,
+    pub on_navigate: Option<Callback<crate::pages::public::PublicPage>>,
 }
 
 #[function_component(PostsListWidget)]
@@ -97,6 +99,17 @@ pub fn posts_list_widget(props: &PostsListWidgetProps) -> Html {
                         
                         let excerpt = truncate_content(&post.content, props.excerpt_length);
                         
+                        let post_id = post.id.unwrap_or(0);
+                        let on_click = if let Some(ref on_navigate) = props.on_navigate {
+                            let on_navigate = on_navigate.clone();
+                            Some(Callback::from(move |e: MouseEvent| {
+                                e.prevent_default();
+                                on_navigate.emit(PublicPage::Post(post_id));
+                            }))
+                        } else {
+                            None
+                        };
+                        
                         html! {
                             <article class="post-card">
                                 <h2>{&post.title}</h2>
@@ -104,9 +117,15 @@ pub fn posts_list_widget(props: &PostsListWidgetProps) -> Html {
                                     {"By "}{&post.author}{" • "}{formatted_date}
                                 </p>
                                 <p class="post-excerpt">{excerpt}</p>
-                                <a href={format!("/posts/{}", post.id.unwrap_or(0))} class="read-more">
-                                    {"Read Article"}
-                                </a>
+                                if let Some(click_handler) = on_click {
+                                    <a href={format!("/post/{}", post_id)} class="read-more" onclick={click_handler}>
+                                        {"Read Article"}
+                                    </a>
+                                } else {
+                                    <a href={format!("/post/{}", post_id)} class="read-more">
+                                        {"Read Article"}
+                                    </a>
+                                }
                             </article>
                         }
                     }).collect::<Html>()}

@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use crate::services::api_service::{get_posts, get_media, Post, MediaItem};
+use crate::services::api_service::{get_posts, get_media, get_comments, Post, MediaItem};
 
 #[derive(Clone, PartialEq)]
 pub struct DashboardStats {
@@ -72,15 +72,37 @@ pub fn dashboard() -> Html {
                                 
                                 recent_media.set(recent_media_items);
                                 
-                                // Update stats
-                                stats.set(DashboardStats {
-                                    total_posts,
-                                    published_posts,
-                                    draft_posts,
-                                    total_media,
-                                    total_comments: 0, // TODO: Implement comments API
-                                    pending_comments: 0, // TODO: Implement comments API
-                                });
+                                // Load comments
+                                match get_comments().await {
+                                    Ok(comments) => {
+                                        let total_comments = comments.len() as i32;
+                                        let pending_comments = comments.iter()
+                                            .filter(|c| c.status.to_lowercase() == "pending")
+                                            .count() as i32;
+                                        
+                                        // Update stats with actual comment data
+                                        stats.set(DashboardStats {
+                                            total_posts,
+                                            published_posts,
+                                            draft_posts,
+                                            total_media,
+                                            total_comments,
+                                            pending_comments,
+                                        });
+                                    }
+                                    Err(e) => {
+                                        // If comments fail to load, use 0 as fallback but log the error
+                                        log::warn!("Failed to load comments: {}", e);
+                                        stats.set(DashboardStats {
+                                            total_posts,
+                                            published_posts,
+                                            draft_posts,
+                                            total_media,
+                                            total_comments: 0,
+                                            pending_comments: 0,
+                                        });
+                                    }
+                                }
                             }
                             Err(e) => {
                                 error.set(Some(format!("Failed to load media: {}", e)));

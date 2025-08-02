@@ -22,7 +22,7 @@ body {
 }
 
 .site-header {
-    background: #000;
+    background: var(--public-header-bg, #000);
     color: var(--public-header-text, #fff);
     padding: 1rem 0;
     border-bottom: 2px solid var(--public-border-light, #333);
@@ -44,11 +44,11 @@ body {
     font-size: 1.5rem;
     font-weight: 700;
     text-decoration: none;
-    color: #fff;
+    color: var(--public-header-text, #fff);
 }
 
 .site-title:hover {
-    color: #ccc;
+    color: var(--public-header-text-hover, #ccc);
 }
 
 .site-nav {
@@ -58,7 +58,7 @@ body {
 }
 
 .nav-link {
-    color: #fff;
+    color: var(--public-header-text, #fff);
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
@@ -66,11 +66,11 @@ body {
 }
 
 .nav-link:hover {
-    color: #ccc;
+    color: var(--public-header-text-hover, #ccc);
 }
 
 .nav-link.active {
-    color: #fff;
+    color: var(--public-header-text, #fff);
 }
 
 .nav-link.active::after {
@@ -80,13 +80,13 @@ body {
     left: 0;
     right: 0;
     height: 2px;
-    background: #fff;
+    background: var(--public-header-text, #fff);
 }
 
 .nav-button {
     background: none;
     border: none;
-    color: #fff;
+    color: var(--public-header-text, #fff);
     font-size: 1rem;
     cursor: pointer;
     transition: color 0.2s ease;
@@ -98,8 +98,8 @@ body {
 }
 
 .nav-button:hover {
-    color: #000;
-    background: #fff;
+    color: var(--public-text-primary, #000);
+    background: var(--public-header-text, #fff);
 }
 
 .admin-button {
@@ -116,6 +116,8 @@ body {
 .site-main {
     flex: 1;
     padding: 2rem 0;
+    background: var(--public-background-light, #fff);
+    color: var(--public-text-secondary, #333);
 }
 
 .container {
@@ -196,8 +198,8 @@ body {
 }
 
 .site-footer {
-    background: #000;
-    color: #fff;
+    background: var(--public-footer-bg, #000);
+    color: var(--public-footer-text, #fff);
     padding: 2rem 0;
     margin-top: auto;
     text-align: center;
@@ -518,21 +520,63 @@ tr:hover {
     color: #000;
 }
 
+/* Post Detail View Styles - managed by design system */
+.post-detail {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    color: var(--public-text-secondary, #333);
+}
+
+.post-detail h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--public-heading-h1, #1a1a1a);
+    line-height: 1.2;
+}
+
+.post-detail .post-meta {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--public-border-light, #e2e8f0);
+    color: var(--public-text-meta, #666);
+    font-size: 0.9rem;
+}
+
+.post-detail .post-content {
+    color: var(--public-text-secondary, #333);
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.post-detail .post-content p {
+    color: var(--public-text-secondary, #333);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
 .post-content {
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem 0;
+    color: var(--public-text-secondary, #333);
 }
 
 .post-content h1 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
-    color: #000;
+    color: var(--public-heading-h1, #1a1a1a);
+}
+
+.post-content p {
+    color: var(--public-text-secondary, #333);
+    line-height: 1.8;
+    margin-bottom: 1rem;
 }
 
 .post-body {
     line-height: 1.8;
-    color: #333;
+    color: var(--public-text-secondary, #333);
 }
 
 .not-found {

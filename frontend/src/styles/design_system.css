@@ -27,6 +27,12 @@
     --public-footer-text: #ffffff;        /* Footer text */
     --public-footer-text-muted: #cccccc;  /* Footer secondary text */
     
+    /* Public Theme Background Colors */
+    --public-header-bg: #000000;          /* Header background */
+    --public-footer-bg: #000000;          /* Footer background */
+    --public-background-light: #ffffff;   /* Main content background */
+    --public-border-light: #e2e8f0;       /* Light borders */
+    
     /* Public Theme Heading Colors */
     --public-heading-h1: #1a1a1a;         /* Main page titles */
     --public-heading-h2: #1a1a1a;         /* Section headings */

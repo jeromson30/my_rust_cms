@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use crate::services::auth_context::{use_auth, logout_and_update_context};
 use crate::pages::public::{PublicRouter, PublicPage};
+use web_sys::window;
 
 #[derive(Clone, PartialEq)]
 pub enum AppView {
@@ -9,11 +10,50 @@ pub enum AppView {
     Admin,
 }
 
+// Function to parse the current URL and determine the initial page
+fn parse_current_url() -> PublicPage {
+    if let Some(window) = window() {
+        if let Ok(location) = window.location().pathname() {
+            web_sys::console::log_1(&format!("App: Parsing URL path: {}", location).into());
+            
+            match location.as_str() {
+                "/" => PublicPage::Home,
+                "/posts" => PublicPage::Posts,
+                path if path.starts_with("/post/") => {
+                    if let Ok(id) = path.trim_start_matches("/post/").parse::<i32>() {
+                        web_sys::console::log_1(&format!("App: Parsed post ID: {}", id).into());
+                        PublicPage::Post(id)
+                    } else {
+                        web_sys::console::log_1(&format!("App: Failed to parse post ID from: {}", path).into());
+                        PublicPage::Home
+                    }
+                }
+                path if path.starts_with("/page/") => {
+                    let slug = path.trim_start_matches("/page/");
+                    PublicPage::Page(slug.to_string())
+                }
+                _ => {
+                    web_sys::console::log_1(&format!("App: Unknown path, defaulting to Home: {}", location).into());
+                    PublicPage::Home
+                }
+            }
+        } else {
+            web_sys::console::log_1(&"App: Failed to get pathname, defaulting to Home".into());
+            PublicPage::Home
+        }
+    } else {
+        web_sys::console::log_1(&"App: No window object, defaulting to Home".into());
+        PublicPage::Home
+    }
+}
+
 #[function_component(App)]
 pub fn app() -> Html {
     let auth = use_auth();
     let current_view = use_state(|| AppView::Public);
-    let current_public_page = use_state(|| PublicPage::Home);
+    let current_public_page = use_state(|| parse_current_url());
+
+    // TODO: Add browser back/forward navigation support later
 
     let switch_to_admin = {
         let current_view = current_view.clone();
@@ -56,6 +96,25 @@ pub fn app() -> Html {
         let current_public_page = current_public_page.clone();
         Callback::from(move |page: PublicPage| {
             web_sys::console::log_1(&format!("App: Navigating to page: {:?}", page).into());
+            
+            // Update the browser URL to match the current page
+            if let Some(window) = window() {
+                if let Ok(history) = window.history() {
+                    let url = match &page {
+                        PublicPage::Home => "/".to_string(),
+                        PublicPage::Posts => "/posts".to_string(),
+                        PublicPage::Post(id) => format!("/post/{}", id),
+                        PublicPage::Page(slug) => format!("/page/{}", slug),
+                    };
+                    
+                    if let Err(e) = history.push_state_with_url(&wasm_bindgen::JsValue::NULL, "", Some(&url)) {
+                        web_sys::console::warn_1(&format!("Failed to update URL: {:?}", e).into());
+                    } else {
+                        web_sys::console::log_1(&format!("App: Updated URL to: {}", url).into());
+                    }
+                }
+            }
+            
             current_public_page.set(page);
         })
     };

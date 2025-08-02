@@ -132,7 +132,7 @@ struct PostsContentProps {
 }
 
 #[function_component(PostsContent)]
-fn posts_content(_props: &PostsContentProps) -> Html {
+fn posts_content(props: &PostsContentProps) -> Html {
     let page = use_state(|| None::<Page>);
     let loading = use_state(|| true);
     let error = use_state(|| None::<String>);
@@ -179,7 +179,7 @@ fn posts_content(_props: &PostsContentProps) -> Html {
                 <div class="error">{"Error loading page: "}{error_msg}</div>
             } else if let Some(ref page_data) = *page {
                 <div class="page-content">
-                    {render_page_builder_content(&page_data.content)}
+                    {render_page_builder_content_with_navigation(&page_data.content, Some(props.on_navigate.clone()))}
                 </div>
             } else {
                 <div class="error">{"Page not found"}</div>
@@ -217,7 +217,16 @@ fn post_content(props: &PostContentProps) -> Html {
                     }
                     Err(e) => {
                         web_sys::console::log_1(&format!("PostContent: Error loading post: {:?}", e).into());
-                        error.set(Some(format!("Failed to load post: {:?}", e)));
+                        let error_message = match e.to_string().as_str() {
+                            msg if msg.contains("404") || msg.contains("Not Found") => {
+                                format!("Post not found. The post with ID {} may have been deleted or doesn't exist.", post_id)
+                            }
+                            msg if msg.contains("NetworkError") => {
+                                "Unable to connect to the server. Please check your internet connection and try again.".to_string()
+                            }
+                            _ => format!("Failed to load post: {}", e)
+                        };
+                        error.set(Some(error_message));
                         loading.set(false);
                     }
                 }
@@ -320,6 +329,11 @@ fn page_content(props: &PageContentProps) -> Html {
 
 // Function to parse and render page builder content
 fn render_page_builder_content(content: &str) -> Html {
+    render_page_builder_content_with_navigation(content, None)
+}
+
+// Function to parse and render page builder content with navigation callback
+fn render_page_builder_content_with_navigation(content: &str, on_navigate: Option<Callback<PublicPage>>) -> Html {
     // Try to parse as JSON array of components first
     if content.starts_with('[') {
         match serde_json::from_str::<Vec<PageComponent>>(content) {
@@ -327,7 +341,7 @@ fn render_page_builder_content(content: &str) -> Html {
                 html! {
                     <div class="page-builder-content">
                         {components.iter().map(|component| {
-                            render_component_content_public(component)
+                            render_component_content_public_with_navigation(component, on_navigate.clone())
                         }).collect::<Html>()}
                     </div>
                 }
@@ -343,8 +357,10 @@ fn render_page_builder_content(content: &str) -> Html {
     }
 }
 
-// Simplified component renderer for public pages
-fn render_component_content_public(component: &PageComponent) -> Html {
+
+
+// Simplified component renderer for public pages with navigation callback
+fn render_component_content_public_with_navigation(component: &PageComponent, on_navigate: Option<Callback<PublicPage>>) -> Html {
     match component.component_type {
         ComponentType::Text | ComponentType::Heading | ComponentType::Subheading | 
         ComponentType::Hero | ComponentType::Card | ComponentType::List | ComponentType::Quote => {
@@ -383,7 +399,11 @@ fn render_component_content_public(component: &PageComponent) -> Html {
             let show_full = component.content.contains("All Posts") || component.content.contains("all-posts");
             html! {
                 <div class="component posts-list-component" style={format_component_styles(&component.styles)}>
-                    <PostsListWidget show_full_list={show_full} limit={if show_full { 100 } else { 6 }} />
+                    <PostsListWidget 
+                        show_full_list={show_full} 
+                        limit={if show_full { 100 } else { 6 }} 
+                        on_navigate={on_navigate.clone()}
+                    />
                 </div>
             }
         }

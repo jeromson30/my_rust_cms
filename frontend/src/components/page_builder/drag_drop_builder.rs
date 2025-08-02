@@ -375,8 +375,8 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
         }, (*components).clone());
     }
 
-    // Disable global keyboard handler temporarily to test
-    // TODO: Implement modal-specific escape key handling if needed
+    // Modal-specific escape key handling is implemented in the properties modal
+    // (see onkeydown handler in the modal component below)
 
     let component_types = vec![
         ComponentType::Text,

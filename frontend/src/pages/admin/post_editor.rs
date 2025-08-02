@@ -76,6 +76,7 @@ pub fn post_editor(props: &PostEditorProps) -> Html {
                 content: (*content).clone(),
                 author: (*author).clone(),
                 status: (*status).clone(),
+                category_id: None,
                 created_at: post_created_at.clone(),
             };
 

@@ -88,6 +88,8 @@ pub struct PublicColorScheme {
     // Layout colors
     pub border_light: String,
     pub background_light: String,
+    pub header_bg: String,
+    pub footer_bg: String,
     pub hero_bg: String,
     pub card_shadow: String,
 }
@@ -185,6 +187,8 @@ impl Default for PublicColorScheme {
             // Refined layout and styling
             border_light: "#e2e8f0".to_string(),    // Slate 200 - subtle borders
             background_light: "#f8fafc".to_string(), // Slate 50 - clean backgrounds
+            header_bg: "#000000".to_string(),        // Black header background
+            footer_bg: "#000000".to_string(),        // Black footer background
             hero_bg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)".to_string(), // Elegant gradient
             card_shadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)".to_string(), // Modern shadow
         }
@@ -304,6 +308,8 @@ pub fn design_system_page() -> Html {
                 // Layout colors
                 "border_light" => scheme.border_light = value,
                 "background_light" => scheme.background_light = value,
+                "header_bg" => scheme.header_bg = value,
+                "footer_bg" => scheme.footer_bg = value,
                 "hero_bg" => scheme.hero_bg = value,
                 "card_shadow" => scheme.card_shadow = value,
                 
@@ -490,6 +496,8 @@ pub fn design_system_page() -> Html {
                         // Dark theme layout colors
                         border_light: "#334155".to_string(),
                         background_light: "#1e293b".to_string(),
+                        header_bg: "#1e293b".to_string(),
+                        footer_bg: "#1e293b".to_string(),
                         hero_bg: "#0f172a".to_string(),
                         card_shadow: "rgba(0, 0, 0, 0.3)".to_string(),
                     };
@@ -1090,6 +1098,18 @@ pub fn design_system_page() -> Html {
                                                 label="Background Light" 
                                                 value={public_scheme.background_light.clone()}
                                                 property="background_light"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Header Background" 
+                                                value={public_scheme.header_bg.clone()}
+                                                property="header_bg"
+                                                on_change={update_public_color.clone()}
+                                            />
+                                            <PublicColorInput 
+                                                label="Footer Background" 
+                                                value={public_scheme.footer_bg.clone()}
+                                                property="footer_bg"
                                                 on_change={update_public_color.clone()}
                                             />
                                             <PublicColorInput 
@@ -1808,18 +1828,18 @@ pub fn apply_admin_css_variables(scheme: &AdminColorScheme) {
 }
 
 // Function to apply public CSS variables dynamically  
-fn apply_public_css_variables(scheme: &PublicColorScheme) {
+pub fn apply_public_css_variables(scheme: &PublicColorScheme) {
     if let Some(document) = web_sys::window().and_then(|w| w.document()) {
         if let Some(root) = document.document_element() {
             // Apply comprehensive public-specific CSS variables
             let public_vars = format!(
-                "--public-text-primary: {}; --public-text-secondary: {}; --public-text-meta: {}; --public-text-light: {}; --public-text-muted: {}; --public-link-primary: {}; --public-link-hover: {}; --public-link-visited: {}; --public-link-active: {}; --public-heading-h1: {}; --public-heading-h2: {}; --public-heading-h3: {}; --public-heading-h4: {}; --public-heading-h5: {}; --public-heading-h6: {}; --public-header-text: {}; --public-header-text-hover: {}; --public-footer-text: {}; --public-footer-text-muted: {}; --public-text-success: {}; --public-text-warning: {}; --public-text-error: {}; --public-text-info: {}; --public-border-light: {}; --public-background-light: {}; --public-hero-bg: {}; --public-card-shadow: {};",
+                "--public-text-primary: {}; --public-text-secondary: {}; --public-text-meta: {}; --public-text-light: {}; --public-text-muted: {}; --public-link-primary: {}; --public-link-hover: {}; --public-link-visited: {}; --public-link-active: {}; --public-heading-h1: {}; --public-heading-h2: {}; --public-heading-h3: {}; --public-heading-h4: {}; --public-heading-h5: {}; --public-heading-h6: {}; --public-header-text: {}; --public-header-text-hover: {}; --public-footer-text: {}; --public-footer-text-muted: {}; --public-text-success: {}; --public-text-warning: {}; --public-text-error: {}; --public-text-info: {}; --public-border-light: {}; --public-background-light: {}; --public-header-bg: {}; --public-footer-bg: {}; --public-hero-bg: {}; --public-card-shadow: {};",
                 scheme.text_primary, scheme.text_secondary, scheme.text_meta, scheme.text_light, scheme.text_muted,
                 scheme.link_primary, scheme.link_hover, scheme.link_visited, scheme.link_active,
                 scheme.heading_h1, scheme.heading_h2, scheme.heading_h3, scheme.heading_h4, scheme.heading_h5, scheme.heading_h6,
                 scheme.header_text, scheme.header_text_hover, scheme.footer_text, scheme.footer_text_muted,
                 scheme.success, scheme.warning, scheme.danger, scheme.info,
-                scheme.border_light, scheme.background_light, scheme.hero_bg, scheme.card_shadow
+                scheme.border_light, scheme.background_light, scheme.header_bg, scheme.footer_bg, scheme.hero_bg, scheme.card_shadow
             );
             
             // Apply to root element with public prefix only
@@ -1876,6 +1896,8 @@ fn apply_public_css_variables(scheme: &PublicColorScheme) {
                             --public-text-info: {} !important;
                             --public-border-light: {} !important;
                             --public-background-light: {} !important;
+                            --public-header-bg: {} !important;
+                            --public-footer-bg: {} !important;
                             --public-hero-bg: {} !important;
                             --public-card-shadow: {} !important;
                         }}
@@ -1905,6 +1927,8 @@ fn apply_public_css_variables(scheme: &PublicColorScheme) {
                     scheme.info,
                     scheme.border_light,
                     scheme.background_light,
+                    scheme.header_bg,
+                    scheme.footer_bg,
                     scheme.hero_bg,
                     scheme.card_shadow
                     );

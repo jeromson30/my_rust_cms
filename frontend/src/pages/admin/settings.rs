@@ -1,5 +1,7 @@
 use yew::prelude::*;
+
 use wasm_bindgen::JsCast;
+use crate::services::api_service::{get_users, User};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct SiteSettings {
@@ -48,6 +50,12 @@ pub fn settings() -> Html {
     let active_tab = use_state(|| "site".to_string());
     let saving = use_state(|| false);
     let save_message = use_state(|| None::<String>);
+    
+    // User management state
+    let users = use_state(|| Vec::<User>::new());
+    let users_loading = use_state(|| false);
+    let users_error = use_state(|| None::<String>);
+    let show_user_form = use_state(|| false);
 
     let save_site_settings = {
         let site_settings = site_settings.clone();
@@ -136,6 +144,38 @@ pub fn settings() -> Html {
             system_settings.set(settings);
         })
     };
+
+    // Load users when users tab is active
+    {
+        let users = users.clone();
+        let users_loading = users_loading.clone();
+        let users_error = users_error.clone();
+        let active_tab = active_tab.clone();
+        
+        use_effect({
+            let active_tab = active_tab.clone();
+            move || {
+                let tab = &*active_tab;
+                if tab == "users" {
+                    users_loading.set(true);
+                    users_error.set(None);
+                    
+                    wasm_bindgen_futures::spawn_local(async move {
+                        match get_users().await {
+                            Ok(users_data) => {
+                                users.set(users_data);
+                                users_loading.set(false);
+                            }
+                            Err(e) => {
+                                users_error.set(Some(format!("Failed to load users: {}", e)));
+                                users_loading.set(false);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
 
     html! {
         <div class="settings">
@@ -441,39 +481,97 @@ pub fn settings() -> Html {
                         </div>
                     } else if *active_tab == "users" {
                         <div class="settings-section">
-                            <h3>{"User Management"}</h3>
-                            <p>{"User management features will be implemented here."}</p>
-                            <div class="placeholder-content">
-                                <div class="placeholder-item">
-                                    <h4>{"User Roles"}</h4>
-                                    <p>{"Manage user roles and permissions"}</p>
-                                </div>
-                                <div class="placeholder-item">
-                                    <h4>{"User Registration"}</h4>
-                                    <p>{"Configure user registration settings"}</p>
-                                </div>
-                                <div class="placeholder-item">
-                                    <h4>{"Password Policy"}</h4>
-                                    <p>{"Set password requirements and policies"}</p>
-                                </div>
+                            <div class="settings-header">
+                                <h3>{"User Management"}</h3>
+                                <button class="btn btn-primary" onclick={
+                                    let show_user_form = show_user_form.clone();
+                                    Callback::from(move |_| show_user_form.set(true))
+                                }>
+                                    {"Add New User"}
+                                </button>
                             </div>
+                            
+                            {if *users_loading {
+                                html! { <div class="loading">{"Loading users..."}</div> }
+                            } else if let Some(error) = users_error.as_ref() {
+                                html! { <div class="error">{error}</div> }
+                            } else {
+                                html! {
+                                    <div class="users-table">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>{"Username"}</th>
+                                                    <th>{"Email"}</th>
+                                                    <th>{"Role"}</th>
+                                                    <th>{"Status"}</th>
+                                                    <th>{"Actions"}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {for users.iter().map(|user| {
+                                                    let user_id = user.id.unwrap_or(0);
+                                                    html! {
+                                                        <tr key={user_id}>
+                                                            <td>{&user.username}</td>
+                                                            <td>{&user.email}</td>
+                                                            <td>
+                                                                <span class={format!("status-badge {}", user.role.to_lowercase())}>
+                                                                    {&user.role}
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <span class={format!("status-badge {}", user.status.to_lowercase())}>
+                                                                    {&user.status}
+                                                                </span>
+                                                            </td>
+                                                            <td class="actions">
+                                                                <button class="btn btn-secondary btn-small">{"Edit"}</button>
+                                                                <button class="btn btn-danger btn-small">{"Delete"}</button>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                            }}
                         </div>
                     } else if *active_tab == "backup" {
                         <div class="settings-section">
                             <h3>{"Backup & Restore"}</h3>
-                            <p>{"Backup and restore features will be implemented here."}</p>
-                            <div class="placeholder-content">
-                                <div class="placeholder-item">
+                            <p>{"Manage your system backups and restore points"}</p>
+                            
+                            <div class="backup-section">
+                                <div class="card">
                                     <h4>{"Database Backup"}</h4>
-                                    <p>{"Create and manage database backups"}</p>
+                                    <p>{"Create a backup of your database including all posts, users, and settings."}</p>
+                                    <div class="backup-actions">
+                                        <button class="btn btn-primary">{"Create Backup"}</button>
+                                        <button class="btn btn-secondary">{"Download Latest"}</button>
+                                    </div>
+                                    <small>{"Last backup: Never"}</small>
                                 </div>
-                                <div class="placeholder-item">
-                                    <h4>{"File Backup"}</h4>
-                                    <p>{"Backup uploaded files and media"}</p>
+                                
+                                <div class="card">
+                                    <h4>{"Media Files Backup"}</h4>
+                                    <p>{"Backup all uploaded media files and images."}</p>
+                                    <div class="backup-actions">
+                                        <button class="btn btn-primary">{"Backup Media"}</button>
+                                        <button class="btn btn-secondary">{"Download Archive"}</button>
+                                    </div>
+                                    <small>{"Media files: "}{users.len()}{" items"}</small>
                                 </div>
-                                <div class="placeholder-item">
-                                    <h4>{"Restore Points"}</h4>
-                                    <p>{"Manage system restore points"}</p>
+                                
+                                <div class="card">
+                                    <h4>{"System Restore"}</h4>
+                                    <p>{"Restore your system from a previous backup."}</p>
+                                    <div class="backup-actions">
+                                        <input type="file" accept=".sql,.zip" style="margin-bottom: 10px;" />
+                                        <button class="btn btn-warning">{"Restore from File"}</button>
+                                    </div>
+                                    <small class="warning">{"⚠️ This will overwrite existing data"}</small>
                                 </div>
                             </div>
                         </div>
