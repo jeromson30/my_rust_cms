@@ -403,21 +403,23 @@ body.admin-body {
     background: rgba(255, 255, 255, 0.02);
     border-radius: 12px;
     padding: 0;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(20px);
     overflow: hidden;
+    position: relative;
 }
 
 table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 0 8px;
+    border-spacing: 0 12px;
     background: transparent;
     padding: 1rem;
 }
 
 th, td {
-    padding: 1rem 1.5rem;
+    padding: 1.25rem 1.5rem;
     text-align: left;
     background: var(--bg-primary);
     position: relative;
@@ -425,24 +427,17 @@ th, td {
 }
 
 th {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-primary);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    border-radius: 8px 8px 0 0;
-    background: var(--bg-primary);
-}
-
-th::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, rgba(102, 126, 234, 0.6), rgba(118, 75, 162, 0.6));
-    border-radius: 8px 8px 0 0;
+    letter-spacing: 0.15em;
+    background: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 td {
