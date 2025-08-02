@@ -868,9 +868,32 @@ tr:hover {
 
 /* Post List */
 .post-list {
-    max-width: 1200px;
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
 }
 
+.user-management {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+.analytics {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+.settings {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+}
 /* Post Editor */
 .post-editor {
     max-width: 800px;
@@ -991,10 +1014,9 @@ tr:hover {
 
 /* Navigation Manager */
 .navigation-manager {
-    max-width: 1200px;
+    max-width: 90%;
     margin: 0 auto;
     padding: 2rem;
-    background: #f8f9fa;
     min-height: 100vh;
 }
 

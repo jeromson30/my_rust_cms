@@ -1,7 +1,7 @@
 /* Modern Media Library Styles */
 .modern-media-library {
     padding: 24px;
-    background: #f8f9fa;
+    background: #0f172a;
     min-height: 100vh;
 }
 
@@ -28,13 +28,13 @@
 }
 
 .stat {
-    color: #4a5568;
+    color: #0f172a;
     font-size: 14px;
 }
 
 /* Upload Zone */
 .upload-zone {
-    background: white;
+    background: #0f172a;
     border: 2px dashed #cbd5e0;
     border-radius: 12px;
     padding: 48px 24px;
@@ -47,7 +47,7 @@
 .upload-zone:hover,
 .upload-zone.drag-over {
     border-color: #3182ce;
-    background: #ebf8ff;
+    background: #0f172a;
     transform: translateY(-2px);
 }
 
