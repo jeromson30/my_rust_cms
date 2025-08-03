@@ -22,7 +22,7 @@ use config::Config;
 use database::{DbPool, establish_connection_pool};
 use models::*;
 use middleware::auth::{auth_middleware_with_services, admin_auth_middleware_with_services};
-use middleware::validation::rate_limit_middleware;
+
 use services::{SessionManager, SessionConfig};
 
 
@@ -211,6 +211,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/admin/sessions/cleanup", post(controllers::sessions::manual_session_cleanup))
         .route("/api/admin/users/:id/sessions", get(controllers::sessions::get_admin_user_sessions))
         .route("/api/admin/users/:id/force-logout", post(controllers::sessions::force_logout_user))
+        // System management routes
+        .route("/api/system/settings", get(controllers::system::get_settings).put(controllers::system::update_settings))
+        .route("/api/system/settings/:key", get(controllers::system::get_setting))
+        .route("/api/system/info", get(controllers::system::get_system_info))
+        .route("/api/system/backup", post(controllers::system::create_backup))
+        .route("/api/system/backups", get(controllers::system::list_backups))
+        .route("/api/system/backup/:id/restore", post(controllers::system::restore_backup))
+        .route("/api/system/snapshot", get(controllers::system::get_data_snapshot))
         .layer(axum_middleware::from_fn_with_state(app_services.clone(), admin_auth_middleware_with_services));
 
     // Combine all routes

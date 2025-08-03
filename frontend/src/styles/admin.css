@@ -522,6 +522,384 @@ td.actions {
     text-align: right;
 }
 
+/* System Settings Specific Styles */
+.system-settings {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.system-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.info-card {
+    background: var(--admin-card-bg);
+    border: 1px solid var(--admin-card-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--admin-card-shadow);
+    transition: var(--admin-transition-normal);
+}
+
+.info-card:hover {
+    box-shadow: var(--admin-card-hover-shadow);
+    transform: translateY(-2px);
+}
+
+.info-card h4 {
+    color: var(--admin-text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--admin-border-light);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--admin-border-light);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item .label {
+    color: var(--admin-text-secondary);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.info-item .value {
+    color: var(--admin-text-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.info-item .value.verified {
+    color: var(--admin-success-color);
+}
+
+.info-item .value.error {
+    color: var(--admin-danger-color);
+}
+
+/* Settings Table Styling */
+.settings-table-container {
+    background: var(--admin-table-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--admin-table-cell-border);
+    box-shadow: var(--admin-shadow-md);
+}
+
+.settings-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 0;
+}
+
+.settings-table th {
+    background: var(--admin-table-header-bg);
+    color: var(--admin-table-header-text);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--admin-table-cell-border);
+}
+
+.settings-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--admin-table-row-border);
+    color: var(--admin-text-primary);
+    vertical-align: top;
+}
+
+.settings-table tr:hover td {
+    background: var(--admin-table-row-hover-bg);
+}
+
+.setting-key {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: var(--admin-primary-color);
+    font-weight: 600;
+}
+
+.setting-value {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.85rem;
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+.setting-description {
+    color: var(--admin-text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    max-width: 250px;
+}
+
+.setting-updated {
+    color: var(--admin-text-muted);
+    font-size: 0.8rem;
+}
+
+/* Data Snapshot Styles */
+.snapshot-overview {
+    background: var(--admin-surface-elevated);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--admin-border-light);
+}
+
+.snapshot-header {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.snapshot-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stat-label {
+    color: var(--admin-text-secondary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.stat-value {
+    color: var(--admin-text-primary);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.merkle-hash {
+    background: var(--admin-surface);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid var(--admin-border-color);
+}
+
+.merkle-hash h4 {
+    color: var(--admin-text-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.hash-display {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--admin-info-color);
+    background: var(--admin-surface-elevated);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--admin-border-light);
+    word-break: break-all;
+    display: block;
+}
+
+/* Snapshot Table */
+.snapshot-table-container {
+    background: var(--admin-table-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--admin-table-cell-border);
+}
+
+.snapshot-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 0;
+}
+
+.snapshot-table th {
+    background: var(--admin-table-header-bg);
+    color: var(--admin-table-header-text);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--admin-table-cell-border);
+}
+
+.snapshot-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--admin-table-row-border);
+    color: var(--admin-text-primary);
+    font-size: 0.85rem;
+}
+
+.table-name {
+    font-weight: 600;
+    color: var(--admin-primary-color);
+}
+
+.row-count {
+    font-weight: 600;
+    text-align: right;
+}
+
+.table-hash {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.75rem;
+}
+
+.table-hash code {
+    background: var(--admin-surface-elevated);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--admin-border-light);
+}
+
+.last-modified {
+    color: var(--admin-text-muted);
+    font-size: 0.8rem;
+}
+
+/* Backup Management Styles */
+.backup-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.backups-table-container {
+    background: var(--admin-table-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--admin-table-cell-border);
+    box-shadow: var(--admin-shadow-md);
+}
+
+.backups-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 0;
+}
+
+.backups-table th {
+    background: var(--admin-table-header-bg);
+    color: var(--admin-table-header-text);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--admin-table-cell-border);
+}
+
+.backups-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--admin-table-row-border);
+    color: var(--admin-text-primary);
+    font-size: 0.85rem;
+}
+
+.backups-table tr:hover td {
+    background: var(--admin-table-row-hover-bg);
+}
+
+.backup-filename {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--admin-primary-color);
+}
+
+.backup-size {
+    font-weight: 600;
+    text-align: right;
+}
+
+.backup-checksum {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.75rem;
+}
+
+.backup-checksum code {
+    background: var(--admin-surface-elevated);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--admin-border-light);
+    color: var(--admin-text-secondary);
+}
+
+/* Loading States */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    color: var(--admin-text-secondary);
+    font-size: 1.1rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--admin-text-muted);
+    background: var(--admin-surface);
+    border-radius: 8px;
+    border: 1px solid var(--admin-border-light);
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .system-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .snapshot-header {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .backup-actions {
+        flex-direction: column;
+    }
+    
+    .settings-table,
+    .snapshot-table,
+    .backups-table {
+        font-size: 0.8rem;
+    }
+    
+    .settings-table th,
+    .settings-table td,
+    .snapshot-table th,
+    .snapshot-table td,
+    .backups-table th,
+    .backups-table td {
+        padding: 0.5rem 0.75rem;
+    }
+}
+
 td.actions .btn {
     margin-left: 0.5rem;
     padding: 0.5rem 1rem;

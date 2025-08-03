@@ -10,7 +10,7 @@ pub enum AdminTab {
     Comments,
     Navigation,
     Analytics,
-    Settings,
+    SystemSettings,
     DesignSystem,
 }
 
@@ -63,9 +63,9 @@ pub fn admin_sidebar(props: &AdminSidebarProps) -> Html {
         Callback::from(move |_| on_tab_click.emit(AdminTab::Analytics))
     };
 
-    let on_settings_click = {
+    let on_system_settings_click = {
         let on_tab_click = props.on_tab_click.clone();
-        Callback::from(move |_| on_tab_click.emit(AdminTab::Settings))
+        Callback::from(move |_| on_tab_click.emit(AdminTab::SystemSettings))
     };
 
     let on_design_system_click = {
@@ -234,8 +234,8 @@ pub fn admin_sidebar(props: &AdminSidebarProps) -> Html {
                     </li>
                     <li>
                         <button 
-                            class={if props.active_tab == AdminTab::Settings { "admin-nav-link active" } else { "admin-nav-link" }}
-                            onclick={on_settings_click}
+                            class={if props.active_tab == AdminTab::SystemSettings { "admin-nav-link active" } else { "admin-nav-link" }}
+                            onclick={on_system_settings_click}
                         >
                             <span class="nav-icon">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

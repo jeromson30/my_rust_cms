@@ -537,3 +537,208 @@ pub async fn get_performance_metrics() -> Result<PerformanceMetrics, ApiServiceE
         Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
     }
 }
+
+// System Settings structs
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct Setting {
+    pub id: i32,
+    pub setting_key: String,
+    pub setting_value: Option<String>,
+    pub created_at: Option<String>,
+    pub setting_type: String,
+    pub description: Option<String>,
+    pub updated_at: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct SettingsRequest {
+    pub settings: Vec<SettingData>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct SettingData {
+    pub key: String,
+    pub value: String,
+    pub setting_type: String,
+    pub description: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct SystemInfo {
+    pub rust_version: String,
+    pub database_version: String,
+    pub uptime: String,
+    pub memory_usage: String,
+    pub cpu_usage: String,
+    pub disk_usage: String,
+    pub active_sessions: i32,
+    pub total_posts: i64,
+    pub total_users: i64,
+    pub total_media: i64,
+    pub last_backup: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct BackupInfo {
+    pub id: String,
+    pub filename: String,
+    pub size: u64,
+    pub created_at: String,
+    pub backup_type: String,
+    pub checksum: String,
+    pub description: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct BackupRequest {
+    pub backup_type: String,
+    pub description: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct DataSnapshot {
+    pub timestamp: String,
+    pub tables: Vec<TableSnapshot>,
+    pub total_rows: i64,
+    pub data_hash: String,
+    pub integrity_verified: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct TableSnapshot {
+    pub table_name: String,
+    pub row_count: i64,
+    pub table_hash: String,
+    pub last_modified: Option<String>,
+}
+
+// System Settings API
+pub async fn get_settings(setting_type: Option<&str>) -> Result<Vec<Setting>, ApiServiceError> {
+    let url = match setting_type {
+        Some(t) => format!("{}/system/settings?setting_type={}", API_BASE_URL, t),
+        None => format!("{}/system/settings", API_BASE_URL),
+    };
+    
+    let response = create_authenticated_request("GET", &url)?
+        .send()
+        .await
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+
+    if response.status() == 200 {
+        let settings: Vec<Setting> = response
+            .json()
+            .await
+            .map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(settings)
+    } else {
+        Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
+    }
+}
+
+pub async fn update_settings(settings: Vec<SettingData>) -> Result<Vec<Setting>, ApiServiceError> {
+    let request_body = SettingsRequest { settings };
+    
+    let response = create_authenticated_request("PUT", &format!("{}/system/settings", API_BASE_URL))?
+        .json(&request_body)
+        .map_err(|e| ApiServiceError::ParseError(e.to_string()))?
+        .send()
+        .await
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+
+    if response.status() == 200 {
+        let updated_settings: Vec<Setting> = response
+            .json()
+            .await
+            .map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(updated_settings)
+    } else {
+        Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
+    }
+}
+
+pub async fn get_system_info() -> Result<SystemInfo, ApiServiceError> {
+    let response = create_authenticated_request("GET", &format!("{}/system/info", API_BASE_URL))?
+        .send()
+        .await
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+
+    if response.status() == 200 {
+        let system_info: SystemInfo = response
+            .json()
+            .await
+            .map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(system_info)
+    } else {
+        Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
+    }
+}
+
+pub async fn create_backup(backup_request: BackupRequest) -> Result<BackupInfo, ApiServiceError> {
+    let response = create_authenticated_request("POST", &format!("{}/system/backup", API_BASE_URL))?
+        .json(&backup_request)
+        .map_err(|e| ApiServiceError::ParseError(e.to_string()))?
+        .send()
+        .await
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+
+    if response.status() == 200 || response.status() == 201 {
+        let backup_info: BackupInfo = response
+            .json()
+            .await
+            .map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(backup_info)
+    } else {
+        Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
+    }
+}
+
+pub async fn get_backups() -> Result<Vec<BackupInfo>, ApiServiceError> {
+    let response = create_authenticated_request("GET", &format!("{}/system/backups", API_BASE_URL))?
+        .send()
+        .await
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+
+    if response.status() == 200 {
+        let backups: Vec<BackupInfo> = response
+            .json()
+            .await
+            .map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(backups)
+    } else {
+        Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
+    }
+}
+
+pub async fn get_data_snapshot() -> Result<DataSnapshot, ApiServiceError> {
+    let response = create_authenticated_request("GET", &format!("{}/system/snapshot", API_BASE_URL))?
+        .send()
+        .await
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+
+    if response.status() == 200 {
+        let snapshot: DataSnapshot = response
+            .json()
+            .await
+            .map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(snapshot)
+    } else {
+        Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
+    }
+}
+
+pub async fn restore_backup(backup_id: &str) -> Result<String, ApiServiceError> {
+    let response = create_authenticated_request("POST", &format!("{}/system/backup/{}/restore", API_BASE_URL, backup_id))?
+        .send()
+        .await
+        .map_err(|e| ApiServiceError::NetworkError(e.to_string()))?;
+
+    if response.status() == 200 {
+        let result: String = response
+            .json()
+            .await
+            .map_err(|e| ApiServiceError::ParseError(e.to_string()))?;
+        Ok(result)
+    } else {
+        Err(ApiServiceError::ServerError(format!("HTTP {}", response.status())))
+    }
+}

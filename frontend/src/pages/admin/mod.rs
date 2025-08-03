@@ -6,7 +6,7 @@ pub mod user_management;
 pub mod comment_moderation;
 pub mod media_library;
 pub mod page_builder;
-pub mod settings;
+pub mod system_settings;
 pub mod navigation_manager;
 pub mod analytics;
 pub mod design_system;
@@ -28,7 +28,7 @@ pub use media_library::MediaLibrary;
 #[allow(unused_imports)]
 pub use page_builder::PageBuilder;
 #[allow(unused_imports)]
-pub use settings::Settings;
+pub use system_settings::SystemSettings;
 #[allow(unused_imports)]
 pub use navigation_manager::NavigationManager;
 #[allow(unused_imports)]

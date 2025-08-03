@@ -145,6 +145,9 @@ diesel::table! {
         setting_key -> Varchar,
         setting_value -> Nullable<Text>,
         created_at -> Nullable<Timestamp>,
+        setting_type -> Varchar,
+        description -> Nullable<Text>,
+        updated_at -> Nullable<Timestamp>,
     }
 }
 

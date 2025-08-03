@@ -31,14 +31,19 @@ pub enum AppError {
     
     // Database errors
     DatabaseError(String),
+    DatabaseConnection(String),
+    DatabaseQuery(String),
     NotFound(String),
     
     // Business logic errors
     ConflictError(String),
+    BadRequest(String),
     
     // System errors
     InternalError(String),
+    InternalServerError(String),
     ExternalServiceError(String),
+    Configuration(String),
 }
 
 impl fmt::Display for AppError {
@@ -53,10 +58,15 @@ impl fmt::Display for AppError {
             AppError::ValidationError(msg) => write!(f, "Validation error: {}", msg),
             AppError::InvalidInput(msg) => write!(f, "Invalid input: {}", msg),
             AppError::DatabaseError(msg) => write!(f, "Database error: {}", msg),
+            AppError::DatabaseConnection(msg) => write!(f, "Database connection error: {}", msg),
+            AppError::DatabaseQuery(msg) => write!(f, "Database query error: {}", msg),
             AppError::NotFound(msg) => write!(f, "Not found: {}", msg),
             AppError::ConflictError(msg) => write!(f, "Conflict: {}", msg),
+            AppError::BadRequest(msg) => write!(f, "Bad request: {}", msg),
             AppError::InternalError(msg) => write!(f, "Internal error: {}", msg),
+            AppError::InternalServerError(msg) => write!(f, "Internal server error: {}", msg),
             AppError::ExternalServiceError(msg) => write!(f, "External service error: {}", msg),
+            AppError::Configuration(msg) => write!(f, "Configuration error: {}", msg),
         }
     }
 }
@@ -73,17 +83,22 @@ impl IntoResponse for AppError {
             AppError::ValidationError(msg) => (StatusCode::BAD_REQUEST, "VALIDATION_ERROR", msg.as_str()),
             AppError::InvalidInput(msg) => (StatusCode::BAD_REQUEST, "INVALID_INPUT", msg.as_str()),
             AppError::DatabaseError(_) => (StatusCode::INTERNAL_SERVER_ERROR, "DATABASE_ERROR", "Internal server error"),
+            AppError::DatabaseConnection(_) => (StatusCode::INTERNAL_SERVER_ERROR, "DATABASE_CONNECTION_ERROR", "Database connection error"),
+            AppError::DatabaseQuery(_) => (StatusCode::INTERNAL_SERVER_ERROR, "DATABASE_QUERY_ERROR", "Database query error"),
             AppError::NotFound(msg) => (StatusCode::NOT_FOUND, "NOT_FOUND", msg.as_str()),
             AppError::ConflictError(msg) => (StatusCode::CONFLICT, "CONFLICT", msg.as_str()),
+            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, "BAD_REQUEST", msg.as_str()),
             AppError::InternalError(_) => (StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "Internal server error"),
+            AppError::InternalServerError(_) => (StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "Internal server error"),
             AppError::ExternalServiceError(_) => (StatusCode::SERVICE_UNAVAILABLE, "EXTERNAL_SERVICE_ERROR", "External service unavailable"),
+            AppError::Configuration(_) => (StatusCode::INTERNAL_SERVER_ERROR, "CONFIGURATION_ERROR", "Configuration error"),
         };
 
         let api_error = ApiError {
             code: error_code.to_string(),
             message: message.to_string(),
             details: match &self {
-                AppError::ValidationError(msg) | AppError::InvalidInput(msg) | AppError::ConflictError(msg) | AppError::NotFound(msg) => {
+                AppError::ValidationError(msg) | AppError::InvalidInput(msg) | AppError::ConflictError(msg) | AppError::NotFound(msg) | AppError::BadRequest(msg) => {
                     Some(serde_json::json!({ "error": msg }))
                 }
                 _ => None,
@@ -106,3 +121,29 @@ impl From<diesel::result::Error> for AppError {
 
 // Result type alias for our API
 pub type ApiResult<T> = Result<T, AppError>;
+
+// Standard JSON response wrapper
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResponseJson<T> {
+    pub success: bool,
+    pub data: T,
+    pub message: Option<String>,
+}
+
+impl<T> ResponseJson<T> {
+    pub fn success(data: T) -> Self {
+        Self {
+            success: true,
+            data,
+            message: None,
+        }
+    }
+
+    pub fn success_with_message(data: T, message: String) -> Self {
+        Self {
+            success: true,
+            data,
+            message: Some(message),
+        }
+    }
+}
