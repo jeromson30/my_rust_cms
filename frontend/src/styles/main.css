@@ -798,8 +798,16 @@ tr:hover {
     min-height: 100vh;
 }
 
-/* Dashboard Header */
-.dashboard-header {
+/* Unified Admin Page Headers */
+.dashboard-header,
+.admin-page-header,
+.post-list .page-header,
+.user-management .page-header,
+.comment-moderation .page-header,
+.modern-media-library .page-header,
+.settings .page-header,
+.navigation-manager .page-header,
+.analytics .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -811,9 +819,20 @@ tr:hover {
     box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
     position: relative;
     overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
 }
 
-.dashboard-header::before {
+/* Background decoration for all admin headers */
+.dashboard-header::before,
+.admin-page-header::before,
+.post-list .page-header::before,
+.user-management .page-header::before,
+.comment-moderation .page-header::before,
+.modern-media-library .page-header::before,
+.settings .page-header::before,
+.navigation-manager .page-header::before,
+.analytics .page-header::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -825,8 +844,70 @@ tr:hover {
     pointer-events: none;
 }
 
-.dashboard-header h1 {
-    font-size: 3rem;
+/* Unified Shield Shimmer Effect for all admin headers */
+.dashboard-header::after,
+.admin-page-header::after,
+.post-list .page-header::after,
+.user-management .page-header::after,
+.comment-moderation .page-header::after,
+.modern-media-library .page-header::after,
+.settings .page-header::after,
+.navigation-manager .page-header::after,
+.analytics .page-header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -100%;
+    width: 150%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 0%,
+        transparent 30%,
+        rgba(255, 255, 255, 0.1) 40%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.1) 60%,
+        transparent 70%,
+        transparent 100%
+    );
+    transform: translateX(-100%) skewX(-15deg);
+    animation: shimmer-sweep 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes shimmer-sweep {
+    0% {
+        transform: translateX(-100%) skewX(-15deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateX(100%) skewX(-15deg);
+        opacity: 0.6;
+    }
+    90% {
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(100%) skewX(-15deg);
+        opacity: 0;
+    }
+}
+
+/* Unified header text styling */
+.dashboard-header h1,
+.admin-page-header h1,
+.post-list .page-header h1,
+.user-management .page-header h1,
+.comment-moderation .page-header h1,
+.modern-media-library .page-header h1,
+.settings .page-header h1,
+.navigation-manager .page-header h1,
+.analytics .page-header h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
     margin: 0;
     font-weight: 800;
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -834,16 +915,38 @@ tr:hover {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    position: relative;
+    z-index: 2;
 }
 
-.dashboard-header p {
+.dashboard-header p,
+.admin-page-header p,
+.post-list .page-header p,
+.user-management .page-header p,
+.comment-moderation .page-header p,
+.modern-media-library .page-header p,
+.settings .page-header p,
+.navigation-manager .page-header p,
+.analytics .page-header p {
     color: rgba(255, 255, 255, 0.9);
     font-size: 1.2rem;
     margin: 0.5rem 0 0 0;
     font-weight: 300;
+    position: relative;
+    z-index: 2;
 }
 
-.header-actions .btn {
+/* Unified header actions styling */
+.header-actions .btn,
+.dashboard-header .header-actions .btn,
+.admin-page-header .header-actions .btn,
+.post-list .header-actions .btn,
+.user-management .header-actions .btn,
+.comment-moderation .header-actions .btn,
+.modern-media-library .header-actions .btn,
+.settings .header-actions .btn,
+.navigation-manager .header-actions .btn,
+.analytics .header-actions .btn {
     background: rgba(255, 255, 255, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.3);
     color: white;
@@ -852,9 +955,20 @@ tr:hover {
     font-weight: 600;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
 }
 
-.header-actions .btn:hover {
+.header-actions .btn:hover,
+.dashboard-header .header-actions .btn:hover,
+.admin-page-header .header-actions .btn:hover,
+.post-list .header-actions .btn:hover,
+.user-management .header-actions .btn:hover,
+.comment-moderation .header-actions .btn:hover,
+.modern-media-library .header-actions .btn:hover,
+.settings .header-actions .btn:hover,
+.navigation-manager .header-actions .btn:hover,
+.analytics .header-actions .btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
@@ -939,7 +1053,7 @@ tr:hover {
 .stat-content h3 {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #64748b;
+    color: rgba(255, 255, 255, 0.8);
     margin: 0 0 0.5rem 0;
     text-transform: uppercase;
     letter-spacing: 0.8px;
@@ -948,10 +1062,10 @@ tr:hover {
 .stat-content .stat-number {
     font-size: 2.5rem;
     font-weight: 800;
-    color: #1e293b;
+    color: #ffffff;
     margin: 0;
     line-height: 1;
-    background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1475,62 +1589,7 @@ tr:hover {
     z-index: 1;
 }
 
-.post-list .page-header {
-    background: linear-gradient(
-        135deg,
-        rgba(139, 92, 246, 0.15) 0%,
-        rgba(59, 130, 246, 0.10) 50%,
-        rgba(16, 185, 129, 0.08) 100%
-    );
-    border-radius: 20px;
-    padding: 2.5rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.post-list .page-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent 30%,
-        rgba(255, 255, 255, 0.03) 50%,
-        transparent 70%
-    );
-    animation: shimmer 6s ease-in-out infinite;
-    pointer-events: none;
-}
-
-.post-list .page-header h1 {
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 800;
-    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0 0 0.5rem 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.post-list .page-header p {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 1.1rem;
-    margin: 0;
-    font-weight: 300;
-}
+/* Old post list header styles removed - now using unified admin header styles */
 
 .post-list .header-actions .btn {
     background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
@@ -1861,62 +1920,7 @@ tr:hover {
     z-index: 1;
 }
 
-.user-management .page-header {
-    background: linear-gradient(
-        135deg,
-        rgba(16, 185, 129, 0.15) 0%,
-        rgba(5, 150, 105, 0.10) 50%,
-        rgba(139, 92, 246, 0.08) 100%
-    );
-    border-radius: 20px;
-    padding: 2.5rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.user-management .page-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        -45deg,
-        transparent 30%,
-        rgba(255, 255, 255, 0.03) 50%,
-        transparent 70%
-    );
-    animation: shimmer 8s ease-in-out infinite reverse;
-    pointer-events: none;
-}
-
-.user-management .page-header h1 {
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 800;
-    background: linear-gradient(135deg, #ffffff 0%, #d1fae5 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0 0 0.5rem 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.user-management .page-header p {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 1.1rem;
-    margin: 0;
-    font-weight: 300;
-}
+/* Old user management header styles removed - now using unified admin header styles */
 
 .user-management .header-actions .btn {
     background: linear-gradient(135deg, #10b981 0%, #8b5cf6 100%);
@@ -2225,55 +2229,7 @@ tr:hover {
     z-index: 1;
 }
 
-.comment-moderation .page-header {
-    background: linear-gradient(
-        135deg,
-        rgba(245, 158, 11, 0.15) 0%,
-        rgba(217, 119, 6, 0.10) 50%,
-        rgba(59, 130, 246, 0.08) 100%
-    );
-    border-radius: 20px;
-    padding: 2.5rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.comment-moderation .page-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent 30%,
-        rgba(255, 255, 255, 0.03) 50%,
-        transparent 70%
-    );
-    animation: shimmer 10s ease-in-out infinite;
-    pointer-events: none;
-}
-
-.comment-moderation .page-header h1 {
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 800;
-    background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
+/* Old comment moderation header styles removed - now using unified admin header styles */
 
 .comment-moderation .header-actions select {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
@@ -4400,59 +4356,7 @@ tr:last-child td {
     pointer-events: none;
 }
 
-.modern-media-library .page-header {
-    background: rgba(17, 24, 39, 0.3);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    position: relative;
-    overflow: hidden;
-}
-
-.modern-media-library .page-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
-    animation: gradientShift 6s ease-in-out infinite;
-    border-radius: 16px 16px 0 0;
-}
-
-.modern-media-library .page-header h1 {
-    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    position: relative;
-}
-
-.modern-media-library .page-header h1::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-    border-radius: 8px;
-    animation: shimmer 2s ease-in-out infinite;
-    z-index: -1;
-}
-
-.modern-media-library .page-header p {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1.1rem;
-    margin: 0;
-}
+/* Old modern media library header styles removed - now using unified admin header styles */
 
 .modern-media-library .header-actions {
     display: flex;
@@ -4952,59 +4856,7 @@ tr:last-child td {
     pointer-events: none;
 }
 
-.settings .page-header {
-    background: rgba(17, 24, 39, 0.3);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    position: relative;
-    overflow: hidden;
-}
-
-.settings .page-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #f093fb, #f5576c, #4facfe);
-    animation: gradientShift 7s ease-in-out infinite;
-    border-radius: 16px 16px 0 0;
-}
-
-.settings .page-header h1 {
-    background: linear-gradient(135deg, #f093fb, #f5576c, #4facfe);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    position: relative;
-}
-
-.settings .page-header h1::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(240, 147, 251, 0.1), rgba(245, 87, 108, 0.1));
-    border-radius: 8px;
-    animation: shimmer 2s ease-in-out infinite;
-    z-index: -1;
-}
-
-.settings .page-header p {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1.1rem;
-    margin: 0;
-}
+/* Old settings header styles removed - now using unified admin header styles */
 
 /* Success Notification */
 .settings .notification.success {
@@ -5548,59 +5400,7 @@ tr:last-child td {
     pointer-events: none;
 }
 
-.navigation-manager .page-header {
-    background: rgba(17, 24, 39, 0.3);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    position: relative;
-    overflow: hidden;
-}
 
-.navigation-manager .page-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #11998e, #38ef7d, #667eea);
-    animation: gradientShift 9s ease-in-out infinite;
-    border-radius: 16px 16px 0 0;
-}
-
-.navigation-manager .page-header h1 {
-    background: linear-gradient(135deg, #11998e, #38ef7d, #667eea);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    position: relative;
-}
-
-.navigation-manager .page-header h1::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(17, 153, 142, 0.1), rgba(56, 239, 125, 0.1));
-    border-radius: 8px;
-    animation: shimmer 2s ease-in-out infinite;
-    z-index: -1;
-}
-
-.navigation-manager .page-header p {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1.1rem;
-    margin: 0;
-}
 
 /* Error Message */
 .navigation-manager .error-message {
@@ -6060,85 +5860,36 @@ tr:last-child td {
     pointer-events: none;
 }
 
-.analytics .page-header {
-    background: rgba(17, 24, 39, 0.3);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
 
-.analytics .page-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
-    animation: gradientShift 8s ease-in-out infinite;
-    border-radius: 16px 16px 0 0;
-}
 
-.analytics .page-header h1 {
-    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    margin: 0 0 0.5rem 0;
-    position: relative;
-}
-
-.analytics .page-header h1::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-    border-radius: 8px;
-    animation: shimmer 2s ease-in-out infinite;
-    z-index: -1;
-}
-
-.analytics .page-header p {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1.1rem;
-    margin: 0;
-}
-
-/* Header Actions */
+/* Analytics Header Actions - Custom Select Styling */
 .analytics .header-actions {
     display: flex;
     gap: 1rem;
     align-items: center;
+    position: relative;
+    z-index: 2;
 }
 
 .analytics .header-actions select {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
     padding: 0.75rem 1rem;
     border-radius: 12px;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
     cursor: pointer;
+    font-weight: 600;
 }
 
-.analytics .header-actions select:focus {
+.analytics .header-actions select:focus,
+.analytics .header-actions select:hover {
     outline: none;
-    border-color: rgba(102, 126, 234, 0.5);
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .analytics .btn-secondary {
