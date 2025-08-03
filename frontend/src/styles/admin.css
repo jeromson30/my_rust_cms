@@ -314,15 +314,15 @@ body.admin-body {
 }
 
 .btn-danger {
-    background: var(--danger-color);
-    color: var(--text-light);
-    border-color: var(--danger-color);
+    background: var(--admin-btn-danger-bg);
+    color: var(--admin-btn-danger-text);
+    border-color: var(--admin-btn-danger-bg);
 }
 
 .btn-danger:hover {
-    background: var(--danger-color);
-    border-color: var(--danger-color);
-    opacity: 0.8;
+    background: var(--admin-btn-danger-hover-bg);
+    border-color: var(--admin-btn-danger-hover-bg);
+    color: var(--admin-btn-danger-text);
 }
 
 .btn-small {
@@ -563,12 +563,15 @@ td.actions .btn-secondary:hover::before {
 }
 
 td.actions .btn-danger {
-    background: var(--bg-tertiary);
-    color: var(--danger-color);
+    background: var(--admin-btn-danger-bg);
+    color: var(--admin-btn-danger-text);
+    border-color: var(--admin-btn-danger-bg);
 }
 
 td.actions .btn-danger:hover {
-    background: var(--bg-secondary);
+    background: var(--admin-btn-danger-hover-bg);
+    border-color: var(--admin-btn-danger-hover-bg);
+    color: var(--admin-btn-danger-text);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }

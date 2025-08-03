@@ -1746,14 +1746,16 @@ tr:hover {
 }
 
 .post-list .actions .btn-danger {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%);
-    color: #ef4444;
-    border-color: rgba(239, 68, 68, 0.3);
+    background: var(--admin-btn-danger-bg, #dc2626);
+    color: var(--admin-btn-danger-text, #ffffff);
+    border-color: var(--admin-btn-danger-bg, #dc2626);
 }
 
 .post-list .actions .btn-danger:hover {
     transform: translateY(-2px);
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(220, 38, 38, 0.2) 100%);
+    background: var(--admin-btn-danger-hover-bg, #b91c1c);
+    color: var(--admin-btn-danger-text, #ffffff);
+    border-color: var(--admin-btn-danger-hover-bg, #b91c1c);
     box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
 }
 
@@ -2363,14 +2365,16 @@ tr:hover {
 }
 
 .comment-moderation .bulk-actions .btn-danger {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.15) 100%);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: var(--admin-btn-danger-bg, #dc2626);
+    color: var(--admin-btn-danger-text, #ffffff);
+    border: 1px solid var(--admin-btn-danger-bg, #dc2626);
 }
 
 .comment-moderation .bulk-actions .btn-danger:hover {
     transform: translateY(-1px);
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.25) 100%);
+    background: var(--admin-btn-danger-hover-bg, #b91c1c);
+    color: var(--admin-btn-danger-text, #ffffff);
+    border: 1px solid var(--admin-btn-danger-hover-bg, #b91c1c);
     box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
 }
 
@@ -5436,9 +5440,9 @@ tr:last-child td {
 }
 
 .settings .users-table .actions .btn-danger {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.3));
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: var(--admin-btn-danger-bg, #dc2626);
+    color: var(--admin-btn-danger-text, #ffffff);
+    border: 1px solid var(--admin-btn-danger-bg, #dc2626);
 }
 
 /* Backup Section */
@@ -5894,15 +5898,15 @@ tr:last-child td {
 }
 
 .navigation-manager .btn-danger {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #ef4444;
+    background: var(--admin-btn-danger-bg, #dc2626);
+    border-color: var(--admin-btn-danger-bg, #dc2626);
+    color: var(--admin-btn-danger-text, #ffffff);
 }
 
 .navigation-manager .btn-danger:hover {
-    background: rgba(239, 68, 68, 0.3);
-    border-color: rgba(239, 68, 68, 0.4);
-    color: #fecaca;
+    background: var(--admin-btn-danger-hover-bg, #b91c1c);
+    border-color: var(--admin-btn-danger-hover-bg, #b91c1c);
+    color: var(--admin-btn-danger-text, #ffffff);
 }
 
 /* Navigation Item Form (for editing) */
