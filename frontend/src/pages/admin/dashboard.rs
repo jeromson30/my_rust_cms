@@ -313,7 +313,7 @@ pub fn dashboard() -> Html {
                                                                                          <div class="media-item" key={media.id.as_ref().map(|id| id.to_string()).unwrap_or_else(|| "unknown".to_string())}>
                                                 <div class="media-preview">
                                                     {if media.type_.starts_with("image/") {
-                                                        html! { <img src={media.url.clone()} alt={media.name.clone()} /> }
+                                                        html! { <img src={format!("http://localhost:8081{}", media.url)} alt={media.name.clone()} /> }
                                                     } else {
                                                         html! { <div class="file-icon">{"📄"}</div> }
                                                     }}

@@ -87,8 +87,8 @@ pub fn page_builder() -> Html {
         
         move || {
             current_page.set(None);
-            page_title.set("New Page".to_string());
-            page_slug.set("new-page".to_string());
+            page_title.set(String::new());
+            page_slug.set(String::new());
             page_components.set(vec![]);
         }
     };
@@ -204,8 +204,8 @@ pub fn page_builder() -> Html {
                                 
                                 // Reset to new page
                                 current_page.set(None);
-                                page_title.set("New Page".to_string());
-                                page_slug.set("new-page".to_string());
+                                page_title.set(String::new());
+                                page_slug.set(String::new());
                                 page_components.set(vec![]);
                                 error.set(None);
                             }
@@ -332,7 +332,12 @@ pub fn page_builder() -> Html {
                                 })
                             }
                         >
-                            <option value="new">{"+ New Page"}</option>
+                            <option 
+                                value="new" 
+                                selected={current_page.is_none()}
+                            >
+                                {"+ New Page"}
+                            </option>
                             {for pages.iter().map(|page| {
                                 let page_id = page.id.unwrap_or(0);
                                 let is_selected = current_page.as_ref().and_then(|p| p.id) == page.id;

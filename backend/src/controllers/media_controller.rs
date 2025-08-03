@@ -40,7 +40,7 @@ async fn upload_file(
     mut multipart: Multipart,
 ) -> impl IntoResponse {
     // Create upload directory if it doesn't exist
-    let upload_dir = "uploads";
+    let upload_dir = "backend/uploads";
     if !Path::new(upload_dir).exists() {
         if let Err(e) = fs::create_dir_all(upload_dir).await {
             return (

@@ -334,10 +334,16 @@ fn render_page_builder_content(content: &str) -> Html {
 
 // Function to parse and render page builder content with navigation callback
 fn render_page_builder_content_with_navigation(content: &str, on_navigate: Option<Callback<PublicPage>>) -> Html {
-    // Try to parse as JSON array of components first
-    if content.starts_with('[') {
+    web_sys::console::log_1(&format!("render_page_builder_content_with_navigation called with content length: {}", content.len()).into());
+    web_sys::console::log_1(&format!("Content starts with '[': {}", content.starts_with('[')).into());
+    
+    // TEMPORARY FIX: Check if we're getting malformed content that's just raw JSON as text
+    if content.contains("\"component_type\"") && content.contains("\"content\"") && !content.starts_with('[') {
+        web_sys::console::log_1(&"Detected malformed JSON content that doesn't start with '[', attempting to fix".into());
+        // Try to parse it anyway in case the content is malformed
         match serde_json::from_str::<Vec<PageComponent>>(content) {
             Ok(components) => {
+                web_sys::console::log_1(&format!("Successfully parsed {} components from malformed content", components.len()).into());
                 html! {
                     <div class="page-builder-content">
                         {components.iter().map(|component| {
@@ -346,12 +352,50 @@ fn render_page_builder_content_with_navigation(content: &str, on_navigate: Optio
                     </div>
                 }
             }
-            Err(_) => {
-                // Fallback to markdown rendering
-                render_markdown_content(content)
+            Err(e) => {
+                web_sys::console::log_1(&format!("Still failed to parse malformed JSON: {:?}", e).into());
+                html! {
+                    <div class="error">
+                        <h3>{"Page Builder Content Error"}</h3>
+                        <p>{"Content appears to be malformed JSON. Please check the page content in the admin panel."}</p>
+                        <details>
+                            <summary>{"Debug Info"}</summary>
+                            <pre>{format!("Error: {:?}\nContent preview: {}", e, &content[0..std::cmp::min(500, content.len())])}</pre>
+                        </details>
+                    </div>
+                }
+            }
+        }
+    } else if content.starts_with('[') {
+        match serde_json::from_str::<Vec<PageComponent>>(content) {
+            Ok(components) => {
+                web_sys::console::log_1(&format!("Successfully parsed {} components", components.len()).into());
+                html! {
+                    <div class="page-builder-content">
+                        {components.iter().map(|component| {
+                            render_component_content_public_with_navigation(component, on_navigate.clone())
+                        }).collect::<Html>()}
+                    </div>
+                }
+            }
+            Err(e) => {
+                web_sys::console::log_1(&format!("Failed to parse JSON: {:?}", e).into());
+                web_sys::console::log_1(&format!("Content preview: {}", &content[0..std::cmp::min(200, content.len())]).into());
+                // Show error message instead of fallback to avoid confusion
+                html! {
+                    <div class="error">
+                        <h3>{"Page Builder Content Error"}</h3>
+                        <p>{"Failed to parse page components. Please check the page content in the admin panel."}</p>
+                        <details>
+                            <summary>{"Debug Info"}</summary>
+                            <pre>{format!("Error: {:?}\nContent preview: {}", e, &content[0..std::cmp::min(200, content.len())])}</pre>
+                        </details>
+                    </div>
+                }
             }
         }
     } else {
+        web_sys::console::log_1(&"Content does not start with '[', rendering as markdown".into());
         // Regular content, render as markdown
         render_markdown_content(content)
     }
@@ -395,13 +439,70 @@ fn render_component_content_public_with_navigation(component: &PageComponent, on
             }
         }
         ComponentType::PostsList => {
-            // Determine if this should show full list based on component context
-            let show_full = component.content.contains("All Posts") || component.content.contains("all-posts");
+            // Parse properties for PostsList configuration
+            let posts_to_show = component.properties.container_max_width.parse::<usize>().unwrap_or(6);
+            let show_full = component.properties.container_max_width == "all" || posts_to_show >= 100;
+            let excerpt_length = component.properties.divider_margin.parse::<usize>().unwrap_or(200);
+            let _grid_columns = component.properties.gallery_columns;
+            
+            // Create custom styling based on component properties
+            let card_bg = &component.properties.button_text;
+            let card_radius = &component.properties.button_size;
+            let grid_gap = &component.properties.button_url;
+            let title_color = &component.properties.button_icon;
+            let meta_color = &component.properties.form_action;
+            let link_color = &component.properties.form_method;
+            let shadow_type = &component.properties.button_variant;
+            
+            // Generate shadow CSS based on selection
+            let card_shadow = match shadow_type.as_str() {
+                "none" => "none",
+                "small" => "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)",
+                "large" => "0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22)",
+                "design-system" => "var(--public-card-shadow, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05))",
+                _ => "0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05)", // medium/default
+            };
+            
+            // Create dynamic styling for the posts grid
+            let posts_grid_style = format!(
+                "display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: {}; max-width: 1200px; margin: 0 auto;",
+                grid_gap
+            );
+            
+            let post_card_style = format!(
+                "background: {}; border-radius: {}; box-shadow: {}; transition: transform 0.2s ease, box-shadow 0.2s ease; overflow: hidden;",
+                card_bg, card_radius, card_shadow
+            );
+            
             html! {
                 <div class="component posts-list-component" style={format_component_styles(&component.styles)}>
+                    <style>
+                        {format!(r#"
+                            .posts-list-widget .posts-grid {{
+                                {}
+                            }}
+                            .posts-list-widget .post-card {{
+                                {}
+                            }}
+                            .posts-list-widget .post-card h2 {{
+                                color: {} !important;
+                            }}
+                            .posts-list-widget .post-meta {{
+                                color: {} !important;
+                            }}
+                            .posts-list-widget .read-more {{
+                                color: {} !important;
+                            }}
+                            .posts-list-widget .post-card:hover {{
+                                transform: translateY(-2px);
+                                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                            }}
+                        "#, posts_grid_style, post_card_style, title_color, meta_color, link_color)}
+                    </style>
                     <PostsListWidget 
                         show_full_list={show_full} 
-                        limit={if show_full { 100 } else { 6 }} 
+                        limit={posts_to_show} 
+                        excerpt_length={excerpt_length}
                         on_navigate={on_navigate.clone()}
                     />
                 </div>
