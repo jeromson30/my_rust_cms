@@ -364,4 +364,4 @@ The RAYDT Stack represents more than just a technology choice—it's a vision of
 - **Issues**: Report bugs and request features
 - **Wiki**: Community-driven documentation and tutorials
 
-**Join us in pioneering the future of web development! 🚀**
+Join us in pioneering the future of web development! 🚀
