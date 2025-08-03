@@ -5,19 +5,38 @@ use web_sys::{HtmlInputElement, HtmlSelectElement};
 #[derive(Debug, Clone, PartialEq)]
 pub struct AdminColorScheme {
     pub name: String,
+    
+    // == Core Colors ==
     pub primary: String,
+    pub primary_hover: String,
+    pub primary_active: String,
     pub secondary: String,
+    pub secondary_hover: String,
+    pub secondary_active: String,
     pub success: String,
     pub warning: String,
     pub danger: String,
     pub info: String,
-    pub background: String,
-    pub surface: String,
-    pub text_primary: String,
-    pub text_secondary: String,
-    pub border: String,
     
-    // Header styling
+    // == Layout Foundation ==
+    pub background: String,           // Main app background
+    pub surface: String,             // Card/panel backgrounds  
+    pub surface_elevated: String,    // Elevated surfaces
+    pub surface_hover: String,       // Hover states
+    pub border: String,              // Default borders
+    pub border_light: String,        // Subtle borders
+    pub border_focus: String,        // Focus borders
+    pub divider: String,             // Section dividers
+    
+    // == Typography ==
+    pub text_primary: String,        // Primary text
+    pub text_secondary: String,      // Secondary text
+    pub text_muted: String,          // Muted/disabled text
+    pub text_inverse: String,        // Text on dark backgrounds
+    pub text_link: String,           // Link text
+    pub text_link_hover: String,     // Link hover state
+    
+    // == Header System ==
     pub header_gradient: String,
     pub header_text_color: String,
     pub header_border_color: String,
@@ -25,14 +44,14 @@ pub struct AdminColorScheme {
     pub header_text_shadow: String,
     pub header_logo_gradient: String,
     
-    // Sidebar styling
+    // == Sidebar System ==
     pub sidebar_bg: String,
     pub sidebar_border_color: String,
     pub sidebar_shadow: String,
     pub sidebar_section_title_color: String,
     pub sidebar_section_border_color: String,
     
-    // Navigation links
+    // == Navigation System ==
     pub nav_link_text_color: String,
     pub nav_link_hover_bg: String,
     pub nav_link_hover_text: String,
@@ -43,10 +62,98 @@ pub struct AdminColorScheme {
     pub nav_link_public_hover_bg: String,
     pub nav_link_public_hover_text: String,
     
-    // General layout
+    // == Form Elements ==
+    pub form_bg: String,             // Form input backgrounds
+    pub form_border: String,         // Form input borders
+    pub form_border_focus: String,   // Focused input borders
+    pub form_placeholder: String,    // Placeholder text
+    pub form_label: String,          // Form labels
+    pub form_error: String,          // Error states
+    pub form_success: String,        // Success states
+    
+    // == Button System ==
+    pub btn_primary_bg: String,
+    pub btn_primary_text: String,
+    pub btn_primary_border: String,
+    pub btn_primary_hover_bg: String,
+    pub btn_primary_hover_border: String,
+    pub btn_secondary_bg: String,
+    pub btn_secondary_text: String,
+    pub btn_secondary_border: String,
+    pub btn_secondary_hover_bg: String,
+    pub btn_secondary_hover_border: String,
+    pub btn_danger_bg: String,
+    pub btn_danger_text: String,
+    pub btn_danger_hover_bg: String,
+    pub btn_success_bg: String,
+    pub btn_success_text: String,
+    pub btn_success_hover_bg: String,
+    
+    // == Table System ==
+    pub table_bg: String,
+    pub table_header_bg: String,
+    pub table_header_text: String,
+    pub table_row_bg: String,
+    pub table_row_hover_bg: String,
+    pub table_row_border: String,
+    pub table_cell_border: String,
+    
+    // == Card System ==
     pub card_bg: String,
-    pub shadow_color: String,
-    pub accent_color: String,
+    pub card_border: String,
+    pub card_shadow: String,
+    pub card_hover_shadow: String,
+    pub card_header_bg: String,
+    pub card_header_border: String,
+    
+    // == Status System ==
+    pub status_published_bg: String,
+    pub status_published_text: String,
+    pub status_draft_bg: String,
+    pub status_draft_text: String,
+    pub status_pending_bg: String,
+    pub status_pending_text: String,
+    pub status_approved_bg: String,
+    pub status_approved_text: String,
+    pub status_active_bg: String,
+    pub status_active_text: String,
+    pub status_inactive_bg: String,
+    pub status_inactive_text: String,
+    
+    // == Dashboard Metrics ==
+    pub metric_card_bg: String,
+    pub metric_card_border: String,
+    pub metric_icon_posts: String,
+    pub metric_icon_users: String,
+    pub metric_icon_comments: String,
+    pub metric_icon_media: String,
+    pub metric_value_text: String,
+    pub metric_label_text: String,
+    pub metric_breakdown_bg: String,
+    
+    // == Shadows & Effects ==
+    pub shadow_sm: String,           // Small shadows
+    pub shadow_md: String,           // Medium shadows  
+    pub shadow_lg: String,           // Large shadows
+    pub shadow_xl: String,           // Extra large shadows
+    pub shadow_color: String,        // Shadow base color
+    pub focus_ring: String,          // Focus ring color
+    pub glow_primary: String,        // Primary glow effect
+    pub backdrop_blur: String,       // Backdrop filter
+    
+    // == Motion System ==
+    pub transition_fast: String,     // Fast transitions (0.15s)
+    pub transition_normal: String,   // Normal transitions (0.2s)  
+    pub transition_slow: String,     // Slow transitions (0.3s)
+    pub transition_bounce: String,   // Bounce easing
+    pub transition_smooth: String,   // Smooth easing
+    
+    // == Special Effects ==
+    pub gradient_primary: String,    // Primary gradient
+    pub gradient_secondary: String,  // Secondary gradient
+    pub gradient_danger: String,     // Danger gradient
+    pub gradient_success: String,    // Success gradient
+    pub accent_color: String,        // Accent highlights
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -94,55 +201,317 @@ pub struct PublicColorScheme {
     pub card_shadow: String,
 }
 
+impl AdminColorScheme {
+    // Create a modern dark admin theme with graytone colors
+    pub fn dark_mode() -> Self {
+        Self {
+            name: "Modern Dark Admin".to_string(),
+            
+            // == Core Colors (Graytone with minimal accents) ==
+            primary: "#6366f1".to_string(),             // Slightly brighter indigo for dark
+            primary_hover: "#4f46e5".to_string(),       // Standard indigo
+            primary_active: "#4338ca".to_string(),      // Darker indigo
+            secondary: "#6b7280".to_string(),           // Gray 500
+            secondary_hover: "#9ca3af".to_string(),     // Gray 400
+            secondary_active: "#d1d5db".to_string(),    // Gray 300
+            success: "#10b981".to_string(),             // Emerald 500
+            warning: "#f59e0b".to_string(),             // Amber 500
+            danger: "#ef4444".to_string(),              // Red 500
+            info: "#06b6d4".to_string(),                // Cyan 500
+            
+            // == Layout Foundation (Dark graytone) ==
+            background: "#0f172a".to_string(),          // Slate 900 - Main background
+            surface: "#1e293b".to_string(),             // Slate 800 - Card backgrounds
+            surface_elevated: "#334155".to_string(),    // Slate 700 - Elevated surfaces
+            surface_hover: "#374151".to_string(),       // Slate 700 - Hover states
+            border: "#334155".to_string(),              // Slate 700 - Default borders
+            border_light: "#475569".to_string(),        // Slate 600 - Subtle borders
+            border_focus: "#6366f1".to_string(),        // Primary for focus
+            divider: "#334155".to_string(),             // Slate 700 - Section dividers
+            
+            // == Typography (Balanced graytone) ==
+            text_primary: "#f1f5f9".to_string(),        // Slate 100 - Primary text
+            text_secondary: "#cbd5e1".to_string(),      // Slate 300 - Secondary text
+            text_muted: "#64748b".to_string(),          // Slate 500 - Muted text
+            text_inverse: "#0f172a".to_string(),        // Dark text for light backgrounds
+            text_link: "#6366f1".to_string(),           // Primary for links
+            text_link_hover: "#8b5cf6".to_string(),     // Brighter for link hover
+            
+            // == Header System (Dark gradient) ==
+            header_gradient: "linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)".to_string(),
+            header_text_color: "#f1f5f9".to_string(),
+            header_border_color: "#334155".to_string(),
+            header_shadow: "0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)".to_string(),
+            header_text_shadow: "0 1px 2px rgba(0, 0, 0, 0.5)".to_string(),
+            header_logo_gradient: "linear-gradient(135deg, #6366f1, #4f46e5)".to_string(),
+            
+            // == Sidebar System (Dark surface) ==
+            sidebar_bg: "#1e293b".to_string(),
+            sidebar_border_color: "#334155".to_string(),
+            sidebar_shadow: "2px 0 4px rgba(0, 0, 0, 0.3)".to_string(),
+            sidebar_section_title_color: "#cbd5e1".to_string(),
+            sidebar_section_border_color: "#475569".to_string(),
+            
+            // == Navigation System (Dark hover states) ==
+            nav_link_text_color: "#cbd5e1".to_string(),
+            nav_link_hover_bg: "#334155".to_string(),
+            nav_link_hover_text: "#f1f5f9".to_string(),
+            nav_link_active_bg: "#6366f1".to_string(),
+            nav_link_active_shadow: "0 2px 4px rgba(99, 102, 241, 0.3)".to_string(),
+            nav_link_active_indicator: "#ffffff".to_string(),
+            nav_link_public_text: "#94a3b8".to_string(),
+            nav_link_public_hover_bg: "#475569".to_string(),
+            nav_link_public_hover_text: "#cbd5e1".to_string(),
+            
+            // == Form Elements (Dark backgrounds) ==
+            form_bg: "#1e293b".to_string(),
+            form_border: "#475569".to_string(),
+            form_border_focus: "#6366f1".to_string(),
+            form_placeholder: "#64748b".to_string(),
+            form_label: "#cbd5e1".to_string(),
+            form_error: "#ef4444".to_string(),
+            form_success: "#10b981".to_string(),
+            
+            // == Button System (Dark theme buttons) ==
+            btn_primary_bg: "#6366f1".to_string(),
+            btn_primary_text: "#ffffff".to_string(),
+            btn_primary_border: "#6366f1".to_string(),
+            btn_primary_hover_bg: "#4f46e5".to_string(),
+            btn_primary_hover_border: "#4f46e5".to_string(),
+            btn_secondary_bg: "#334155".to_string(),
+            btn_secondary_text: "#f1f5f9".to_string(),
+            btn_secondary_border: "#475569".to_string(),
+            btn_secondary_hover_bg: "#475569".to_string(),
+            btn_secondary_hover_border: "#64748b".to_string(),
+            btn_danger_bg: "#ef4444".to_string(),
+            btn_danger_text: "#ffffff".to_string(),
+            btn_danger_hover_bg: "#dc2626".to_string(),
+            btn_success_bg: "#10b981".to_string(),
+            btn_success_text: "#ffffff".to_string(),
+            btn_success_hover_bg: "#059669".to_string(),
+            
+            // == Table System (Dark rows) ==
+            table_bg: "#1e293b".to_string(),
+            table_header_bg: "#334155".to_string(),
+            table_header_text: "#f1f5f9".to_string(),
+            table_row_bg: "#1e293b".to_string(),
+            table_row_hover_bg: "#334155".to_string(),
+            table_row_border: "#475569".to_string(),
+            table_cell_border: "#475569".to_string(),
+            
+            // == Card System (Dark elevation) ==
+            card_bg: "#1e293b".to_string(),
+            card_border: "#334155".to_string(),
+            card_shadow: "0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)".to_string(),
+            card_hover_shadow: "0 10px 15px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.2)".to_string(),
+            card_header_bg: "#334155".to_string(),
+            card_header_border: "#475569".to_string(),
+            
+            // == Status System (Dark theme status colors) ==
+            status_published_bg: "rgba(16, 185, 129, 0.2)".to_string(),
+            status_published_text: "#34d399".to_string(),
+            status_draft_bg: "rgba(245, 158, 11, 0.2)".to_string(),
+            status_draft_text: "#fbbf24".to_string(),
+            status_pending_bg: "rgba(239, 68, 68, 0.2)".to_string(),
+            status_pending_text: "#f87171".to_string(),
+            status_approved_bg: "rgba(16, 185, 129, 0.2)".to_string(),
+            status_approved_text: "#34d399".to_string(),
+            status_active_bg: "rgba(99, 102, 241, 0.2)".to_string(),
+            status_active_text: "#a5b4fc".to_string(),
+            status_inactive_bg: "rgba(107, 114, 128, 0.2)".to_string(),
+            status_inactive_text: "#9ca3af".to_string(),
+            
+            // == Dashboard Metrics (Dark accent colors) ==
+            metric_card_bg: "#1e293b".to_string(),
+            metric_card_border: "#334155".to_string(),
+            metric_icon_posts: "#6366f1".to_string(),
+            metric_icon_users: "#10b981".to_string(),
+            metric_icon_comments: "#f59e0b".to_string(),
+            metric_icon_media: "#06b6d4".to_string(),
+            metric_value_text: "#f1f5f9".to_string(),
+            metric_label_text: "#94a3b8".to_string(),
+            metric_breakdown_bg: "#334155".to_string(),
+            
+            // == Shadows & Effects (Dark theme effects) ==
+            shadow_sm: "0 1px 2px rgba(0, 0, 0, 0.3)".to_string(),
+            shadow_md: "0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)".to_string(),
+            shadow_lg: "0 10px 15px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.2)".to_string(),
+            shadow_xl: "0 20px 25px rgba(0, 0, 0, 0.4), 0 10px 10px rgba(0, 0, 0, 0.2)".to_string(),
+            shadow_color: "rgba(0, 0, 0, 0.3)".to_string(),
+            focus_ring: "rgba(99, 102, 241, 0.3)".to_string(),
+            glow_primary: "rgba(99, 102, 241, 0.4)".to_string(),
+            backdrop_blur: "blur(12px)".to_string(),
+            
+            // == Motion System (Same as light) ==
+            transition_fast: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)".to_string(),
+            transition_normal: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)".to_string(),
+            transition_slow: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)".to_string(),
+            transition_bounce: "all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)".to_string(),
+            transition_smooth: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)".to_string(),
+            
+            // == Special Effects (Dark gradients) ==
+            gradient_primary: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)".to_string(),
+            gradient_secondary: "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)".to_string(),
+            gradient_danger: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)".to_string(),
+            gradient_success: "linear-gradient(135deg, #10b981 0%, #059669 100%)".to_string(),
+            accent_color: "#6366f1".to_string(),
+        }
+    }
+}
+
 impl Default for AdminColorScheme {
     fn default() -> Self {
         Self {
-            name: "Admin Dark Theme".to_string(),
-            // Dark theme color palette
-            primary: "#3b82f6".to_string(),        // Vibrant blue
-            secondary: "#6b7280".to_string(),      // Gray 500
-            success: "#10b981".to_string(),        // Emerald green
-            warning: "#f59e0b".to_string(),        // Amber
-            danger: "#ef4444".to_string(),         // Red
-            info: "#06b6d4".to_string(),           // Cyan
+            name: "Modern Light Admin".to_string(),
             
-            // Dark layout colors
-            background: "#1f2937".to_string(),     // Gray 800 - dark background
-            surface: "#374151".to_string(),        // Gray 700 - surface color
-            text_primary: "#f9fafb".to_string(),   // Gray 50 - primary text
-            text_secondary: "#d1d5db".to_string(), // Gray 300 - secondary text
-            border: "#4b5563".to_string(),         // Gray 600 - borders
+            // == Core Colors (Graytone with minimal accents) ==
+            primary: "#4f46e5".to_string(),             // Refined indigo
+            primary_hover: "#4338ca".to_string(),       // Darker indigo
+            primary_active: "#3730a3".to_string(),      // Active indigo
+            secondary: "#6b7280".to_string(),           // Gray 500
+            secondary_hover: "#4b5563".to_string(),     // Gray 600
+            secondary_active: "#374151".to_string(),    // Gray 700
+            success: "#059669".to_string(),             // Emerald 600
+            warning: "#d97706".to_string(),             // Amber 600
+            danger: "#dc2626".to_string(),              // Red 600
+            info: "#0891b2".to_string(),                // Cyan 600
             
-            // Dark theme header styling
-            header_gradient: "linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)".to_string(),
-            header_text_color: "#f9fafb".to_string(),
-            header_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
-            header_shadow: "0 4px 20px rgba(0, 0, 0, 0.5)".to_string(),
-            header_text_shadow: "0 2px 4px rgba(0, 0, 0, 0.5)".to_string(),
-            header_logo_gradient: "linear-gradient(135deg, #3b82f6, #1e40af)".to_string(),
+            // == Layout Foundation (Light graytone) ==
+            background: "#f8fafc".to_string(),          // Slate 50 - Main background
+            surface: "#ffffff".to_string(),             // White - Card backgrounds
+            surface_elevated: "#f1f5f9".to_string(),    // Slate 100 - Elevated surfaces
+            surface_hover: "#f8fafc".to_string(),       // Slate 50 - Hover states
+            border: "#e2e8f0".to_string(),              // Slate 200 - Default borders
+            border_light: "#f1f5f9".to_string(),        // Slate 100 - Subtle borders
+            border_focus: "#4f46e5".to_string(),        // Primary for focus
+            divider: "#e2e8f0".to_string(),             // Slate 200 - Section dividers
             
-            // Dark theme sidebar
-            sidebar_bg: "linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%)".to_string(),
-            sidebar_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
-            sidebar_shadow: "4px 0 20px rgba(0, 0, 0, 0.5)".to_string(),
-            sidebar_section_title_color: "rgba(255, 255, 255, 0.9)".to_string(),
-            sidebar_section_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
+            // == Typography (Balanced graytone) ==
+            text_primary: "#0f172a".to_string(),        // Slate 900 - Primary text
+            text_secondary: "#475569".to_string(),      // Slate 600 - Secondary text
+            text_muted: "#94a3b8".to_string(),          // Slate 400 - Muted text
+            text_inverse: "#ffffff".to_string(),        // White text for dark backgrounds
+            text_link: "#4f46e5".to_string(),           // Primary for links
+            text_link_hover: "#4338ca".to_string(),     // Darker for link hover
             
-            // Dark theme navigation
-            nav_link_text_color: "rgba(255, 255, 255, 0.9)".to_string(),
-            nav_link_hover_bg: "rgba(255, 255, 255, 0.15)".to_string(),
-            nav_link_hover_text: "#ffffff".to_string(),
-            nav_link_active_bg: "linear-gradient(135deg, #3b82f6, #1e40af)".to_string(),
-            nav_link_active_shadow: "0 4px 15px rgba(59, 130, 246, 0.4)".to_string(),
+            // == Header System (Subtle gradient) ==
+            header_gradient: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)".to_string(),
+            header_text_color: "#0f172a".to_string(),
+            header_border_color: "#e2e8f0".to_string(),
+            header_shadow: "0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)".to_string(),
+            header_text_shadow: "none".to_string(),
+            header_logo_gradient: "linear-gradient(135deg, #4f46e5, #4338ca)".to_string(),
+            
+            // == Sidebar System (Clean white) ==
+            sidebar_bg: "#ffffff".to_string(),
+            sidebar_border_color: "#e2e8f0".to_string(),
+            sidebar_shadow: "1px 0 3px rgba(0, 0, 0, 0.05)".to_string(),
+            sidebar_section_title_color: "#475569".to_string(),
+            sidebar_section_border_color: "#f1f5f9".to_string(),
+            
+            // == Navigation System (Minimal hover states) ==
+            nav_link_text_color: "#475569".to_string(),
+            nav_link_hover_bg: "#f1f5f9".to_string(),
+            nav_link_hover_text: "#0f172a".to_string(),
+            nav_link_active_bg: "#4f46e5".to_string(),
+            nav_link_active_shadow: "0 2px 4px rgba(79, 70, 229, 0.2)".to_string(),
             nav_link_active_indicator: "#ffffff".to_string(),
-            nav_link_public_text: "rgba(255, 255, 255, 0.7)".to_string(),
-            nav_link_public_hover_bg: "rgba(255, 255, 255, 0.08)".to_string(),
-            nav_link_public_hover_text: "rgba(255, 255, 255, 0.9)".to_string(),
+            nav_link_public_text: "#64748b".to_string(),
+            nav_link_public_hover_bg: "#f8fafc".to_string(),
+            nav_link_public_hover_text: "#475569".to_string(),
             
-            // Dark theme layout styling
-            card_bg: "#374151".to_string(),
-            shadow_color: "0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2)".to_string(),
-            accent_color: "#3b82f6".to_string(),
+            // == Form Elements (Clean and minimal) ==
+            form_bg: "#ffffff".to_string(),
+            form_border: "#d1d5db".to_string(),
+            form_border_focus: "#4f46e5".to_string(),
+            form_placeholder: "#9ca3af".to_string(),
+            form_label: "#374151".to_string(),
+            form_error: "#dc2626".to_string(),
+            form_success: "#059669".to_string(),
+            
+            // == Button System (Consistent with brand) ==
+            btn_primary_bg: "#4f46e5".to_string(),
+            btn_primary_text: "#ffffff".to_string(),
+            btn_primary_border: "#4f46e5".to_string(),
+            btn_primary_hover_bg: "#4338ca".to_string(),
+            btn_primary_hover_border: "#4338ca".to_string(),
+            btn_secondary_bg: "#ffffff".to_string(),
+            btn_secondary_text: "#374151".to_string(),
+            btn_secondary_border: "#d1d5db".to_string(),
+            btn_secondary_hover_bg: "#f9fafb".to_string(),
+            btn_secondary_hover_border: "#9ca3af".to_string(),
+            btn_danger_bg: "#dc2626".to_string(),
+            btn_danger_text: "#ffffff".to_string(),
+            btn_danger_hover_bg: "#b91c1c".to_string(),
+            btn_success_bg: "#059669".to_string(),
+            btn_success_text: "#ffffff".to_string(),
+            btn_success_hover_bg: "#047857".to_string(),
+            
+            // == Table System (Clean rows) ==
+            table_bg: "#ffffff".to_string(),
+            table_header_bg: "#f8fafc".to_string(),
+            table_header_text: "#374151".to_string(),
+            table_row_bg: "#ffffff".to_string(),
+            table_row_hover_bg: "#f8fafc".to_string(),
+            table_row_border: "#f1f5f9".to_string(),
+            table_cell_border: "#f1f5f9".to_string(),
+            
+            // == Card System (Subtle elevation) ==
+            card_bg: "#ffffff".to_string(),
+            card_border: "#e2e8f0".to_string(),
+            card_shadow: "0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)".to_string(),
+            card_hover_shadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)".to_string(),
+            card_header_bg: "#f8fafc".to_string(),
+            card_header_border: "#e2e8f0".to_string(),
+            
+            // == Status System (Semantic colors with light backgrounds) ==
+            status_published_bg: "#dcfce7".to_string(),
+            status_published_text: "#166534".to_string(),
+            status_draft_bg: "#fef3c7".to_string(),
+            status_draft_text: "#92400e".to_string(),
+            status_pending_bg: "#fecaca".to_string(),
+            status_pending_text: "#991b1b".to_string(),
+            status_approved_bg: "#dcfce7".to_string(),
+            status_approved_text: "#166534".to_string(),
+            status_active_bg: "#dbeafe".to_string(),
+            status_active_text: "#1e40af".to_string(),
+            status_inactive_bg: "#f3f4f6".to_string(),
+            status_inactive_text: "#6b7280".to_string(),
+            
+            // == Dashboard Metrics (Minimal accent colors) ==
+            metric_card_bg: "#ffffff".to_string(),
+            metric_card_border: "#e2e8f0".to_string(),
+            metric_icon_posts: "#4f46e5".to_string(),
+            metric_icon_users: "#059669".to_string(),
+            metric_icon_comments: "#d97706".to_string(),
+            metric_icon_media: "#0891b2".to_string(),
+            metric_value_text: "#0f172a".to_string(),
+            metric_label_text: "#64748b".to_string(),
+            metric_breakdown_bg: "#f8fafc".to_string(),
+            
+            // == Shadows & Effects (Subtle and modern) ==
+            shadow_sm: "0 1px 2px rgba(0, 0, 0, 0.05)".to_string(),
+            shadow_md: "0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)".to_string(),
+            shadow_lg: "0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)".to_string(),
+            shadow_xl: "0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04)".to_string(),
+            shadow_color: "rgba(0, 0, 0, 0.1)".to_string(),
+            focus_ring: "rgba(79, 70, 229, 0.2)".to_string(),
+            glow_primary: "rgba(79, 70, 229, 0.3)".to_string(),
+            backdrop_blur: "blur(8px)".to_string(),
+            
+            // == Motion System (Smooth and responsive) ==
+            transition_fast: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)".to_string(),
+            transition_normal: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)".to_string(),
+            transition_slow: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)".to_string(),
+            transition_bounce: "all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)".to_string(),
+            transition_smooth: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)".to_string(),
+            
+            // == Special Effects (Minimal gradients) ==
+            gradient_primary: "linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)".to_string(),
+            gradient_secondary: "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)".to_string(),
+            gradient_danger: "linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)".to_string(),
+            gradient_success: "linear-gradient(135deg, #059669 0%, #047857 100%)".to_string(),
+            accent_color: "#4f46e5".to_string(),
         }
     }
 }
@@ -365,95 +734,12 @@ pub fn design_system_page() -> Html {
             let current_tab_val = (*current_tab).clone();
             match (current_tab_val.as_str(), preset_name.as_str()) {
                 ("admin", "Dark Preset") => {
-                    let scheme = AdminColorScheme {
-                        name: "Admin Dark Theme".to_string(),
-                        primary: "#3b82f6".to_string(),
-                        secondary: "#6b7280".to_string(),
-                        success: "#10b981".to_string(),
-                        warning: "#f59e0b".to_string(),
-                        danger: "#ef4444".to_string(),
-                        info: "#06b6d4".to_string(),
-                        background: "#1f2937".to_string(),
-                        surface: "#374151".to_string(),
-                        text_primary: "#f9fafb".to_string(),
-                        text_secondary: "#d1d5db".to_string(),
-                        border: "#4b5563".to_string(),
-                        header_gradient: "linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)".to_string(),
-                        sidebar_bg: "linear-gradient(180deg, #1e293b 0%, #334155 50%, #475569 100%)".to_string(),
-                        // Header styling - dark theme defaults
-                        header_text_color: "#f9fafb".to_string(),
-                        header_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
-                        header_shadow: "0 4px 20px rgba(0, 0, 0, 0.5)".to_string(),
-                        header_text_shadow: "0 2px 4px rgba(0, 0, 0, 0.5)".to_string(),
-                        header_logo_gradient: "linear-gradient(135deg, #3b82f6, #1e40af)".to_string(),
-                        
-                        // Sidebar styling - dark theme defaults
-                        sidebar_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
-                        sidebar_shadow: "4px 0 20px rgba(0, 0, 0, 0.5)".to_string(),
-                        sidebar_section_title_color: "rgba(255, 255, 255, 0.9)".to_string(),
-                        sidebar_section_border_color: "rgba(255, 255, 255, 0.2)".to_string(),
-                        
-                        // Navigation link styling - dark theme defaults
-                        nav_link_text_color: "rgba(255, 255, 255, 0.9)".to_string(),
-                        nav_link_hover_bg: "rgba(255, 255, 255, 0.15)".to_string(),
-                        nav_link_hover_text: "#ffffff".to_string(),
-                        nav_link_active_bg: "linear-gradient(135deg, #3b82f6, #1e40af)".to_string(),
-                        nav_link_active_shadow: "0 4px 15px rgba(59, 130, 246, 0.4)".to_string(),
-                        nav_link_active_indicator: "#ffffff".to_string(),
-                        nav_link_public_text: "rgba(255, 255, 255, 0.7)".to_string(),
-                        nav_link_public_hover_bg: "rgba(255, 255, 255, 0.08)".to_string(),
-                        nav_link_public_hover_text: "rgba(255, 255, 255, 0.9)".to_string(),
-                        card_bg: "#374151".to_string(),
-                        shadow_color: "0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)".to_string(),
-                        accent_color: "#60a5fa".to_string(),
-                    };
+                    let scheme = AdminColorScheme::dark_mode();
                     admin_scheme.set(scheme.clone());
                     apply_admin_css_variables(&scheme);
                 },
                 ("admin", "Light Preset") => {
-                    let scheme = AdminColorScheme {
-                        name: "Admin Light Theme".to_string(),
-                        primary: "#2563eb".to_string(),
-                        secondary: "#64748b".to_string(),
-                        success: "#059669".to_string(),
-                        warning: "#d97706".to_string(),
-                        danger: "#dc2626".to_string(),
-                        info: "#0891b2".to_string(),
-                        // Light theme colors
-                        background: "#f8fafc".to_string(),     // Light gray-blue
-                        surface: "#ffffff".to_string(),        // White
-                        text_primary: "#1e293b".to_string(),   // Dark text
-                        text_secondary: "#64748b".to_string(), // Gray text
-                        border: "#e2e8f0".to_string(),         // Light gray border
-                        header_gradient: "linear-gradient(135deg, #4c1d95 0%, #312e81 50%, #1e1b4b 100%)".to_string(),
-                        sidebar_bg: "linear-gradient(180deg, #4c1d95 0%, #312e81 50%, #1e1b4b 100%)".to_string(),
-                        // Header styling - light theme defaults (same as default)
-                        header_text_color: "white".to_string(),
-                        header_border_color: "rgba(255, 255, 255, 0.1)".to_string(),
-                        header_shadow: "0 4px 20px rgba(0, 0, 0, 0.3)".to_string(),
-                        header_text_shadow: "0 2px 4px rgba(0, 0, 0, 0.3)".to_string(),
-                        header_logo_gradient: "linear-gradient(135deg, #667eea, #764ba2)".to_string(),
-                        
-                        // Sidebar styling - light theme defaults (same as default)
-                        sidebar_border_color: "rgba(255, 255, 255, 0.1)".to_string(),
-                        sidebar_shadow: "4px 0 20px rgba(0, 0, 0, 0.3)".to_string(),
-                        sidebar_section_title_color: "rgba(255, 255, 255, 0.8)".to_string(),
-                        sidebar_section_border_color: "rgba(255, 255, 255, 0.1)".to_string(),
-                        
-                        // Navigation link styling - light theme defaults (same as default)
-                        nav_link_text_color: "rgba(255, 255, 255, 0.8)".to_string(),
-                        nav_link_hover_bg: "rgba(255, 255, 255, 0.1)".to_string(),
-                        nav_link_hover_text: "white".to_string(),
-                        nav_link_active_bg: "linear-gradient(135deg, #667eea, #764ba2)".to_string(),
-                        nav_link_active_shadow: "0 4px 15px rgba(102, 126, 234, 0.3)".to_string(),
-                        nav_link_active_indicator: "white".to_string(),
-                        nav_link_public_text: "rgba(255, 255, 255, 0.6)".to_string(),
-                        nav_link_public_hover_bg: "rgba(255, 255, 255, 0.05)".to_string(),
-                        nav_link_public_hover_text: "rgba(255, 255, 255, 0.8)".to_string(),
-                        card_bg: "#ffffff".to_string(),
-                        shadow_color: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)".to_string(),
-                        accent_color: "#667eea".to_string(),
-                    };
+                    let scheme = AdminColorScheme::default(); // Light mode is now default
                     admin_scheme.set(scheme.clone());
                     apply_admin_css_variables(&scheme);
                 },
@@ -1715,7 +2001,7 @@ fn public_component_preview(props: &PublicComponentPreviewProps) -> Html {
     }
 }
 
-// Function to apply admin CSS variables dynamically
+// Function to apply comprehensive admin CSS variables dynamically
 pub fn apply_admin_css_variables(scheme: &AdminColorScheme) {
     if let Some(document) = web_sys::window().and_then(|w| w.document()) {
         // Override body background for admin interface by adding admin class
@@ -1731,35 +2017,7 @@ pub fn apply_admin_css_variables(scheme: &AdminColorScheme) {
         }
         
         if let Some(root) = document.document_element() {
-            // Apply comprehensive admin-specific CSS variables
-            let admin_vars = format!(
-                "--admin-primary-color: {}; --admin-secondary-color: {}; --admin-success-color: {}; --admin-warning-color: {}; --admin-danger-color: {}; --admin-info-color: {}; --admin-bg-primary: {}; --admin-bg-secondary: {}; --admin-text-primary: {}; --admin-text-secondary: {}; --admin-border-color: {}; --admin-shadow-md: {}; --admin-accent-color: {}; --admin-header-gradient: {}; --admin-header-text-color: {}; --admin-header-border-color: {}; --admin-header-shadow: {}; --admin-header-text-shadow: {}; --admin-header-logo-gradient: {}; --admin-sidebar-bg: {}; --admin-sidebar-border-color: {}; --admin-sidebar-shadow: {}; --admin-sidebar-section-title-color: {}; --admin-sidebar-section-border-color: {}; --admin-nav-link-text-color: {}; --admin-nav-link-hover-bg: {}; --admin-nav-link-hover-text: {}; --admin-nav-link-active-bg: {}; --admin-nav-link-active-shadow: {}; --admin-nav-link-active-indicator: {}; --admin-nav-link-public-text: {}; --admin-nav-link-public-hover-bg: {}; --admin-nav-link-public-hover-text: {}; --admin-card-bg: {};",
-                scheme.primary, scheme.secondary, scheme.success, scheme.warning, scheme.danger, scheme.info,
-                scheme.surface, scheme.background, scheme.text_primary, scheme.text_secondary, scheme.border, scheme.shadow_color, scheme.accent_color,
-                scheme.header_gradient, scheme.header_text_color, scheme.header_border_color, scheme.header_shadow, scheme.header_text_shadow, scheme.header_logo_gradient,
-                scheme.sidebar_bg, scheme.sidebar_border_color, scheme.sidebar_shadow, scheme.sidebar_section_title_color, scheme.sidebar_section_border_color,
-                scheme.nav_link_text_color, scheme.nav_link_hover_bg, scheme.nav_link_hover_text, scheme.nav_link_active_bg, scheme.nav_link_active_shadow, scheme.nav_link_active_indicator,
-                scheme.nav_link_public_text, scheme.nav_link_public_hover_bg, scheme.nav_link_public_hover_text, scheme.card_bg
-            );
-            
-            // Apply to root element with admin prefix only
-            let current_style = root.get_attribute("style").unwrap_or_default();
-            
             // Remove any existing admin variables to prevent conflicts
-            let cleaned_style = current_style
-                .split(';')
-                .filter(|s| !s.trim().starts_with("--admin-"))
-                .collect::<Vec<_>>()
-                .join(";");
-            
-            let new_style = if cleaned_style.trim().is_empty() {
-                admin_vars
-            } else {
-                format!("{}; {}", cleaned_style, admin_vars)
-            };
-            let _ = root.set_attribute("style", &new_style);
-            
-            // Update admin-specific styling with comprehensive style injection
             if let Some(style_element) = document.query_selector("style#admin-theme-overrides").ok().flatten() {
                 let _ = style_element.remove();
             }
@@ -1767,34 +2025,58 @@ pub fn apply_admin_css_variables(scheme: &AdminColorScheme) {
             if let Some(head) = document.head() {
                 if let Ok(style_element) = document.create_element("style") {
                     style_element.set_id("admin-theme-overrides");
-                    // Only refresh CSS variables - let the CSS cascade handle the rest
+                    
+                    // Comprehensive CSS variables for the entire admin design system
                     let css_overrides = format!(r#"
-                        /* Refresh admin theme CSS variables only */
+                        /* Comprehensive Admin Design System Variables */
                         :root {{
+                            /* == Core Colors == */
                             --admin-primary-color: {} !important;
+                            --admin-primary-hover: {} !important;
+                            --admin-primary-active: {} !important;
                             --admin-secondary-color: {} !important;
+                            --admin-secondary-hover: {} !important;
+                            --admin-secondary-active: {} !important;
                             --admin-success-color: {} !important;
                             --admin-warning-color: {} !important;
                             --admin-danger-color: {} !important;
                             --admin-info-color: {} !important;
+                            
+                            /* == Layout Foundation == */
                             --admin-bg-primary: {} !important;
                             --admin-bg-secondary: {} !important;
+                            --admin-surface: {} !important;
+                            --admin-surface-elevated: {} !important;
+                            --admin-surface-hover: {} !important;
+                            --admin-border-color: {} !important;
+                            --admin-border-light: {} !important;
+                            --admin-border-focus: {} !important;
+                            --admin-divider: {} !important;
+                            
+                            /* == Typography == */
                             --admin-text-primary: {} !important;
                             --admin-text-secondary: {} !important;
-                            --admin-border-color: {} !important;
-                            --admin-shadow-md: {} !important;
-                            --admin-accent-color: {} !important;
+                            --admin-text-muted: {} !important;
+                            --admin-text-inverse: {} !important;
+                            --admin-text-link: {} !important;
+                            --admin-text-link-hover: {} !important;
+                            
+                            /* == Header System == */
                             --admin-header-gradient: {} !important;
                             --admin-header-text-color: {} !important;
                             --admin-header-border-color: {} !important;
                             --admin-header-shadow: {} !important;
                             --admin-header-text-shadow: {} !important;
                             --admin-header-logo-gradient: {} !important;
+                            
+                            /* == Sidebar System == */
                             --admin-sidebar-bg: {} !important;
                             --admin-sidebar-border-color: {} !important;
                             --admin-sidebar-shadow: {} !important;
                             --admin-sidebar-section-title-color: {} !important;
                             --admin-sidebar-section-border-color: {} !important;
+                            
+                            /* == Navigation System == */
                             --admin-nav-link-text-color: {} !important;
                             --admin-nav-link-hover-bg: {} !important;
                             --admin-nav-link-hover-text: {} !important;
@@ -1804,23 +2086,180 @@ pub fn apply_admin_css_variables(scheme: &AdminColorScheme) {
                             --admin-nav-link-public-text: {} !important;
                             --admin-nav-link-public-hover-bg: {} !important;
                             --admin-nav-link-public-hover-text: {} !important;
+                            
+                            /* == Form Elements == */
+                            --admin-form-bg: {} !important;
+                            --admin-form-border: {} !important;
+                            --admin-form-border-focus: {} !important;
+                            --admin-form-placeholder: {} !important;
+                            --admin-form-label: {} !important;
+                            --admin-form-error: {} !important;
+                            --admin-form-success: {} !important;
+                            
+                            /* == Button System == */
+                            --admin-btn-primary-bg: {} !important;
+                            --admin-btn-primary-text: {} !important;
+                            --admin-btn-primary-border: {} !important;
+                            --admin-btn-primary-hover-bg: {} !important;
+                            --admin-btn-primary-hover-border: {} !important;
+                            --admin-btn-secondary-bg: {} !important;
+                            --admin-btn-secondary-text: {} !important;
+                            --admin-btn-secondary-border: {} !important;
+                            --admin-btn-secondary-hover-bg: {} !important;
+                            --admin-btn-secondary-hover-border: {} !important;
+                            --admin-btn-danger-bg: {} !important;
+                            --admin-btn-danger-text: {} !important;
+                            --admin-btn-danger-hover-bg: {} !important;
+                            --admin-btn-success-bg: {} !important;
+                            --admin-btn-success-text: {} !important;
+                            --admin-btn-success-hover-bg: {} !important;
+                            
+                            /* == Table System == */
+                            --admin-table-bg: {} !important;
+                            --admin-table-header-bg: {} !important;
+                            --admin-table-header-text: {} !important;
+                            --admin-table-row-bg: {} !important;
+                            --admin-table-row-hover-bg: {} !important;
+                            --admin-table-row-border: {} !important;
+                            --admin-table-cell-border: {} !important;
+                            
+                            /* == Card System == */
                             --admin-card-bg: {} !important;
+                            --admin-card-border: {} !important;
+                            --admin-card-shadow: {} !important;
+                            --admin-card-hover-shadow: {} !important;
+                            --admin-card-header-bg: {} !important;
+                            --admin-card-header-border: {} !important;
+                            
+                            /* == Status System == */
+                            --admin-status-published-bg: {} !important;
+                            --admin-status-published-text: {} !important;
+                            --admin-status-draft-bg: {} !important;
+                            --admin-status-draft-text: {} !important;
+                            --admin-status-pending-bg: {} !important;
+                            --admin-status-pending-text: {} !important;
+                            --admin-status-approved-bg: {} !important;
+                            --admin-status-approved-text: {} !important;
+                            --admin-status-active-bg: {} !important;
+                            --admin-status-active-text: {} !important;
+                            --admin-status-inactive-bg: {} !important;
+                            --admin-status-inactive-text: {} !important;
+                            
+                            /* == Dashboard Metrics == */
+                            --admin-metric-card-bg: {} !important;
+                            --admin-metric-card-border: {} !important;
+                            --admin-metric-icon-posts: {} !important;
+                            --admin-metric-icon-users: {} !important;
+                            --admin-metric-icon-comments: {} !important;
+                            --admin-metric-icon-media: {} !important;
+                            --admin-metric-value-text: {} !important;
+                            --admin-metric-label-text: {} !important;
+                            --admin-metric-breakdown-bg: {} !important;
+                            
+                            /* == Shadows & Effects == */
+                            --admin-shadow-sm: {} !important;
+                            --admin-shadow-md: {} !important;
+                            --admin-shadow-lg: {} !important;
+                            --admin-shadow-xl: {} !important;
+                            --admin-shadow-color: {} !important;
+                            --admin-focus-ring: {} !important;
+                            --admin-glow-primary: {} !important;
+                            --admin-backdrop-blur: {} !important;
+                            
+                            /* == Motion System == */
+                            --admin-transition-fast: {} !important;
+                            --admin-transition-normal: {} !important;
+                            --admin-transition-slow: {} !important;
+                            --admin-transition-bounce: {} !important;
+                            --admin-transition-smooth: {} !important;
+                            
+                            /* == Special Effects == */
+                            --admin-gradient-primary: {} !important;
+                            --admin-gradient-secondary: {} !important;
+                            --admin-gradient-danger: {} !important;
+                            --admin-gradient-success: {} !important;
+                            --admin-accent-color: {} !important;
                         }}
-                    "#, 
-                    scheme.primary, scheme.secondary, scheme.success, scheme.warning, scheme.danger, scheme.info,
-                    scheme.surface, scheme.background, scheme.text_primary, scheme.text_secondary, scheme.border, scheme.shadow_color, scheme.accent_color,
-                    scheme.header_gradient, scheme.header_text_color, scheme.header_border_color, scheme.header_shadow, scheme.header_text_shadow, scheme.header_logo_gradient,
-                    scheme.sidebar_bg, scheme.sidebar_border_color, scheme.sidebar_shadow, scheme.sidebar_section_title_color, scheme.sidebar_section_border_color,
-                    scheme.nav_link_text_color, scheme.nav_link_hover_bg, scheme.nav_link_hover_text, scheme.nav_link_active_bg, scheme.nav_link_active_shadow, scheme.nav_link_active_indicator,
-                    scheme.nav_link_public_text, scheme.nav_link_public_hover_bg, scheme.nav_link_public_hover_text, scheme.card_bg
+                    "#,
+                    // Core Colors
+                    scheme.primary, scheme.primary_hover, scheme.primary_active,
+                    scheme.secondary, scheme.secondary_hover, scheme.secondary_active,
+                    scheme.success, scheme.warning, scheme.danger, scheme.info,
+                    
+                    // Layout Foundation
+                    scheme.surface, scheme.background, scheme.surface, scheme.surface_elevated, scheme.surface_hover,
+                    scheme.border, scheme.border_light, scheme.border_focus, scheme.divider,
+                    
+                    // Typography
+                    scheme.text_primary, scheme.text_secondary, scheme.text_muted, scheme.text_inverse,
+                    scheme.text_link, scheme.text_link_hover,
+                    
+                    // Header System
+                    scheme.header_gradient, scheme.header_text_color, scheme.header_border_color,
+                    scheme.header_shadow, scheme.header_text_shadow, scheme.header_logo_gradient,
+                    
+                    // Sidebar System
+                    scheme.sidebar_bg, scheme.sidebar_border_color, scheme.sidebar_shadow,
+                    scheme.sidebar_section_title_color, scheme.sidebar_section_border_color,
+                    
+                    // Navigation System
+                    scheme.nav_link_text_color, scheme.nav_link_hover_bg, scheme.nav_link_hover_text,
+                    scheme.nav_link_active_bg, scheme.nav_link_active_shadow, scheme.nav_link_active_indicator,
+                    scheme.nav_link_public_text, scheme.nav_link_public_hover_bg, scheme.nav_link_public_hover_text,
+                    
+                    // Form Elements
+                    scheme.form_bg, scheme.form_border, scheme.form_border_focus,
+                    scheme.form_placeholder, scheme.form_label, scheme.form_error, scheme.form_success,
+                    
+                    // Button System
+                    scheme.btn_primary_bg, scheme.btn_primary_text, scheme.btn_primary_border,
+                    scheme.btn_primary_hover_bg, scheme.btn_primary_hover_border,
+                    scheme.btn_secondary_bg, scheme.btn_secondary_text, scheme.btn_secondary_border,
+                    scheme.btn_secondary_hover_bg, scheme.btn_secondary_hover_border,
+                    scheme.btn_danger_bg, scheme.btn_danger_text, scheme.btn_danger_hover_bg,
+                    scheme.btn_success_bg, scheme.btn_success_text, scheme.btn_success_hover_bg,
+                    
+                    // Table System
+                    scheme.table_bg, scheme.table_header_bg, scheme.table_header_text,
+                    scheme.table_row_bg, scheme.table_row_hover_bg, scheme.table_row_border, scheme.table_cell_border,
+                    
+                    // Card System
+                    scheme.card_bg, scheme.card_border, scheme.card_shadow,
+                    scheme.card_hover_shadow, scheme.card_header_bg, scheme.card_header_border,
+                    
+                    // Status System
+                    scheme.status_published_bg, scheme.status_published_text,
+                    scheme.status_draft_bg, scheme.status_draft_text,
+                    scheme.status_pending_bg, scheme.status_pending_text,
+                    scheme.status_approved_bg, scheme.status_approved_text,
+                    scheme.status_active_bg, scheme.status_active_text,
+                    scheme.status_inactive_bg, scheme.status_inactive_text,
+                    
+                    // Dashboard Metrics
+                    scheme.metric_card_bg, scheme.metric_card_border,
+                    scheme.metric_icon_posts, scheme.metric_icon_users, scheme.metric_icon_comments, scheme.metric_icon_media,
+                    scheme.metric_value_text, scheme.metric_label_text, scheme.metric_breakdown_bg,
+                    
+                    // Shadows & Effects
+                    scheme.shadow_sm, scheme.shadow_md, scheme.shadow_lg, scheme.shadow_xl,
+                    scheme.shadow_color, scheme.focus_ring, scheme.glow_primary, scheme.backdrop_blur,
+                    
+                    // Motion System
+                    scheme.transition_fast, scheme.transition_normal, scheme.transition_slow,
+                    scheme.transition_bounce, scheme.transition_smooth,
+                    
+                    // Special Effects
+                    scheme.gradient_primary, scheme.gradient_secondary, scheme.gradient_danger,
+                    scheme.gradient_success, scheme.accent_color
                     );
+                    
                     style_element.set_text_content(Some(&css_overrides));
                     let _ = head.append_child(&style_element);
                 }
             }
             
             web_sys::console::log_1(&format!(
-                "✅ Applied admin theme: {} - Variables updated in DOM", 
+                "✨ Applied comprehensive admin theme: {} - All design system variables updated", 
                 scheme.name
             ).into());
         }
