@@ -806,7 +806,7 @@ tr:hover {
 }
 
 /* Unified Admin Page Headers */
-.dashboard-header,
+.dashboard .page-header,
 .admin-page-header,
 .post-list .page-header,
 .user-management .page-header,
@@ -830,8 +830,22 @@ tr:hover {
     backdrop-filter: blur(20px);
 }
 
+/* Page header content alignment */
+.dashboard .page-header > div:first-child,
+.admin-page-header > div:first-child,
+.post-list .page-header > div:first-child,
+.user-management .page-header > div:first-child,
+.comment-moderation .page-header > div:first-child,
+.modern-media-library .page-header > div:first-child,
+.settings .page-header > div:first-child,
+.navigation-manager .page-header > div:first-child,
+.analytics .page-header > div:first-child {
+    text-align: left;
+    flex: 1;
+}
+
 /* Background decoration for all admin headers */
-.dashboard-header::before,
+.dashboard .page-header::before,
 .admin-page-header::before,
 .post-list .page-header::before,
 .user-management .page-header::before,
@@ -852,7 +866,7 @@ tr:hover {
 }
 
 /* Unified Shield Shimmer Effect for all admin headers */
-.dashboard-header::after,
+.dashboard .page-header::after,
 .admin-page-header::after,
 .post-list .page-header::after,
 .user-management .page-header::after,
@@ -905,7 +919,7 @@ tr:hover {
 }
 
 /* Unified header text styling */
-.dashboard-header h1,
+.dashboard .page-header h1,
 .admin-page-header h1,
 .post-list .page-header h1,
 .user-management .page-header h1,
@@ -926,7 +940,7 @@ tr:hover {
     z-index: 2;
 }
 
-.dashboard-header p,
+.dashboard .page-header p,
 .admin-page-header p,
 .post-list .page-header p,
 .user-management .page-header p,
@@ -945,7 +959,6 @@ tr:hover {
 
 /* Unified header actions styling */
 .header-actions .btn,
-.dashboard-header .header-actions .btn,
 .admin-page-header .header-actions .btn,
 .post-list .header-actions .btn,
 .user-management .header-actions .btn,
@@ -967,7 +980,6 @@ tr:hover {
 }
 
 .header-actions .btn:hover,
-.dashboard-header .header-actions .btn:hover,
 .admin-page-header .header-actions .btn:hover,
 .post-list .header-actions .btn:hover,
 .user-management .header-actions .btn:hover,

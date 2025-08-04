@@ -127,88 +127,14 @@ pub fn admin_dashboard(props: &AdminDashboardProps) -> Html {
         }, ());
     }
 
-    let refresh_data = {
-        let stats = stats.clone();
-        let recent_posts = recent_posts.clone();
-        let recent_media = recent_media.clone();
-        let loading = loading.clone();
-        let error = error.clone();
-        
-        Callback::from(move |_: yew::MouseEvent| {
-            let stats = stats.clone();
-            let recent_posts = recent_posts.clone();
-            let recent_media = recent_media.clone();
-            let loading = loading.clone();
-            let error = error.clone();
-            
-            wasm_bindgen_futures::spawn_local(async move {
-                loading.set(true);
-                error.set(None);
-                
-                // Reload data
-                match get_posts().await {
-                    Ok(posts) => {
-                        let total_posts = posts.len() as i32;
-                        let published_posts = posts.iter().filter(|p| p.status == "published").count() as i32;
-                        let draft_posts = posts.iter().filter(|p| p.status == "draft").count() as i32;
-                        
-                        let mut recent = posts.clone();
-                        recent.sort_by(|a, b| {
-                            b.created_at.as_ref().unwrap_or(&"".to_string())
-                                .cmp(a.created_at.as_ref().unwrap_or(&"".to_string()))
-                        });
-                        recent.truncate(5);
-                        
-                        recent_posts.set(recent);
-                        
-                        match get_media().await {
-                            Ok(media) => {
-                                let total_media = media.len() as i32;
-                                
-                                let mut recent_media_items = media.clone();
-                                recent_media_items.sort_by(|a, b| {
-                                    b.created_at.as_ref().unwrap_or(&"".to_string())
-                                        .cmp(a.created_at.as_ref().unwrap_or(&"".to_string()))
-                                });
-                                recent_media_items.truncate(5);
-                                
-                                recent_media.set(recent_media_items);
-                                
-                                stats.set(DashboardStats {
-                                    total_posts,
-                                    published_posts,
-                                    draft_posts,
-                                    total_media,
-                                    total_comments: 0,
-                                    pending_comments: 0,
-                                });
-                            }
-                            Err(e) => {
-                                error.set(Some(format!("Failed to load media: {}", e)));
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        error.set(Some(format!("Failed to load posts: {}", e)));
-                    }
-                }
-                
-                loading.set(false);
-            });
-        })
-    };
+
 
     html! {
         <div class="dashboard">
-            <div class="dashboard-header">
+            <div class="page-header">
                 <div>
                     <h1>{"Dashboard"}</h1>
                     <p>{"Welcome to your CMS dashboard. Here's an overview of your content."}</p>
-                </div>
-                <div class="header-actions">
-                    <button class="btn btn-secondary" onclick={refresh_data.clone()}>
-                        {"🔄 Refresh"}
-                    </button>
                 </div>
             </div>
 
@@ -221,7 +147,6 @@ pub fn admin_dashboard(props: &AdminDashboardProps) -> Html {
                 <div class="error-message">
                     <h3>{"Error Loading Dashboard"}</h3>
                     <p>{error_msg}</p>
-                    <button class="btn" onclick={refresh_data.clone()}>{"Try Again"}</button>
                 </div>
             } else {
                 <>

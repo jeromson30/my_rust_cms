@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use wasm_bindgen::JsCast;
 use crate::services::navigation_service::{MenuArea, ComponentTemplate, NavigationItem, get_menu_areas, get_component_templates, update_menu_area, update_component_template, get_navigation_by_area};
+use crate::services::api_service::{SettingData, get_settings, update_settings};
 
 #[derive(Clone, PartialEq)]
 pub enum TemplateView {
@@ -17,6 +18,42 @@ pub struct MenuAreaState {
     pub mobile_behavior: Option<String>,
     pub hamburger_icon: Option<String>,
     pub settings: serde_json::Value,
+}
+
+#[derive(Clone, PartialEq)]
+pub struct ContainerSettings {
+    // Breakpoints
+    pub mobile_breakpoint: String,
+    pub tablet_breakpoint: String,
+    pub desktop_breakpoint: String,
+    pub wide_breakpoint: String,
+    
+    // Typography
+    pub base_font_size: String,
+    pub scale_ratio: String,
+    pub line_height: String,
+    
+    // Container
+    pub width_type: String,
+    pub max_width: String,
+    pub horizontal_padding: String,
+}
+
+impl Default for ContainerSettings {
+    fn default() -> Self {
+        Self {
+            mobile_breakpoint: "768px".to_string(),
+            tablet_breakpoint: "1024px".to_string(),
+            desktop_breakpoint: "1200px".to_string(),
+            wide_breakpoint: "1440px".to_string(),
+            base_font_size: "16px".to_string(),
+            scale_ratio: "1.25".to_string(),
+            line_height: "1.5".to_string(),
+            width_type: "fixed".to_string(),
+            max_width: "1200px".to_string(),
+            horizontal_padding: "1rem".to_string(),
+        }
+    }
 }
 
 impl Default for MenuAreaState {
@@ -805,70 +842,7 @@ pub fn component_templates_view(props: &ComponentTemplatesViewProps) -> Html {
                                                 </div>
                                             </>
                                         },
-                                        "main_container" => html! {
-                                            <>
-                                                <div class="property-group">
-                                                    <h4>{"Container Layout"}</h4>
-                                                    <div class="property-item">
-                                                        <label>{"Layout System"}</label>
-                                                        <select class="property-select">
-                                                            <option value="css-grid" selected=true>{"CSS Grid"}</option>
-                                                            <option value="flexbox">{"Flexbox"}</option>
-                                                            <option value="float">{"Float (Legacy)"}</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="property-item">
-                                                        <label>{"Max Width"}</label>
-                                                        <input type="text" value="1200px" class="property-input" />
-                                                    </div>
-                                                    <div class="property-item">
-                                                        <label>{"Horizontal Padding"}</label>
-                                                        <input type="text" value="2rem" class="property-input" />
-                                                    </div>
-                                                    <div class="property-item">
-                                                        <label>{"Gap Between Sections"}</label>
-                                                        <input type="text" value="2rem" class="property-input" />
-                                                    </div>
-                                                </div>
 
-                                                <div class="property-group">
-                                                    <h4>{"Grid Configuration"}</h4>
-                                                    <div class="property-item">
-                                                        <label>{"Main Content Area"}</label>
-                                                        <input type="text" value="1fr" class="property-input" placeholder="e.g., 1fr, 800px" />
-                                                    </div>
-                                                    <div class="property-item">
-                                                        <label>{"Sidebar Area"}</label>
-                                                        <input type="text" value="300px" class="property-input" placeholder="e.g., 300px, 25%" />
-                                                    </div>
-                                                    <div class="property-item">
-                                                        <label>{"Grid Template"}</label>
-                                                        <select class="property-select">
-                                                            <option value="content-sidebar" selected=true>{"Content + Sidebar"}</option>
-                                                            <option value="sidebar-content">{"Sidebar + Content"}</option>
-                                                            <option value="content-only">{"Content Only"}</option>
-                                                            <option value="three-column">{"Three Column"}</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <div class="property-group">
-                                                    <h4>{"Responsive Behavior"}</h4>
-                                                    <div class="property-item">
-                                                        <label>{"Mobile Layout"}</label>
-                                                        <select class="property-select">
-                                                            <option value="stack" selected=true>{"Stack Vertically"}</option>
-                                                            <option value="hide-sidebar">{"Hide Sidebar"}</option>
-                                                            <option value="drawer">{"Sidebar as Drawer"}</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="property-item">
-                                                        <label>{"Mobile Padding"}</label>
-                                                        <input type="text" value="1rem" class="property-input" />
-                                                    </div>
-                                                </div>
-                                            </>
-                                        },
                                         _ => html! {
                                             <div class="property-group">
                                                 <h4>{"Component Properties"}</h4>
@@ -1182,47 +1156,7 @@ pub fn component_templates_view(props: &ComponentTemplatesViewProps) -> Html {
                     </div>
                 </div>
 
-                // Main Container Component Template
-                <div class="component-card primary">
-                    <div class="component-preview">
-                        <div class="live-container-preview">
-                            <div class="container-outline">
-                                <div class="container-header">{"Header"}</div>
-                                <div class="container-main">
-                                    <div class="container-content">{"Main Content Area"}</div>
-                                    <div class="container-sidebar">{"Sidebar"}</div>
-                                </div>
-                                <div class="container-footer">{"Footer"}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="component-info">
-                        <h4>{"📦 Main Container"}</h4>
-                        <p>{"Primary layout container that wraps all content with responsive grid system"}</p>
-                        <div class="component-properties">
-                            <span class="property-tag active">{"Active"}</span>
-                            <span class="property-tag">{"1200px Max"}</span>
-                            <span class="property-tag">{"CSS Grid"}</span>
-                            <span class="property-tag">{"Responsive"}</span>
-                        </div>
-                        <button 
-                            class="btn-primary"
-                            onclick={{
-                                let editing_component = editing_component.clone();
-                                let editing_template = editing_template.clone();
-                                let props_templates = props.component_templates.clone();
-                                Callback::from(move |_| {
-                                    editing_component.set(Some("main_container".to_string()));
-                                    if let Some(template) = props_templates.iter().find(|t| t.component_type == "main_container") {
-                                        editing_template.set(Some(template.clone()));
-                                    }
-                                })
-                            }}
-                        >
-                            {"Customize Container"}
-                        </button>
-                    </div>
-                </div>
+
             </div>
         </div>
     }
@@ -1230,10 +1164,278 @@ pub fn component_templates_view(props: &ComponentTemplatesViewProps) -> Html {
 
 #[function_component(ContainerSettingsView)]
 pub fn container_settings_view() -> Html {
+    let settings = use_state(ContainerSettings::default);
+    let loading = use_state(|| false);
+    let error = use_state(|| None::<String>);
+    let success_message = use_state(|| None::<String>);
+
+    // Load container settings from backend
+    {
+        let settings = settings.clone();
+        let loading = loading.clone();
+        let error = error.clone();
+
+        use_effect_with_deps(move |_| {
+            wasm_bindgen_futures::spawn_local(async move {
+                loading.set(true);
+                match get_settings(Some("container")).await {
+                    Ok(backend_settings) => {
+                        let mut container_settings = ContainerSettings::default();
+                        
+                        // Map backend settings to container settings
+                        for setting in backend_settings {
+                            match setting.setting_key.as_str() {
+                                "container_mobile_breakpoint" => container_settings.mobile_breakpoint = setting.setting_value.unwrap_or_default(),
+                                "container_tablet_breakpoint" => container_settings.tablet_breakpoint = setting.setting_value.unwrap_or_default(),
+                                "container_desktop_breakpoint" => container_settings.desktop_breakpoint = setting.setting_value.unwrap_or_default(),
+                                "container_wide_breakpoint" => container_settings.wide_breakpoint = setting.setting_value.unwrap_or_default(),
+                                "container_base_font_size" => container_settings.base_font_size = setting.setting_value.unwrap_or_default(),
+                                "container_scale_ratio" => container_settings.scale_ratio = setting.setting_value.unwrap_or_default(),
+                                "container_line_height" => container_settings.line_height = setting.setting_value.unwrap_or_default(),
+                                "container_width_type" => container_settings.width_type = setting.setting_value.unwrap_or_default(),
+                                "container_max_width" => container_settings.max_width = setting.setting_value.unwrap_or_default(),
+                                "container_horizontal_padding" => container_settings.horizontal_padding = setting.setting_value.unwrap_or_default(),
+                                _ => {}
+                            }
+                        }
+                        
+                        settings.set(container_settings);
+                    },
+                    Err(e) => {
+                        error.set(Some(format!("Failed to load settings: {}", e)));
+                    }
+                }
+                loading.set(false);
+            });
+            || ()
+        }, ());
+    }
+
+    // Save settings callback
+    let save_settings = {
+        let settings = settings.clone();
+        let loading = loading.clone();
+        let error = error.clone();
+        let success_message = success_message.clone();
+
+        Callback::from(move |_| {
+            let settings = settings.clone();
+            let loading = loading.clone();
+            let error = error.clone();
+            let success_message = success_message.clone();
+
+            wasm_bindgen_futures::spawn_local(async move {
+                loading.set(true);
+                error.set(None);
+                success_message.set(None);
+
+                let settings_data = vec![
+                    SettingData {
+                        key: "container_mobile_breakpoint".to_string(),
+                        value: settings.mobile_breakpoint.clone(),
+                        setting_type: "container".to_string(),
+                        description: Some("Mobile breakpoint for responsive design".to_string()),
+                    },
+                    SettingData {
+                        key: "container_tablet_breakpoint".to_string(),
+                        value: settings.tablet_breakpoint.clone(),
+                        setting_type: "container".to_string(),
+                        description: Some("Tablet breakpoint for responsive design".to_string()),
+                    },
+                    SettingData {
+                        key: "container_desktop_breakpoint".to_string(),
+                        value: settings.desktop_breakpoint.clone(),
+                        setting_type: "container".to_string(),
+                        description: Some("Desktop breakpoint for responsive design".to_string()),
+                    },
+                    SettingData {
+                        key: "container_wide_breakpoint".to_string(),
+                        value: settings.wide_breakpoint.clone(),
+                        setting_type: "container".to_string(),
+                        description: Some("Wide screen breakpoint for responsive design".to_string()),
+                    },
+                    SettingData {
+                        key: "container_base_font_size".to_string(),
+                        value: settings.base_font_size.clone(),
+                        setting_type: "container".to_string(),
+                        description: Some("Base font size for typography system".to_string()),
+                    },
+                    SettingData {
+                        key: "container_scale_ratio".to_string(),
+                        value: settings.scale_ratio.clone(),
+                        setting_type: "container".to_string(),
+                        description: Some("Scale ratio for typography system".to_string()),
+                    },
+                    SettingData {
+                        key: "container_line_height".to_string(),
+                        value: settings.line_height.clone(),
+                        setting_type: "container".to_string(),
+                        description: Some("Line height for typography system".to_string()),
+                    },
+                    SettingData {
+                        key: "container_width_type".to_string(),
+                        value: settings.width_type.clone(),
+                        setting_type: "container".to_string(),
+                        description: Some("Container width type (fixed/fluid/hybrid)".to_string()),
+                    },
+                    SettingData {
+                        key: "container_max_width".to_string(),
+                        value: settings.max_width.clone(),
+                        setting_type: "container".to_string(),
+                        description: Some("Maximum container width".to_string()),
+                    },
+                    SettingData {
+                        key: "container_horizontal_padding".to_string(),
+                        value: settings.horizontal_padding.clone(),
+                        setting_type: "container".to_string(),
+                        description: Some("Container horizontal padding".to_string()),
+                    },
+                ];
+
+                match update_settings(settings_data).await {
+                    Ok(_) => {
+                        success_message.set(Some("Container settings saved successfully!".to_string()));
+                    },
+                    Err(e) => {
+                        error.set(Some(format!("Failed to save settings: {}", e)));
+                    }
+                }
+                loading.set(false);
+            });
+        })
+    };
+
+    // Reset to defaults callback
+    let reset_settings = {
+        let settings = settings.clone();
+        Callback::from(move |_| {
+            settings.set(ContainerSettings::default());
+        })
+    };
+
+    // Input change handlers
+    let on_mobile_change = {
+        let settings = settings.clone();
+        Callback::from(move |e: Event| {
+            let input: web_sys::HtmlInputElement = e.target_unchecked_into();
+            let mut current_settings = (*settings).clone();
+            current_settings.mobile_breakpoint = input.value();
+            settings.set(current_settings);
+        })
+    };
+
+    let on_tablet_change = {
+        let settings = settings.clone();
+        Callback::from(move |e: Event| {
+            let input: web_sys::HtmlInputElement = e.target_unchecked_into();
+            let mut current_settings = (*settings).clone();
+            current_settings.tablet_breakpoint = input.value();
+            settings.set(current_settings);
+        })
+    };
+
+    let on_desktop_change = {
+        let settings = settings.clone();
+        Callback::from(move |e: Event| {
+            let input: web_sys::HtmlInputElement = e.target_unchecked_into();
+            let mut current_settings = (*settings).clone();
+            current_settings.desktop_breakpoint = input.value();
+            settings.set(current_settings);
+        })
+    };
+
+    let on_wide_change = {
+        let settings = settings.clone();
+        Callback::from(move |e: Event| {
+            let input: web_sys::HtmlInputElement = e.target_unchecked_into();
+            let mut current_settings = (*settings).clone();
+            current_settings.wide_breakpoint = input.value();
+            settings.set(current_settings);
+        })
+    };
+
+    let on_font_size_change = {
+        let settings = settings.clone();
+        Callback::from(move |e: Event| {
+            let select: web_sys::HtmlSelectElement = e.target_unchecked_into();
+            let mut current_settings = (*settings).clone();
+            current_settings.base_font_size = select.value();
+            settings.set(current_settings);
+        })
+    };
+
+    let on_scale_ratio_change = {
+        let settings = settings.clone();
+        Callback::from(move |e: Event| {
+            let select: web_sys::HtmlSelectElement = e.target_unchecked_into();
+            let mut current_settings = (*settings).clone();
+            current_settings.scale_ratio = select.value();
+            settings.set(current_settings);
+        })
+    };
+
+    let on_line_height_change = {
+        let settings = settings.clone();
+        Callback::from(move |e: Event| {
+            let input: web_sys::HtmlInputElement = e.target_unchecked_into();
+            let mut current_settings = (*settings).clone();
+            current_settings.line_height = input.value();
+            settings.set(current_settings);
+        })
+    };
+
+    let on_width_type_change = {
+        let settings = settings.clone();
+        Callback::from(move |e: Event| {
+            let select: web_sys::HtmlSelectElement = e.target_unchecked_into();
+            let mut current_settings = (*settings).clone();
+            current_settings.width_type = select.value();
+            settings.set(current_settings);
+        })
+    };
+
+    let on_max_width_change = {
+        let settings = settings.clone();
+        Callback::from(move |e: Event| {
+            let input: web_sys::HtmlInputElement = e.target_unchecked_into();
+            let mut current_settings = (*settings).clone();
+            current_settings.max_width = input.value();
+            settings.set(current_settings);
+        })
+    };
+
+    let on_padding_change = {
+        let settings = settings.clone();
+        Callback::from(move |e: Event| {
+            let input: web_sys::HtmlInputElement = e.target_unchecked_into();
+            let mut current_settings = (*settings).clone();
+            current_settings.horizontal_padding = input.value();
+            settings.set(current_settings);
+        })
+    };
+
     html! {
         <div class="container-settings-section">
             <h2>{"📦 Container Settings"}</h2>
             <p>{"Manage global breakpoints, typography, and container settings that tie into the design system"}</p>
+            
+            if let Some(error_msg) = (*error).as_ref() {
+                <div class="error-message">
+                    <span class="error-icon">{"⚠️"}</span>
+                    <span>{error_msg}</span>
+                </div>
+            }
+            
+            if let Some(success_msg) = (*success_message).as_ref() {
+                <div class="success-message">
+                    <span class="success-icon">{"✅"}</span>
+                    <span>{success_msg}</span>
+                </div>
+            }
+            
+            if *loading {
+                <div class="loading-overlay">{"Loading..."}</div>
+            }
             
             <div class="settings-grid">
                 <div class="settings-card">
@@ -1244,29 +1446,49 @@ pub fn container_settings_view() -> Html {
                         <div class="breakpoint-item">
                             <label>{"Mobile (max-width)"}</label>
                             <div class="breakpoint-input-group">
-                                <input type="text" value="768px" class="breakpoint-input" />
-                                <span class="breakpoint-preview">{"< 768px"}</span>
+                                <input 
+                                    type="text" 
+                                    value={settings.mobile_breakpoint.clone()} 
+                                    class="breakpoint-input"
+                                    onchange={on_mobile_change}
+                                />
+                                <span class="breakpoint-preview">{format!("< {}", settings.mobile_breakpoint)}</span>
                             </div>
                         </div>
                         <div class="breakpoint-item">
                             <label>{"Tablet (max-width)"}</label>
                             <div class="breakpoint-input-group">
-                                <input type="text" value="1024px" class="breakpoint-input" />
-                                <span class="breakpoint-preview">{"768px - 1024px"}</span>
+                                <input 
+                                    type="text" 
+                                    value={settings.tablet_breakpoint.clone()} 
+                                    class="breakpoint-input"
+                                    onchange={on_tablet_change}
+                                />
+                                <span class="breakpoint-preview">{format!("{} - {}", settings.mobile_breakpoint, settings.tablet_breakpoint)}</span>
                             </div>
                         </div>
                         <div class="breakpoint-item">
                             <label>{"Desktop (max-width)"}</label>
                             <div class="breakpoint-input-group">
-                                <input type="text" value="1200px" class="breakpoint-input" />
-                                <span class="breakpoint-preview">{"1024px - 1200px"}</span>
+                                <input 
+                                    type="text" 
+                                    value={settings.desktop_breakpoint.clone()} 
+                                    class="breakpoint-input"
+                                    onchange={on_desktop_change}
+                                />
+                                <span class="breakpoint-preview">{format!("{} - {}", settings.tablet_breakpoint, settings.desktop_breakpoint)}</span>
                             </div>
                         </div>
                         <div class="breakpoint-item">
                             <label>{"Wide Screen (max-width)"}</label>
                             <div class="breakpoint-input-group">
-                                <input type="text" value="1440px" class="breakpoint-input" />
-                                <span class="breakpoint-preview">{"> 1200px"}</span>
+                                <input 
+                                    type="text" 
+                                    value={settings.wide_breakpoint.clone()} 
+                                    class="breakpoint-input"
+                                    onchange={on_wide_change}
+                                />
+                                <span class="breakpoint-preview">{format!("> {}", settings.desktop_breakpoint)}</span>
                             </div>
                         </div>
                     </div>
@@ -1281,30 +1503,38 @@ pub fn container_settings_view() -> Html {
                             <h4>{"Base Settings"}</h4>
                             <div class="typography-item">
                                 <label>{"Base Font Size"}</label>
-                                <select class="typography-select">
-                                    <option value="14px">{"14px (Small)"}</option>
-                                    <option value="16px" selected=true>{"16px (Standard)"}</option>
-                                    <option value="18px">{"18px (Large)"}</option>
+                                <select class="typography-select" onchange={on_font_size_change}>
+                                    <option value="14px" selected={settings.base_font_size == "14px"}>{"14px (Small)"}</option>
+                                    <option value="16px" selected={settings.base_font_size == "16px"}>{"16px (Standard)"}</option>
+                                    <option value="18px" selected={settings.base_font_size == "18px"}>{"18px (Large)"}</option>
                                 </select>
                             </div>
                             <div class="typography-item">
                                 <label>{"Scale Ratio"}</label>
-                                <select class="typography-select">
-                                    <option value="1.125">{"1.125 (Minor Second)"}</option>
-                                    <option value="1.25" selected=true>{"1.25 (Major Third)"}</option>
-                                    <option value="1.5">{"1.5 (Perfect Fifth)"}</option>
-                                    <option value="1.618">{"1.618 (Golden Ratio)"}</option>
+                                <select class="typography-select" onchange={on_scale_ratio_change}>
+                                    <option value="1.125" selected={settings.scale_ratio == "1.125"}>{"1.125 (Minor Second)"}</option>
+                                    <option value="1.25" selected={settings.scale_ratio == "1.25"}>{"1.25 (Major Third)"}</option>
+                                    <option value="1.5" selected={settings.scale_ratio == "1.5"}>{"1.5 (Perfect Fifth)"}</option>
+                                    <option value="1.618" selected={settings.scale_ratio == "1.618"}>{"1.618 (Golden Ratio)"}</option>
                                 </select>
                             </div>
                             <div class="typography-item">
                                 <label>{"Line Height"}</label>
-                                <input type="number" value="1.5" step="0.1" min="1" max="2" class="typography-input" />
+                                <input 
+                                    type="number" 
+                                    value={settings.line_height.clone()} 
+                                    step="0.1" 
+                                    min="1" 
+                                    max="2" 
+                                    class="typography-input"
+                                    onchange={on_line_height_change}
+                                />
                             </div>
                         </div>
                         
                         <div class="typography-preview">
                             <h4>{"Typography Preview"}</h4>
-                            <div class="preview-text">
+                            <div class="preview-text" style={format!("font-size: {}; line-height: {}", settings.base_font_size, settings.line_height)}>
                                 <h1 class="preview-h1">{"Heading 1 - Main Title"}</h1>
                                 <h2 class="preview-h2">{"Heading 2 - Section Title"}</h2>
                                 <p class="preview-paragraph">
@@ -1325,19 +1555,29 @@ pub fn container_settings_view() -> Html {
                             <h4>{"Container Width"}</h4>
                             <div class="container-item">
                                 <label>{"Width Type"}</label>
-                                <select class="container-select">
-                                    <option value="fixed" selected=true>{"Fixed Width"}</option>
-                                    <option value="fluid">{"Fluid Width"}</option>
-                                    <option value="hybrid">{"Hybrid"}</option>
+                                <select class="container-select" onchange={on_width_type_change}>
+                                    <option value="fixed" selected={settings.width_type == "fixed"}>{"Fixed Width"}</option>
+                                    <option value="fluid" selected={settings.width_type == "fluid"}>{"Fluid Width"}</option>
+                                    <option value="hybrid" selected={settings.width_type == "hybrid"}>{"Hybrid"}</option>
                                 </select>
                             </div>
                             <div class="container-item">
                                 <label>{"Max Width"}</label>
-                                <input type="text" value="1200px" class="container-input" />
+                                <input 
+                                    type="text" 
+                                    value={settings.max_width.clone()} 
+                                    class="container-input"
+                                    onchange={on_max_width_change}
+                                />
                             </div>
                             <div class="container-item">
                                 <label>{"Horizontal Padding"}</label>
-                                <input type="text" value="1rem" class="container-input" />
+                                <input 
+                                    type="text" 
+                                    value={settings.horizontal_padding.clone()} 
+                                    class="container-input"
+                                    onchange={on_padding_change}
+                                />
                             </div>
                         </div>
                     </div>
@@ -1345,9 +1585,21 @@ pub fn container_settings_view() -> Html {
             </div>
             
             <div class="settings-actions">
-                <button class="btn-primary large">{"Save Global Settings"}</button>
-                <button class="btn-secondary">{"Reset to Defaults"}</button>
-                <button class="btn-secondary">{"Export Settings"}</button>
+                <button 
+                    class="btn-primary large" 
+                    onclick={save_settings}
+                    disabled={*loading}
+                >
+                    {if *loading { "Saving..." } else { "Save Global Settings" }}
+                </button>
+                <button 
+                    class="btn-secondary" 
+                    onclick={reset_settings}
+                    disabled={*loading}
+                >
+                    {"Reset to Defaults"}
+                </button>
+                <button class="btn-secondary" disabled={*loading}>{"Export Settings"}</button>
             </div>
         </div>
     }
