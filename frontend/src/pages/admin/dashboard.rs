@@ -1,5 +1,11 @@
 use yew::prelude::*;
 use crate::services::api_service::{get_posts, get_media, get_comments, Post, MediaItem};
+use crate::components::admin::sidebar::AdminTab;
+
+#[derive(Properties, PartialEq)]
+pub struct AdminDashboardProps {
+    pub on_navigate: Callback<AdminTab>,
+}
 
 #[derive(Clone, PartialEq)]
 pub struct DashboardStats {
@@ -11,8 +17,9 @@ pub struct DashboardStats {
     pub pending_comments: i32,
 }
 
-#[function_component(Dashboard)]
-pub fn dashboard() -> Html {
+#[function_component(AdminDashboard)]
+pub fn admin_dashboard(props: &AdminDashboardProps) -> Html {
+
     let stats = use_state(|| DashboardStats {
         total_posts: 0,
         published_posts: 0,
@@ -346,10 +353,34 @@ pub fn dashboard() -> Html {
                     <div class="quick-actions">
                         <h3>{"Quick Actions"}</h3>
                         <div class="action-buttons">
-                            <button class="btn">{"Create New Post"}</button>
-                            <button class="btn btn-secondary">{"Upload Media"}</button>
-                            <button class="btn btn-secondary">{"Manage Comments"}</button>
-                            <button class="btn btn-secondary">{"View Analytics"}</button>
+                            <button 
+                                class="btn"
+                                onclick={{
+                                    let on_navigate = props.on_navigate.clone();
+                                    Callback::from(move |_| on_navigate.emit(AdminTab::Posts))
+                                }}
+                            >{"Create New Post"}</button>
+                            <button 
+                                class="btn btn-secondary"
+                                onclick={{
+                                    let on_navigate = props.on_navigate.clone();
+                                    Callback::from(move |_| on_navigate.emit(AdminTab::Media))
+                                }}
+                            >{"Upload Media"}</button>
+                            <button 
+                                class="btn btn-secondary"
+                                onclick={{
+                                    let on_navigate = props.on_navigate.clone();
+                                    Callback::from(move |_| on_navigate.emit(AdminTab::Comments))
+                                }}
+                            >{"Manage Comments"}</button>
+                            <button 
+                                class="btn btn-secondary"
+                                onclick={{
+                                    let on_navigate = props.on_navigate.clone();
+                                    Callback::from(move |_| on_navigate.emit(AdminTab::Analytics))
+                                }}
+                            >{"View Analytics"}</button>
                         </div>
                     </div>
                 </>

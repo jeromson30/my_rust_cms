@@ -13,4 +13,5 @@ mod not_found;
 
 // Export modules for direct access
 // Pages are accessed via module::Page syntax
-pub use dashboard::Dashboard; 
+pub use dashboard::Dashboard;
+pub use settings::Settings; 

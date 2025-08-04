@@ -5,7 +5,9 @@ mod pages;
 mod services;
 
 use components::*;
-use pages::*;
+use pages::Dashboard;
+use pages::admin::{PostList, PageBuilder, MediaLibrary, UserManagement, CommentModeration};
+use pages::Settings;
 use components::ActiveTab;
 
 #[function_component(App)]

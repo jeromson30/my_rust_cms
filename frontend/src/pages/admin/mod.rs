@@ -16,7 +16,7 @@ pub mod design_system;
 #[allow(unused_imports)]
 pub use admin::Admin;
 #[allow(unused_imports)]
-pub use dashboard::Dashboard;
+pub use dashboard::AdminDashboard;
 #[allow(unused_imports)]
 pub use post_list::PostList;
 pub use post_editor::PostEditor;
