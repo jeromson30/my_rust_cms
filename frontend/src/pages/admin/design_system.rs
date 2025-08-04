@@ -1,8 +1,9 @@
 use yew::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlInputElement, HtmlSelectElement};
+use crate::services::api_service::{get_settings, update_settings, SettingData};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct AdminColorScheme {
     pub name: String,
     
@@ -156,7 +157,7 @@ pub struct AdminColorScheme {
     pub accent_color: String,        // Accent highlights
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct PublicColorScheme {
     pub name: String,
     // Primary text hierarchy
@@ -576,14 +577,74 @@ pub fn design_system_page() -> Html {
     let selected_preset = use_state(|| "Light Preset".to_string());
     let theme_name_input = use_state(|| String::new());
 
-    // Initialize theme on component mount
+    // Load theme from database on component mount
     {
         let admin_scheme = admin_scheme.clone();
+        let selected_preset = selected_preset.clone();
+        let saved_themes = saved_themes.clone();
+        
         use_effect_with_deps(move |_| {
-            // Apply light theme by default
-            let scheme = AdminColorScheme::default();
-            admin_scheme.set(scheme.clone());
-            apply_admin_css_variables(&scheme);
+            wasm_bindgen_futures::spawn_local(async move {
+                // Load current theme and saved themes from database
+                match get_settings(Some("theme")).await {
+                    Ok(theme_settings) => {
+                        let mut current_theme = "Light Preset".to_string();
+                        let mut custom_themes = vec!["Light Preset".to_string(), "Dark Preset".to_string()];
+                        
+                        let mut saved_admin_schemes: std::collections::HashMap<String, AdminColorScheme> = std::collections::HashMap::new();
+                        
+                        // Process theme settings
+                        for setting in theme_settings {
+                            match setting.setting_key.as_str() {
+                                "theme_current_admin" => {
+                                    if let Some(theme_name) = setting.setting_value {
+                                        current_theme = theme_name;
+                                    }
+                                },
+                                "theme_custom_list" => {
+                                    if let Some(themes_json) = setting.setting_value {
+                                        if let Ok(themes) = serde_json::from_str::<Vec<String>>(&themes_json) {
+                                            custom_themes = themes;
+                                        }
+                                    }
+                                },
+                                key if key.starts_with("theme_admin_") => {
+                                    let theme_name = key.strip_prefix("theme_admin_").unwrap_or("");
+                                    if let Some(theme_json) = setting.setting_value {
+                                        if let Ok(scheme) = serde_json::from_str::<AdminColorScheme>(&theme_json) {
+                                            saved_admin_schemes.insert(theme_name.to_string(), scheme);
+                                        }
+                                    }
+                                },
+                                _ => {}
+                            }
+                        }
+                        
+                        // Apply the current theme
+                        let scheme = match current_theme.as_str() {
+                            "Dark Preset" => AdminColorScheme::dark_mode(),
+                            "Light Preset" => AdminColorScheme::default(),
+                            custom_name => {
+                                // Try to load custom theme, fallback to light
+                                saved_admin_schemes.get(custom_name)
+                                    .cloned()
+                                    .unwrap_or_else(|| AdminColorScheme::default())
+                            }
+                        };
+                        
+                        selected_preset.set(current_theme);
+                        saved_themes.set(custom_themes);
+                        admin_scheme.set(scheme.clone());
+                        apply_admin_css_variables(&scheme);
+                    },
+                    Err(_) => {
+                        // Fallback to default light theme
+                        let scheme = AdminColorScheme::default();
+                        admin_scheme.set(scheme.clone());
+                        apply_admin_css_variables(&scheme);
+                    }
+                }
+            });
             || ()
         }, ());
     }
@@ -744,18 +805,87 @@ pub fn design_system_page() -> Html {
             
             // Load the preset based on current tab and selection
             let current_tab_val = (*current_tab).clone();
-            match (current_tab_val.as_str(), preset_name.as_str()) {
-                ("admin", "Dark Preset") => {
+            if current_tab_val == "admin" {
+                if preset_name == "Dark Preset" {
                     let scheme = AdminColorScheme::dark_mode();
                     admin_scheme.set(scheme.clone());
                     apply_admin_css_variables(&scheme);
-                },
-                ("admin", "Light Preset") => {
+                    
+                    // Save current theme to database
+                    let preset_name_clone = preset_name.clone();
+                    wasm_bindgen_futures::spawn_local(async move {
+                        let settings_data = vec![
+                            SettingData {
+                                key: "theme_current_admin".to_string(),
+                                value: preset_name_clone,
+                                setting_type: "theme".to_string(),
+                                description: Some("Current active admin theme".to_string()),
+                            }
+                        ];
+                        let _ = update_settings(settings_data).await;
+                    });
+                } else if preset_name == "Light Preset" {
                     let scheme = AdminColorScheme::default(); // Light mode is now default
                     admin_scheme.set(scheme.clone());
                     apply_admin_css_variables(&scheme);
-                },
-                ("public", "Dark Preset") => {
+                    
+                    // Save current theme to database
+                    let preset_name_clone = preset_name.clone();
+                    wasm_bindgen_futures::spawn_local(async move {
+                        let settings_data = vec![
+                            SettingData {
+                                key: "theme_current_admin".to_string(),
+                                value: preset_name_clone,
+                                setting_type: "theme".to_string(),
+                                description: Some("Current active admin theme".to_string()),
+                            }
+                        ];
+                        let _ = update_settings(settings_data).await;
+                    });
+                } else {
+                    // Handle custom admin themes
+                    let preset_name_clone = preset_name.clone();
+                    let admin_scheme_clone = admin_scheme.clone();
+                    
+                    wasm_bindgen_futures::spawn_local(async move {
+                        // Load custom theme from database
+                        match get_settings(Some("theme")).await {
+                            Ok(theme_settings) => {
+                                let theme_key = format!("theme_admin_{}", preset_name_clone);
+                                for setting in theme_settings {
+                                    if setting.setting_key == theme_key {
+                                        if let Some(theme_json) = setting.setting_value {
+                                            if let Ok(scheme) = serde_json::from_str::<AdminColorScheme>(&theme_json) {
+                                                admin_scheme_clone.set(scheme.clone());
+                                                apply_admin_css_variables(&scheme);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                // Save current theme selection
+                                let settings_data = vec![
+                                    SettingData {
+                                        key: "theme_current_admin".to_string(),
+                                        value: preset_name_clone.clone(),
+                                        setting_type: "theme".to_string(),
+                                        description: Some("Current active admin theme".to_string()),
+                                    }
+                                ];
+                                let _ = update_settings(settings_data).await;
+                            },
+                            Err(_) => {
+                                // Fallback to light theme if custom theme can't be loaded
+                                let fallback_scheme = AdminColorScheme::default();
+                                admin_scheme_clone.set(fallback_scheme.clone());
+                                apply_admin_css_variables(&fallback_scheme);
+                            }
+                        }
+                    });
+                }
+            } else if current_tab_val == "public" {
+                if preset_name == "Dark Preset" {
                     let scheme = PublicColorScheme {
                         name: "Public Dark Theme".to_string(),
                         // Dark theme text hierarchy
@@ -801,13 +931,11 @@ pub fn design_system_page() -> Html {
                     };
                     public_scheme.set(scheme.clone());
                     apply_public_css_variables(&scheme);
-                },
-                ("public", "Light Preset") => {
+                } else if preset_name == "Light Preset" {
                     let scheme = PublicColorScheme::default();
                     public_scheme.set(scheme.clone());
                     apply_public_css_variables(&scheme);
-                },
-                _ => {}
+                }
             }
         })
     };
@@ -815,14 +943,56 @@ pub fn design_system_page() -> Html {
     let save_theme = {
         let theme_name_input = theme_name_input.clone();
         let saved_themes = saved_themes.clone();
-        let _current_tab = current_tab.clone();
+        let current_tab = current_tab.clone();
+        let admin_scheme = admin_scheme.clone();
+        let public_scheme = public_scheme.clone();
         Callback::from(move |_: MouseEvent| {
             let theme_name = (*theme_name_input).clone();
             if !theme_name.is_empty() {
                 let mut themes = (*saved_themes).clone();
                 if !themes.contains(&theme_name) {
-                    themes.push(theme_name);
-                    saved_themes.set(themes);
+                    themes.push(theme_name.clone());
+                    saved_themes.set(themes.clone());
+                    
+                    // Save custom theme list and theme data to database
+                    let current_tab_val = (*current_tab).clone();
+                    let admin_scheme_clone = (*admin_scheme).clone();
+                    let public_scheme_clone = (*public_scheme).clone();
+                    
+                    wasm_bindgen_futures::spawn_local(async move {
+                        let mut settings_data = vec![
+                            // Save updated custom themes list
+                            SettingData {
+                                key: "theme_custom_list".to_string(),
+                                value: serde_json::to_string(&themes).unwrap_or_default(),
+                                setting_type: "theme".to_string(),
+                                description: Some("List of custom saved themes".to_string()),
+                            }
+                        ];
+                        
+                        // Save the actual theme data based on current tab
+                        match current_tab_val.as_str() {
+                            "admin" => {
+                                settings_data.push(SettingData {
+                                    key: format!("theme_admin_{}", theme_name),
+                                    value: serde_json::to_string(&admin_scheme_clone).unwrap_or_default(),
+                                    setting_type: "theme".to_string(),
+                                    description: Some(format!("Admin theme data for {}", theme_name)),
+                                });
+                            },
+                            "public" => {
+                                settings_data.push(SettingData {
+                                    key: format!("theme_public_{}", theme_name),
+                                    value: serde_json::to_string(&public_scheme_clone).unwrap_or_default(),
+                                    setting_type: "theme".to_string(),
+                                    description: Some(format!("Public theme data for {}", theme_name)),
+                                });
+                            },
+                            _ => {}
+                        }
+                        
+                        let _ = update_settings(settings_data).await;
+                    });
                 }
                 theme_name_input.set(String::new());
             }
@@ -840,8 +1010,10 @@ pub fn design_system_page() -> Html {
     html! {
         <div class="design-system-page">
             <div class="page-header">
-                <h1>{"🎨 Design System"}</h1>
-                <p>{"Manage themes and styling for admin and public interfaces separately"}</p>
+                <div>
+                    <h1>{"🎨 Design System"}</h1>
+                    <p>{"Manage themes and styling for admin and public interfaces separately"}</p>
+                </div>
             </div>
 
             <div class="design-system-tabs">
