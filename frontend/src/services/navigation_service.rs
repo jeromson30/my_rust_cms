@@ -61,6 +61,15 @@ pub enum NavigationServiceError {
     ParseError(String),
 }
 
+impl std::fmt::Display for NavigationServiceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            NavigationServiceError::NetworkError(msg) => write!(f, "Network error: {}", msg),
+            NavigationServiceError::ParseError(msg) => write!(f, "Parse error: {}", msg),
+        }
+    }
+}
+
 pub async fn get_navigation_items() -> Result<Vec<NavigationItem>, NavigationServiceError> {
     match gloo_net::http::Request::get("http://localhost:8081/api/navigation")
         .send()
@@ -256,10 +265,8 @@ pub async fn get_menu_templates() -> Result<Vec<MenuTemplate>, NavigationService
 }
 
 pub async fn get_component_templates() -> Result<Vec<ComponentTemplate>, NavigationServiceError> {
-    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
-    
+    // Public endpoint - no authentication required
     match gloo_net::http::Request::get("http://localhost:8081/api/component-templates")
-        .header("Authorization", &format!("Bearer {}", token))
         .send()
         .await
     {
@@ -315,6 +322,51 @@ pub async fn update_component_template(id: i32, template: &ComponentTemplate) ->
             if response.status() == 200 {
                 match response.json::<ComponentTemplate>().await {
                     Ok(updated_template) => Ok(updated_template),
+                    Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
+                }
+            } else {
+                Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
+            }
+        }
+        Err(e) => Err(NavigationServiceError::NetworkError(e.to_string())),
+    }
+}
+
+pub async fn get_all_component_templates_admin() -> Result<Vec<ComponentTemplate>, NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
+    match gloo_net::http::Request::get("http://localhost:8081/api/component-templates/admin")
+        .header("Authorization", &format!("Bearer {}", token))
+        .header("Content-Type", "application/json")
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status() == 200 {
+                match response.json::<Vec<ComponentTemplate>>().await {
+                    Ok(templates) => Ok(templates),
+                    Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
+                }
+            } else {
+                Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
+            }
+        }
+        Err(e) => Err(NavigationServiceError::NetworkError(e.to_string())),
+    }
+}
+
+pub async fn toggle_component_template(id: i32) -> Result<ComponentTemplate, NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
+    match gloo_net::http::Request::post(&format!("http://localhost:8081/api/component-templates/{}/toggle", id))
+        .header("Authorization", &format!("Bearer {}", token))
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status() == 200 {
+                match response.json::<ComponentTemplate>().await {
+                    Ok(toggled_template) => Ok(toggled_template),
                     Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
                 }
             } else {

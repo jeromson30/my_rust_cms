@@ -464,7 +464,7 @@ pub async fn get_component_templates_by_type(
     Ok(ResponseJson(frontend_templates))
 }
 
-/// Get all component templates (admin endpoint)
+/// Get all component templates (public site - active only)
 pub async fn get_component_templates(
     State(services): State<AppServices>
 ) -> Result<ResponseJson<Vec<FrontendComponentTemplate>>, AppError> {
@@ -476,6 +476,26 @@ pub async fn get_component_templates(
     
     let templates = component_templates::table
         .filter(component_templates::is_active.eq(true))
+        .load::<ComponentTemplate>(&mut conn)?;
+    
+    let frontend_templates: Vec<FrontendComponentTemplate> = templates.into_iter()
+        .map(FrontendComponentTemplate::from)
+        .collect();
+    
+    Ok(ResponseJson(frontend_templates))
+}
+
+/// Get all component templates for admin (including inactive ones)
+pub async fn get_all_component_templates_admin(
+    State(services): State<AppServices>
+) -> Result<ResponseJson<Vec<FrontendComponentTemplate>>, AppError> {
+    let mut conn = services.db_pool.get()
+        .map_err(|e| AppError::DatabaseError(e.to_string()))?;
+    
+    use diesel::prelude::*;
+    use crate::schema::component_templates;
+    
+    let templates = component_templates::table
         .load::<ComponentTemplate>(&mut conn)?;
     
     let frontend_templates: Vec<FrontendComponentTemplate> = templates.into_iter()
@@ -546,6 +566,44 @@ pub async fn update_component_template(
         max_width: Some(template_data.max_width),
         is_default: Some(template_data.is_default),
         is_active: Some(template_data.is_active),
+        updated_at: Some(chrono::Utc::now().naive_utc()),
+    };
+    
+    let updated_template = diesel::update(component_templates::table.find(id))
+        .set(update_data)
+        .get_result::<ComponentTemplate>(&mut conn)?;
+    
+    Ok(ResponseJson(FrontendComponentTemplate::from(updated_template)))
+}
+
+// Toggle component template active state
+pub async fn toggle_component_template(
+    State(services): State<AppServices>,
+    Path(id): Path<i32>
+) -> Result<ResponseJson<FrontendComponentTemplate>, AppError> {
+    let mut conn = services.db_pool.get()
+        .map_err(|e| AppError::DatabaseConnection(e.to_string()))?;
+
+    use crate::schema::component_templates;
+    use diesel::prelude::*;
+    
+    // Get current template to check current active state
+    let current_template = component_templates::table
+        .find(id)
+        .first::<ComponentTemplate>(&mut conn)
+        .map_err(|e| AppError::DatabaseQuery(e.to_string()))?;
+    
+    // Toggle the active state
+    let new_active_state = !current_template.is_active;
+    
+    let update_data = UpdateComponentTemplate {
+        name: None,
+        template_data: None,
+        breakpoints: None,
+        width_setting: None,
+        max_width: None,
+        is_default: None,
+        is_active: Some(new_active_state),
         updated_at: Some(chrono::Utc::now().naive_utc()),
     };
     

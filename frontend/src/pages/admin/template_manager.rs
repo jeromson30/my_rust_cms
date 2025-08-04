@@ -1,6 +1,6 @@
 use yew::prelude::*;
 use wasm_bindgen::JsCast;
-use crate::services::navigation_service::{MenuArea, ComponentTemplate, NavigationItem, get_menu_areas, get_component_templates, update_menu_area, update_component_template, get_navigation_by_area};
+use crate::services::navigation_service::{MenuArea, ComponentTemplate, NavigationItem, get_menu_areas, get_component_templates, get_all_component_templates_admin, update_menu_area, update_component_template, get_navigation_by_area, toggle_component_template};
 use crate::services::api_service::{SettingData, get_settings, update_settings};
 
 #[derive(Clone, PartialEq)]
@@ -89,17 +89,74 @@ pub fn template_manager() -> Html {
             wasm_bindgen_futures::spawn_local(async move {
                 loading.set(true);
                 
+                // Check authentication first
+                if let Err(_) = crate::services::auth_service::get_auth_token() {
+                    error.set(Some("Please log in to access the admin panel".to_string()));
+                    loading.set(false);
+                    return;
+                }
+                
                 // Load template data in parallel
+                log::info!("🔐 Authentication check passed, loading template data...");
                 let areas_result = get_menu_areas().await;
-                let components_result = get_component_templates().await;
+                let components_result = get_all_component_templates_admin().await;
                 
                 match (areas_result, components_result) {
                     (Ok(areas), Ok(components)) => {
+                        log::info!("✅ Successfully loaded {} menu areas and {} component templates", areas.len(), components.len());
                         menu_areas.set(areas);
                         component_templates.set(components);
                         loading.set(false);
                     }
-                    _ => {
+                    (Err(areas_err), Ok(_)) => {
+                        log::error!("❌ Failed to load menu areas: {:?}", areas_err);
+                        error.set(Some("Failed to load menu areas".to_string()));
+                        loading.set(false);
+                    }
+                    (Ok(_), Err(components_err)) => {
+                        log::error!("❌ Failed to load component templates: {:?}", components_err);
+                        
+                        // Try fallback to public endpoint if auth failed
+                        if components_err.to_string().contains("Not authenticated") {
+                            log::info!("🔄 Trying fallback to public component templates...");
+                            match get_component_templates().await {
+                                Ok(fallback_components) => {
+                                    log::info!("✅ Loaded {} public component templates", fallback_components.len());
+                                    component_templates.set(fallback_components);
+                                    error.set(Some("Loaded in read-only mode. Please log in for full access.".to_string()));
+                                    loading.set(false);
+                                    return;
+                                }
+                                Err(fallback_err) => {
+                                    log::error!("❌ Fallback also failed: {:?}", fallback_err);
+                                }
+                            }
+                        }
+                        
+                        error.set(Some("Failed to load component templates".to_string()));
+                        loading.set(false);
+                    }
+                    (Err(areas_err), Err(components_err)) => {
+                        log::error!("❌ Failed to load both menu areas and component templates. Areas: {:?}, Components: {:?}", areas_err, components_err);
+                        
+                        // Check if it's an auth issue and try fallback for components
+                        if components_err.to_string().contains("Not authenticated") {
+                            log::info!("🔄 Trying fallback to public component templates...");
+                            match get_component_templates().await {
+                                Ok(fallback_components) => {
+                                    log::info!("✅ Loaded {} public component templates", fallback_components.len());
+                                    component_templates.set(fallback_components);
+                                    menu_areas.set(Vec::new()); // Set empty menu areas
+                                    error.set(Some("Authentication required. Limited functionality available.".to_string()));
+                                    loading.set(false);
+                                    return;
+                                }
+                                Err(fallback_err) => {
+                                    log::error!("❌ Fallback also failed: {:?}", fallback_err);
+                                }
+                            }
+                        }
+                        
                         error.set(Some("Failed to load template data".to_string()));
                         loading.set(false);
                     }
@@ -128,7 +185,7 @@ pub fn template_manager() -> Html {
         <div class="template-manager">
             <div class="page-header">
                 <div>
-                    <h1>{"🎨 Template Manager"}</h1>
+                    <h1>{"Template Manager"}</h1>
                     <p>{"Configure menu areas, component templates, and global container settings"}</p>
                 </div>
             </div>
@@ -222,6 +279,17 @@ pub fn template_manager() -> Html {
                             <ComponentTemplatesView 
                                 component_templates={(*component_templates).clone()}
                                 on_modify={Callback::noop()}
+                                on_template_toggled={{
+                                    let component_templates = component_templates.clone();
+                                    Callback::from(move |updated_template: ComponentTemplate| {
+                                        // Update the component template in the local state
+                                        let mut templates = (*component_templates).clone();
+                                        if let Some(index) = templates.iter().position(|t| t.id == updated_template.id) {
+                                            templates[index] = updated_template;
+                                            component_templates.set(templates);
+                                        }
+                                    })
+                                }}
                             /> 
                         },
                         TemplateView::ContainerSettings => html! { <ContainerSettingsView /> },
@@ -383,10 +451,200 @@ pub fn menu_areas_view(props: &MenuAreasViewProps) -> Html {
 
 
 
+// Helper functions for rendering component templates
+fn render_component_preview(component_type: &str, header_navigation: &UseStateHandle<Vec<NavigationItem>>, footer_navigation: &UseStateHandle<Vec<NavigationItem>>) -> Html {
+    match component_type {
+        "header" => html! {
+            <div class="live-header-preview">
+                <div class="live-nav-bar">
+                    <span class="live-logo">{"🏠 My Site"}</span>
+                    <div class="live-nav-items">
+                        {
+                            if (*header_navigation).is_empty() {
+                                html! {
+                                    <>
+                                        <span>{"Home"}</span>
+                                        <span>{"Posts"}</span>
+                                        <span>{"About"}</span>
+                                    </>
+                                }
+                            } else {
+                                html! {
+                                    <>
+                                        {for (*header_navigation).iter().take(4).map(|item| {
+                                            html! { <span>{&item.title}</span> }
+                                        })}
+                                    </>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        },
+        "footer" => html! {
+            <div class="live-footer-preview">
+                <div class="live-footer-content">
+                    <div class="live-footer-nav">
+                        {
+                            if (*footer_navigation).is_empty() {
+                                html! {
+                                    <>
+                                        <span>{"Privacy"}</span>
+                                        <span>{"Terms"}</span>
+                                        <span>{"Contact"}</span>
+                                    </>
+                                }
+                            } else {
+                                html! {
+                                    <>
+                                        {for (*footer_navigation).iter().take(4).map(|item| {
+                                            html! { <span>{&item.title}</span> }
+                                        })}
+                                    </>
+                                }
+                            }
+                        }
+                    </div>
+                    <p>{"© 2024 My Rust CMS - Built with Rust & Yew"}</p>
+                </div>
+            </div>
+        },
+        "sidebar" => html! {
+            <div class="live-sidebar-preview">
+                <div class="sidebar-header">{"📋 Sidebar"}</div>
+                <div class="sidebar-items">
+                    <div class="sidebar-item">{"Navigation"}</div>
+                    <div class="sidebar-item">{"Recent Posts"}</div>
+                    <div class="sidebar-item">{"Categories"}</div>
+                    <div class="sidebar-item">{"Archives"}</div>
+                </div>
+            </div>
+        },
+        "modal" => html! {
+            <div class="live-modal-preview">
+                <div class="modal-backdrop">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <span>{"Modal Title"}</span>
+                            <span class="modal-close">{"×"}</span>
+                        </div>
+                        <div class="modal-body">{"Content area"}</div>
+                        <div class="modal-footer">
+                            <button class="modal-btn">{"Cancel"}</button>
+                            <button class="modal-btn primary">{"Confirm"}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        },
+        "main_container" => html! {
+            <div class="live-container-preview">
+                <div class="container-outline">
+                    <div class="container-header">{"📦 Main Container"}</div>
+                    <div class="container-content">
+                        <div class="content-block">{"Header"}</div>
+                        <div class="content-block main">{"Main Content Area"}</div>
+                        <div class="content-block">{"Footer"}</div>
+                    </div>
+                    <div class="container-info">{"Max-width: 1200px"}</div>
+                </div>
+            </div>
+        },
+        _ => html! {
+            <div class="generic-component-preview">
+                <div class="preview-placeholder">
+                    <span>{"Component Preview"}</span>
+                </div>
+            </div>
+        }
+    }
+}
+
+fn get_component_title(component_type: &str) -> &'static str {
+    match component_type {
+        "header" => "🎯 Header Component",
+        "footer" => "📍 Footer Component", 
+        "sidebar" => "📋 Sidebar Component",
+        "modal" => "🪟 Modal Component",
+        "main_container" => "📦 Container Component",
+        _ => "🧩 Component Template"
+    }
+}
+
+fn get_component_description(component_type: &str) -> &'static str {
+    match component_type {
+        "header" => "Main site header with navigation, logo, and mobile responsive design",
+        "footer" => "Site footer with navigation links, copyright, and customizable layout options",
+        "sidebar" => "Configurable sidebar for additional navigation, widgets, and content areas",
+        "modal" => "Overlay modals for forms, dialogs, and interactive content with backdrop styling",
+        "main_container" => "Main content container with width, padding, and responsive layout settings",
+        _ => "Customizable component template with configurable properties"
+    }
+}
+
+fn get_component_name(component_type: &str) -> &'static str {
+    match component_type {
+        "header" => "Header",
+        "footer" => "Footer",
+        "sidebar" => "Sidebar",
+        "modal" => "Modal",
+        "main_container" => "Container",
+        _ => "Component"
+    }
+}
+
+fn render_component_tags(component_type: &str) -> Html {
+    match component_type {
+        "header" => html! {
+            <>
+                <span class="property-tag">{"Sticky Position"}</span>
+                <span class="property-tag">{"1200px Max"}</span>
+                <span class="property-tag">{"Mobile Responsive"}</span>
+            </>
+        },
+        "footer" => html! {
+            <>
+                <span class="property-tag">{"Full Width"}</span>
+                <span class="property-tag">{"Horizontal Layout"}</span>
+                <span class="property-tag">{"Responsive"}</span>
+            </>
+        },
+        "sidebar" => html! {
+            <>
+                <span class="property-tag">{"250px Width"}</span>
+                <span class="property-tag">{"Left/Right Position"}</span>
+                <span class="property-tag">{"Collapsible"}</span>
+            </>
+        },
+        "modal" => html! {
+            <>
+                <span class="property-tag">{"Center Positioned"}</span>
+                <span class="property-tag">{"Backdrop Blur"}</span>
+                <span class="property-tag">{"Animation"}</span>
+            </>
+        },
+        "main_container" => html! {
+            <>
+                <span class="property-tag">{"Max Width"}</span>
+                <span class="property-tag">{"Auto Margins"}</span>
+                <span class="property-tag">{"Responsive"}</span>
+            </>
+        },
+        _ => html! {
+            <>
+                <span class="property-tag">{"Configurable"}</span>
+                <span class="property-tag">{"Custom Layout"}</span>
+            </>
+        }
+    }
+}
+
 #[derive(Properties, PartialEq)]
 pub struct ComponentTemplatesViewProps {
     pub component_templates: Vec<ComponentTemplate>,
     pub on_modify: Callback<(String, String)>, // (component_id, property)
+    pub on_template_toggled: Callback<ComponentTemplate>, // Called when template is toggled
 }
 
 #[function_component(ComponentTemplatesView)]
@@ -953,212 +1211,73 @@ pub fn component_templates_view(props: &ComponentTemplatesViewProps) -> Html {
             }}
             
             <div class="template-component-grid">
-                // Header Component Template
-                <div class="component-card primary">
-                    <div class="component-preview">
-                        <div class="live-header-preview">
-                            <div class="live-nav-bar">
-                                <span class="live-logo">{"🏠 My Site"}</span>
-                                <div class="live-nav-items">
-                                    {
-                                        if (*header_navigation).is_empty() {
-                                            html! {
-                                                <>
-                                                    <span>{"Home"}</span>
-                                                    <span>{"Posts"}</span>
-                                                    <span>{"About"}</span>
-                                                </>
-                                            }
-                                        } else {
-                                            html! {
-                                                <>
-                                                    {for (*header_navigation).iter().take(4).map(|item| {
-                                                        html! { <span>{&item.title}</span> }
-                                                    })}
-                                                </>
-                                            }
-                                        }
-                                    }
+                {for props.component_templates.iter()
+                    .filter(|template| template.component_type != "main_container")
+                    .map(|template| {
+                    let template_clone = template.clone();
+                    let editing_component = editing_component.clone();
+                    let editing_template = editing_template.clone();
+                    let on_template_toggled = props.on_template_toggled.clone();
+                    
+                    html! {
+                        <div class={format!("component-card {}", if template.is_default { "primary" } else { "secondary" })}>
+                            <div class="component-preview">
+                                {render_component_preview(&template.component_type, &header_navigation, &footer_navigation)}
+                            </div>
+                            <div class="component-info">
+                                <h4>{get_component_title(&template.component_type)}</h4>
+                                <p>{get_component_description(&template.component_type)}</p>
+                                <div class="component-properties">
+                                    <span class={format!("property-tag {}", if template.is_active { "active" } else { "inactive" })}>
+                                        {if template.is_active { "Active" } else { "Inactive" }}
+                                    </span>
+                                    {render_component_tags(&template.component_type)}
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="component-info">
-                        <h4>{"🎯 Header Component"}</h4>
-                        <p>{"Main site header with navigation, logo, and mobile responsive design"}</p>
-                        <div class="component-properties">
-                            <span class="property-tag active">{"Active"}</span>
-                            <span class="property-tag">{"Sticky Position"}</span>
-                            <span class="property-tag">{"1200px Max"}</span>
-                            <span class="property-tag">{"Mobile Responsive"}</span>
-                        </div>
-                        <button 
-                            class="btn-primary"
-                            onclick={{
-                                let editing_component = editing_component.clone();
-                                let editing_template = editing_template.clone();
-                                let props_templates = props.component_templates.clone();
-                                Callback::from(move |_| {
-                                    editing_component.set(Some("header".to_string()));
-                                    // Find and load the header template
-                                    if let Some(template) = props_templates.iter().find(|t| t.component_type == "header") {
-                                        editing_template.set(Some(template.clone()));
-                                    }
-                                })
-                            }}
-                        >
-                            {"Customize Header"}
-                        </button>
-                    </div>
-                </div>
-
-                // Footer Component Template
-                <div class="component-card primary">
-                    <div class="component-preview">
-                        <div class="live-footer-preview">
-                            <div class="live-footer-content">
-                                <div class="live-footer-nav">
-                                    {
-                                        if (*footer_navigation).is_empty() {
-                                            html! {
-                                                <>
-                                                    <span>{"Privacy"}</span>
-                                                    <span>{"Terms"}</span>
-                                                    <span>{"Contact"}</span>
-                                                </>
-                                            }
-                                        } else {
-                                            html! {
-                                                <>
-                                                    {for (*footer_navigation).iter().take(4).map(|item| {
-                                                        html! { <span>{&item.title}</span> }
-                                                    })}
-                                                </>
-                                            }
-                                        }
-                                    }
-                                </div>
-                                <p>{"© 2024 My Rust CMS - Built with Rust & Yew"}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="component-info">
-                        <h4>{"📍 Footer Component"}</h4>
-                        <p>{"Site footer with navigation links, copyright, and customizable layout options"}</p>
-                        <div class="component-properties">
-                            <span class="property-tag active">{"Active"}</span>
-                            <span class="property-tag">{"Full Width"}</span>
-                            <span class="property-tag">{"Horizontal Layout"}</span>
-                            <span class="property-tag">{"Responsive"}</span>
-                        </div>
-                        <button 
-                            class="btn-primary"
-                            onclick={{
-                                let editing_component = editing_component.clone();
-                                let editing_template = editing_template.clone();
-                                let props_templates = props.component_templates.clone();
-                                Callback::from(move |_| {
-                                    editing_component.set(Some("footer".to_string()));
-                                    if let Some(template) = props_templates.iter().find(|t| t.component_type == "footer") {
-                                        editing_template.set(Some(template.clone()));
-                                    }
-                                })
-                            }}
-                        >
-                            {"Customize Footer"}
-                        </button>
-                    </div>
-                </div>
-
-                // Sidebar Component Template
-                <div class="component-card secondary">
-                    <div class="component-preview">
-                        <div class="live-sidebar-preview">
-                            <div class="sidebar-header">{"📋 Sidebar"}</div>
-                            <div class="sidebar-items">
-                                <div class="sidebar-item">{"Navigation"}</div>
-                                <div class="sidebar-item">{"Recent Posts"}</div>
-                                <div class="sidebar-item">{"Categories"}</div>
-                                <div class="sidebar-item">{"Archives"}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="component-info">
-                        <h4>{"📋 Sidebar Component"}</h4>
-                        <p>{"Configurable sidebar for additional navigation, widgets, and content areas"}</p>
-                        <div class="component-properties">
-                            <span class="property-tag inactive">{"Optional"}</span>
-                            <span class="property-tag">{"250px Width"}</span>
-                            <span class="property-tag">{"Left/Right Position"}</span>
-                            <span class="property-tag">{"Collapsible"}</span>
-                        </div>
-                        <button 
-                            class="btn-primary"
-                            onclick={{
-                                let editing_component = editing_component.clone();
-                                let editing_template = editing_template.clone();
-                                let props_templates = props.component_templates.clone();
-                                Callback::from(move |_| {
-                                    editing_component.set(Some("sidebar".to_string()));
-                                    if let Some(template) = props_templates.iter().find(|t| t.component_type == "sidebar") {
-                                        editing_template.set(Some(template.clone()));
-                                    }
-                                })
-                            }}
-                        >
-                            {"Customize Sidebar"}
-                        </button>
-                    </div>
-                </div>
-
-                // Modal Component Template
-                <div class="component-card secondary">
-                    <div class="component-preview">
-                        <div class="live-modal-preview">
-                            <div class="modal-backdrop">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <span>{"Modal Title"}</span>
-                                        <span class="modal-close">{"×"}</span>
-                                    </div>
-                                    <div class="modal-body">{"Content area"}</div>
-                                    <div class="modal-footer">
-                                        <button class="modal-btn">{"Cancel"}</button>
-                                        <button class="modal-btn primary">{"Confirm"}</button>
+                                <div class="component-actions">
+                                    <button 
+                                        class="btn-primary"
+                                        onclick={{
+                                            let template_clone = template_clone.clone();
+                                            let component_type = template.component_type.clone();
+                                            Callback::from(move |_| {
+                                                editing_component.set(Some(component_type.clone()));
+                                                editing_template.set(Some(template_clone.clone()));
+                                            })
+                                        }}
+                                    >
+                                        {format!("Customize {}", get_component_name(&template.component_type))}
+                                    </button>
+                                    <div class="toggle-switch">
+                                        <input 
+                                            type="checkbox"
+                                            id={format!("toggle-{}", template.id)}
+                                            checked={template.is_active}
+                                            onchange={{
+                                                let template_id = template.id;
+                                                let on_template_toggled = on_template_toggled.clone();
+                                                Callback::from(move |_| {
+                                                    let on_template_toggled = on_template_toggled.clone();
+                                                    wasm_bindgen_futures::spawn_local(async move {
+                                                        match toggle_component_template(template_id).await {
+                                                            Ok(updated_template) => {
+                                                                on_template_toggled.emit(updated_template);
+                                                                log::info!("✅ Toggled component template {}", template_id);
+                                                            }
+                                                            Err(e) => {
+                                                                log::error!("❌ Failed to toggle component template: {:?}", e);
+                                                            }
+                                                        }
+                                                    });
+                                                })
+                                            }}
+                                        />
+                                        <label for={format!("toggle-{}", template.id)} class="slider"></label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="component-info">
-                        <h4>{"🪟 Modal Component"}</h4>
-                        <p>{"Overlay modals for forms, dialogs, and interactive content with backdrop styling"}</p>
-                        <div class="component-properties">
-                            <span class="property-tag active">{"Active"}</span>
-                            <span class="property-tag">{"Center Positioned"}</span>
-                            <span class="property-tag">{"Backdrop Blur"}</span>
-                            <span class="property-tag">{"Animation"}</span>
-                        </div>
-                        <button 
-                            class="btn-primary"
-                            onclick={{
-                                let editing_component = editing_component.clone();
-                                let editing_template = editing_template.clone();
-                                let props_templates = props.component_templates.clone();
-                                Callback::from(move |_| {
-                                    editing_component.set(Some("modal".to_string()));
-                                    if let Some(template) = props_templates.iter().find(|t| t.component_type == "modal") {
-                                        editing_template.set(Some(template.clone()));
-                                    }
-                                })
-                            }}
-                        >
-                            {"Customize Modal"}
-                        </button>
-                    </div>
-                </div>
-
-
+                    }
+                })}
             </div>
         </div>
     }

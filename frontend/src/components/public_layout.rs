@@ -111,6 +111,15 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
         Callback::from(move |_| callback.emit(()))
     };
 
+    // Helper function to check if component is active
+    let is_component_active = {
+        let component_templates = component_templates.clone();
+        move |component_type: &str| -> bool {
+            component_templates.iter()
+                .any(|t| t.component_type == component_type && t.is_active)
+        }
+    };
+
     // Helper function to get template styles
     let get_component_style = {
         let component_templates = component_templates.clone();
@@ -194,43 +203,49 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
 
     html! {
         <div class="public-site">
-            <header class="site-header" style={get_component_style("header")}>
-                <div class="container">
-                    <h1 class="site-title">{"My Rust CMS"}</h1>
-                    <nav class="site-nav">
-                        if !*loading {
-                            {{
-                                let items: Vec<_> = header_navigation_items.iter().filter(|item| item.is_active).collect();
-                                web_sys::console::log_1(&format!("Filtered header navigation items: {:?}", items).into());
-                                web_sys::console::log_1(&format!("Current page: {}", props.current_page).into());
-                                items.into_iter().map(|item| {
-                                    let is_active = props.current_page == item.url.trim_start_matches('/');
+            {if is_component_active("header") {
+                html! {
+                    <header class="site-header" style={get_component_style("header")}>
+                        <div class="container">
+                            <h1 class="site-title">{"My Rust CMS"}</h1>
+                            <nav class="site-nav">
+                                if !*loading {
+                                    {{
+                                        let items: Vec<_> = header_navigation_items.iter().filter(|item| item.is_active).collect();
+                                        web_sys::console::log_1(&format!("Filtered header navigation items: {:?}", items).into());
+                                        web_sys::console::log_1(&format!("Current page: {}", props.current_page).into());
+                                        items.into_iter().map(|item| {
+                                            let is_active = props.current_page == item.url.trim_start_matches('/');
+                                            html! {
+                                                <a 
+                                                    href="#" 
+                                                    class={if is_active { "nav-link active" } else { "nav-link" }}
+                                                    data-url={item.url.clone()}
+                                                    onclick={on_nav_item_click.clone()}
+                                                >
+                                                    {&item.title}
+                                                </a>
+                                            }
+                                        }).collect::<Html>()
+                                    }}
+                                }
+                                
+                                {if *admin_button_visible {
                                     html! {
-                                        <a 
-                                            href="#" 
-                                            class={if is_active { "nav-link active" } else { "nav-link" }}
-                                            data-url={item.url.clone()}
-                                            onclick={on_nav_item_click.clone()}
-                                        >
-                                            {&item.title}
-                                        </a>
+                                        <button class="nav-button admin-button" onclick={on_admin_click}>
+                                            {"Admin"}
+                                        </button>
                                     }
-                                }).collect::<Html>()
-                            }}
-                        }
-                        
-                        {if *admin_button_visible {
-                            html! {
-                                <button class="nav-button admin-button" onclick={on_admin_click}>
-                                    {"Admin"}
-                                </button>
-                            }
-                        } else {
-                            html! {}
-                        }}
-                    </nav>
-                </div>
-            </header>
+                                } else {
+                                    html! {}
+                                }}
+                            </nav>
+                        </div>
+                    </header>
+                }
+            } else {
+                html! {}
+            }}
 
             <main class="site-main">
                 <div class="container">
@@ -238,31 +253,37 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
                 </div>
             </main>
 
-            <footer class="site-footer" style={get_component_style("footer")}>
-                <div class="container">
-                    {if !footer_navigation_items.is_empty() {
-                        html! {
-                            <nav class="footer-nav">
-                                {footer_navigation_items.iter().filter(|item| item.is_active).map(|item| {
-                                    html! {
-                                        <a 
-                                            href="#" 
-                                            class="footer-nav-link"
-                                            data-url={item.url.clone()}
-                                            onclick={on_nav_item_click.clone()}
-                                        >
-                                            {&item.title}
-                                        </a>
-                                    }
-                                }).collect::<Html>()}
-                            </nav>
-                        }
-                    } else {
-                        html! {}
-                    }}
-                    <p class="footer-copyright">{"© 2024 My Rust CMS. Built with Rust and Yew."}</p>
-                </div>
-            </footer>
+            {if is_component_active("footer") {
+                html! {
+                    <footer class="site-footer" style={get_component_style("footer")}>
+                        <div class="container">
+                            {if !footer_navigation_items.is_empty() {
+                                html! {
+                                    <nav class="footer-nav">
+                                        {footer_navigation_items.iter().filter(|item| item.is_active).map(|item| {
+                                            html! {
+                                                <a 
+                                                    href="#" 
+                                                    class="footer-nav-link"
+                                                    data-url={item.url.clone()}
+                                                    onclick={on_nav_item_click.clone()}
+                                                >
+                                                    {&item.title}
+                                                </a>
+                                            }
+                                        }).collect::<Html>()}
+                                    </nav>
+                                }
+                            } else {
+                                html! {}
+                            }}
+                            <p class="footer-copyright">{"© 2024 My Rust CMS. Built with Rust and Yew."}</p>
+                        </div>
+                    </footer>
+                }
+            } else {
+                html! {}
+            }}
         </div>
     }
 } 
