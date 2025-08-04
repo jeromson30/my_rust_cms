@@ -576,6 +576,18 @@ pub fn design_system_page() -> Html {
     let selected_preset = use_state(|| "Light Preset".to_string());
     let theme_name_input = use_state(|| String::new());
 
+    // Initialize theme on component mount
+    {
+        let admin_scheme = admin_scheme.clone();
+        use_effect_with_deps(move |_| {
+            // Apply light theme by default
+            let scheme = AdminColorScheme::default();
+            admin_scheme.set(scheme.clone());
+            apply_admin_css_variables(&scheme);
+            || ()
+        }, ());
+    }
+
     let switch_tab = {
         let current_tab = current_tab.clone();
         Callback::from(move |tab: String| {
@@ -868,15 +880,16 @@ pub fn design_system_page() -> Html {
                                     <div class="editor-header">
                                         <h3>{"Admin Theme Editor"}</h3>
                                         <div class="theme-controls">
-                                            <div class="preset-controls">
-                                                <select class="preset-dropdown" onchange={on_preset_change.clone()} value={(*selected_preset).clone()}>
-                                                    {for (*saved_themes).iter().map(|theme| {
-                                                        html! {
-                                                            <option value={theme.clone()}>{theme.clone()}</option>
-                                                        }
-                                                    })}
-                                                </select>
-                                                <button class="preset-controls-button reset-button" onclick={reset_admin_defaults}>
+                                                                        <div class="preset-controls">
+                                <select class="preset-dropdown" onchange={on_preset_change.clone()}>
+                                    {for (*saved_themes).iter().map(|theme| {
+                                        let is_selected = *selected_preset == *theme;
+                                        html! {
+                                            <option value={theme.clone()} selected={is_selected}>{theme.clone()}</option>
+                                        }
+                                    })}
+                                </select>
+                                <button class="preset-controls-button reset-button" onclick={reset_admin_defaults}>
                                                     {"Reset to Default"}
                                                 </button>
                                             </div>
@@ -1198,15 +1211,16 @@ pub fn design_system_page() -> Html {
                                     <div class="editor-header">
                                         <h3>{"Public Theme Editor"}</h3>
                                         <div class="theme-controls">
-                                            <div class="preset-controls">
-                                                <select class="preset-dropdown" onchange={on_preset_change.clone()} value={(*selected_preset).clone()}>
-                                                    {for (*saved_themes).iter().map(|theme| {
-                                                        html! {
-                                                            <option value={theme.clone()}>{theme.clone()}</option>
-                                                        }
-                                                    })}
-                                                </select>
-                                                <button class="preset-controls-button reset-button" onclick={reset_public_defaults}>
+                                                                        <div class="preset-controls">
+                                <select class="preset-dropdown" onchange={on_preset_change.clone()}>
+                                    {for (*saved_themes).iter().map(|theme| {
+                                        let is_selected = *selected_preset == *theme;
+                                        html! {
+                                            <option value={theme.clone()} selected={is_selected}>{theme.clone()}</option>
+                                        }
+                                    })}
+                                </select>
+                                <button class="preset-controls-button reset-button" onclick={reset_public_defaults}>
                                                     {"Reset to Default"}
                                                 </button>
                                             </div>
