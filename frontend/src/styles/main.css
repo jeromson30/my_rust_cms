@@ -103,14 +103,21 @@ body {
 }
 
 .admin-button {
-    background: var(--admin-bg-primary, var(--bg-primary));
-    color: var(--admin-text-primary, var(--text-primary));
-    border: 1px solid var(--admin-border-color, var(--border-color));
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #cccccc !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
 }
 
 .admin-button:hover {
-    background: var(--admin-bg-secondary, var(--bg-secondary));
-    border-color: var(--admin-border-color, var(--border-color));
+    background: #f5f5f5 !important;
+    color: #000000 !important;
+    border-color: #999999 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .site-main {
