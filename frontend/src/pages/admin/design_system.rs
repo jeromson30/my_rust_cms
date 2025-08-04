@@ -588,8 +588,15 @@ pub fn design_system_page() -> Html {
                 // Load current theme and saved themes from database
                 match get_settings(Some("theme")).await {
                     Ok(theme_settings) => {
+                        if theme_settings.is_empty() {
+                            // No theme settings found - use defaults but don't force apply
+                            log::info!("No theme settings found in database, using defaults without forcing application");
+                            return;
+                        }
+                        
                         let mut current_theme = "Light Preset".to_string();
                         let mut custom_themes = vec!["Light Preset".to_string(), "Dark Preset".to_string()];
+                        let mut found_current_theme = false;
                         
                         let mut saved_admin_schemes: std::collections::HashMap<String, AdminColorScheme> = std::collections::HashMap::new();
                         
@@ -599,12 +606,15 @@ pub fn design_system_page() -> Html {
                                 "theme_current_admin" => {
                                     if let Some(theme_name) = setting.setting_value {
                                         current_theme = theme_name;
+                                        found_current_theme = true;
+                                        log::info!("Loaded current admin theme from database: {}", current_theme);
                                     }
                                 },
                                 "theme_custom_list" => {
                                     if let Some(themes_json) = setting.setting_value {
                                         if let Ok(themes) = serde_json::from_str::<Vec<String>>(&themes_json) {
                                             custom_themes = themes;
+                                            log::info!("Loaded {} custom themes from database", custom_themes.len());
                                         }
                                     }
                                 },
@@ -613,6 +623,7 @@ pub fn design_system_page() -> Html {
                                     if let Some(theme_json) = setting.setting_value {
                                         if let Ok(scheme) = serde_json::from_str::<AdminColorScheme>(&theme_json) {
                                             saved_admin_schemes.insert(theme_name.to_string(), scheme);
+                                            log::info!("Loaded custom admin theme: {}", theme_name);
                                         }
                                     }
                                 },
@@ -620,28 +631,37 @@ pub fn design_system_page() -> Html {
                             }
                         }
                         
-                        // Apply the current theme
-                        let scheme = match current_theme.as_str() {
-                            "Dark Preset" => AdminColorScheme::dark_mode(),
-                            "Light Preset" => AdminColorScheme::default(),
-                            custom_name => {
-                                // Try to load custom theme, fallback to light
-                                saved_admin_schemes.get(custom_name)
-                                    .cloned()
-                                    .unwrap_or_else(|| AdminColorScheme::default())
-                            }
-                        };
-                        
-                        selected_preset.set(current_theme);
-                        saved_themes.set(custom_themes);
-                        admin_scheme.set(scheme.clone());
-                        apply_admin_css_variables(&scheme);
+                        // Only apply theme if we found a current theme setting
+                        if found_current_theme {
+                            let scheme = match current_theme.as_str() {
+                                "Dark Preset" => AdminColorScheme::dark_mode(),
+                                "Light Preset" => AdminColorScheme::default(),
+                                custom_name => {
+                                    // Try to load custom theme, fallback to light
+                                    saved_admin_schemes.get(custom_name)
+                                        .cloned()
+                                        .unwrap_or_else(|| {
+                                            log::warn!("Custom theme '{}' not found, falling back to light preset", custom_name);
+                                            AdminColorScheme::default()
+                                        })
+                                }
+                            };
+                            
+                            selected_preset.set(current_theme.clone());
+                            saved_themes.set(custom_themes);
+                            admin_scheme.set(scheme.clone());
+                            apply_admin_css_variables(&scheme);
+                            log::info!("Successfully applied theme: {}", current_theme);
+                        } else {
+                            // Have theme data but no current theme setting - just update the lists
+                            saved_themes.set(custom_themes);
+                            log::info!("Updated theme lists but preserved current theme");
+                        }
                     },
-                    Err(_) => {
-                        // Fallback to default light theme
-                        let scheme = AdminColorScheme::default();
-                        admin_scheme.set(scheme.clone());
-                        apply_admin_css_variables(&scheme);
+                    Err(err) => {
+                        // Log the error but don't forcefully apply defaults
+                        log::error!("Failed to load theme settings from database: {:?}", err);
+                        log::info!("Preserving current theme due to database error");
                     }
                 }
             });

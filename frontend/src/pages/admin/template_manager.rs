@@ -127,8 +127,10 @@ pub fn template_manager() -> Html {
     html! {
         <div class="template-manager">
             <div class="page-header">
-                <h1>{"🎨 Template Manager"}</h1>
-                <p>{"Configure menu areas, component templates, and global container settings"}</p>
+                <div>
+                    <h1>{"🎨 Template Manager"}</h1>
+                    <p>{"Configure menu areas, component templates, and global container settings"}</p>
+                </div>
             </div>
 
             {if let Some(ref error_msg) = *error {

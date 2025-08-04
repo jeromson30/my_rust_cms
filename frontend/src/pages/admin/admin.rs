@@ -4,6 +4,7 @@ use crate::components::admin::sidebar::AdminTab;
 use crate::pages::admin::{dashboard::AdminDashboard, post_list::PostList, page_builder::PageBuilder, media_library::MediaLibrary, user_management::UserManagement, comment_moderation::CommentModeration, navigation_manager::NavigationManager, template_manager::TemplateManager, analytics::Analytics, system_settings::SystemSettings, design_system::DesignSystemPage};
 use crate::pages::admin::design_system::{AdminColorScheme, apply_admin_css_variables};
 use crate::services::auth_service::User;
+use crate::services::api_service::get_settings;
 
 #[derive(Properties, PartialEq)]
 pub struct AdminProps {
@@ -18,10 +19,77 @@ pub struct AdminProps {
 pub fn admin(props: &AdminProps) -> Html {
     let on_tab_change = props.on_tab_change.clone();
 
-    // Apply default admin dark theme on component mount and cleanup on unmount
+    // Load saved admin theme from database on component mount and cleanup on unmount
     use_effect_with_deps(|_| {
-        let default_scheme = AdminColorScheme::default();
-        apply_admin_css_variables(&default_scheme);
+        wasm_bindgen_futures::spawn_local(async {
+            // Try to load the saved theme from database
+            match get_settings(Some("theme")).await {
+                Ok(theme_settings) => {
+                    if !theme_settings.is_empty() {
+                        let mut current_theme = "Light Preset".to_string();
+                        let mut found_current_theme = false;
+                        let mut saved_admin_schemes: std::collections::HashMap<String, AdminColorScheme> = std::collections::HashMap::new();
+                        
+                        // Process theme settings to find the current theme
+                        for setting in theme_settings {
+                            match setting.setting_key.as_str() {
+                                "theme_current_admin" => {
+                                    if let Some(theme_name) = setting.setting_value {
+                                        current_theme = theme_name;
+                                        found_current_theme = true;
+                                        log::info!("🎨 Admin loading saved theme: {}", current_theme);
+                                    }
+                                },
+                                key if key.starts_with("theme_admin_") => {
+                                    let theme_name = key.strip_prefix("theme_admin_").unwrap_or("");
+                                    if let Some(theme_json) = setting.setting_value {
+                                        if let Ok(scheme) = serde_json::from_str::<AdminColorScheme>(&theme_json) {
+                                            saved_admin_schemes.insert(theme_name.to_string(), scheme);
+                                        }
+                                    }
+                                },
+                                _ => {}
+                            }
+                        }
+                        
+                        // Apply the saved theme if found
+                        if found_current_theme {
+                            let scheme = match current_theme.as_str() {
+                                "Dark Preset" => AdminColorScheme::dark_mode(),
+                                "Light Preset" => AdminColorScheme::default(),
+                                custom_name => {
+                                    saved_admin_schemes.get(custom_name)
+                                        .cloned()
+                                        .unwrap_or_else(|| {
+                                            log::warn!("🎨 Custom theme '{}' not found in admin, using light preset", custom_name);
+                                            AdminColorScheme::default()
+                                        })
+                                }
+                            };
+                            apply_admin_css_variables(&scheme);
+                            log::info!("✅ Applied saved admin theme: {}", current_theme);
+                        } else {
+                            // No current theme setting found, use default
+                            let default_scheme = AdminColorScheme::default();
+                            apply_admin_css_variables(&default_scheme);
+                            log::info!("🎨 No saved theme found, using default light theme");
+                        }
+                    } else {
+                        // No theme settings at all, use default
+                        let default_scheme = AdminColorScheme::default();
+                        apply_admin_css_variables(&default_scheme);
+                        log::info!("🎨 No theme settings in database, using default light theme");
+                    }
+                },
+                Err(err) => {
+                    // Database error, use default but don't override if CSS variables already set
+                    log::error!("❌ Failed to load admin theme settings: {:?}", err);
+                    let default_scheme = AdminColorScheme::default();
+                    apply_admin_css_variables(&default_scheme);
+                    log::info!("🎨 Using default theme due to database error");
+                }
+            }
+        });
         
         // Cleanup function to restore body styles when leaving admin
         || {

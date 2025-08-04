@@ -815,7 +815,8 @@ tr:hover {
 .settings .page-header,
 .navigation-manager .page-header,
 .analytics .page-header,
-.design-system-page .page-header {
+.design-system-page .page-header,
+.template-manager .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -841,7 +842,8 @@ tr:hover {
 .settings .page-header > div:first-child,
 .navigation-manager .page-header > div:first-child,
 .analytics .page-header > div:first-child,
-.design-system-page .page-header > div:first-child {
+.design-system-page .page-header > div:first-child,
+.template-manager .page-header > div:first-child {
     text-align: left;
     flex: 1;
 }
@@ -856,7 +858,8 @@ tr:hover {
 .settings .page-header::before,
 .navigation-manager .page-header::before,
 .analytics .page-header::before,
-.design-system-page .page-header::before {
+.design-system-page .page-header::before,
+.template-manager .page-header::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -878,7 +881,8 @@ tr:hover {
 .settings .page-header::after,
 .navigation-manager .page-header::after,
 .analytics .page-header::after,
-.design-system-page .page-header::after {
+.design-system-page .page-header::after,
+.template-manager .page-header::after {
     content: '';
     position: absolute;
     top: -50%;
@@ -932,7 +936,8 @@ tr:hover {
 .settings .page-header h1,
 .navigation-manager .page-header h1,
 .analytics .page-header h1,
-.design-system-page .page-header h1 {
+.design-system-page .page-header h1,
+.template-manager .page-header h1 {
     font-size: clamp(2rem, 4vw, 3rem);
     margin: 0;
     font-weight: 800;
@@ -954,7 +959,8 @@ tr:hover {
 .settings .page-header p,
 .navigation-manager .page-header p,
 .analytics .page-header p,
-.design-system-page .page-header p {
+.design-system-page .page-header p,
+.template-manager .page-header p {
     color: rgba(255, 255, 255, 0.9);
     font-size: 1.2rem;
     margin: 0.5rem 0 0 0;
@@ -6717,7 +6723,8 @@ tr:last-child td {
     .settings .page-header,
     .navigation-manager .page-header,
     .analytics .page-header,
-    .design-system-page .page-header {
+    .design-system-page .page-header,
+    .template-manager .page-header {
         padding: 1.5rem;
     }
     
@@ -6725,7 +6732,8 @@ tr:last-child td {
     .settings .page-header h1,
     .navigation-manager .page-header h1,
     .analytics .page-header h1,
-    .design-system-page .page-header h1 {
+    .design-system-page .page-header h1,
+    .template-manager .page-header h1 {
         font-size: 1.8rem;
     }
     
