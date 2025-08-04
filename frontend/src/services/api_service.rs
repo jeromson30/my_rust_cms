@@ -539,7 +539,7 @@ pub async fn get_performance_metrics() -> Result<PerformanceMetrics, ApiServiceE
 }
 
 // System Settings structs
-#[derive(Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct Setting {
     pub id: i32,
     pub setting_key: String,

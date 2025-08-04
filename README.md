@@ -557,4 +557,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **🚀 Built with the revolutionary [RAYDT Stack](./RAYDT-STACK.md)**
 
-*Join us in pioneering the future of full-stack web development with memory safety, blazing performance, and uncompromising type safety!*
+*Join in*ß

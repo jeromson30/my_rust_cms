@@ -7,21 +7,16 @@ use crate::services::auth_service::User;
 
 #[derive(Properties, PartialEq)]
 pub struct AdminProps {
+    pub current_tab: AdminTab,
     pub on_public_click: Callback<()>,
     pub on_logout: Callback<()>,
+    pub on_tab_change: Callback<AdminTab>,
     pub current_user: Option<User>,
 }
 
 #[function_component(Admin)]
 pub fn admin(props: &AdminProps) -> Html {
-    let active_tab = use_state(|| AdminTab::Dashboard);
-
-    let switch_tab = {
-        let active_tab = active_tab.clone();
-        Callback::from(move |tab: AdminTab| {
-            active_tab.set(tab);
-        })
-    };
+    let switch_tab = props.on_tab_change.clone();
 
     // Apply default admin dark theme on component mount and cleanup on unmount
     use_effect_with_deps(|_| {
@@ -51,11 +46,11 @@ pub fn admin(props: &AdminProps) -> Html {
             <div class="admin-content">
                 <AdminSidebar 
                     on_tab_click={switch_tab} 
-                    active_tab={(*active_tab).clone()} 
+                    active_tab={props.current_tab.clone()} 
                     on_public_click={props.on_public_click.clone()}
                 />
                 <main class="admin-main">
-                    {match *active_tab {
+                    {match props.current_tab {
                         AdminTab::Dashboard => html! { <Dashboard /> },
                         AdminTab::Posts => html! { <PostList /> },
                         AdminTab::Pages => html! { <PageBuilder /> },

@@ -2,7 +2,7 @@ use yew::prelude::*;
 use wasm_bindgen::JsCast;
 use crate::services::api_service::{
     get_system_info, SystemInfo, get_backups, get_data_snapshot, create_backup,
-    BackupInfo, DataSnapshot, BackupRequest, get_settings, Setting
+    BackupInfo, DataSnapshot, BackupRequest, get_settings, Setting, update_settings, SettingData
 };
 
 #[derive(Clone, PartialEq, Debug)]
@@ -14,6 +14,7 @@ pub struct SiteSettings {
     pub posts_per_page: i32,
     pub allow_comments: bool,
     pub moderate_comments: bool,
+    pub admin_button_visible: bool,
     pub theme: String,
 }
 
@@ -39,6 +40,7 @@ pub fn system_settings() -> Html {
         posts_per_page: 10,
         allow_comments: true,
         moderate_comments: true,
+        admin_button_visible: true,
         theme: "Modern".to_string(),
     });
     
@@ -212,17 +214,78 @@ pub fn system_settings() -> Html {
             save_message.set(None);
             
             wasm_bindgen_futures::spawn_local(async move {
-                // Simulate API call
                 web_sys::console::log_1(&format!("Saving site settings: {:?}", settings).into());
                 
-                // In a real app, this would call the backend API
-                // let result = api_service::update_site_settings(settings).await;
+                // Convert site settings to API format
+                let settings_data = vec![
+                    SettingData {
+                        key: "site_title".to_string(),
+                        value: settings.site_title,
+                        setting_type: "site".to_string(),
+                        description: Some("Site title displayed in navigation".to_string()),
+                    },
+                    SettingData {
+                        key: "site_description".to_string(),
+                        value: settings.site_description,
+                        setting_type: "site".to_string(),
+                        description: Some("Brief description of the site".to_string()),
+                    },
+                    SettingData {
+                        key: "site_url".to_string(),
+                        value: settings.site_url,
+                        setting_type: "site".to_string(),
+                        description: Some("Base URL of the site".to_string()),
+                    },
+                    SettingData {
+                        key: "admin_email".to_string(),
+                        value: settings.admin_email,
+                        setting_type: "site".to_string(),
+                        description: Some("Administrator email address".to_string()),
+                    },
+                    SettingData {
+                        key: "posts_per_page".to_string(),
+                        value: settings.posts_per_page.to_string(),
+                        setting_type: "site".to_string(),
+                        description: Some("Number of posts to display per page".to_string()),
+                    },
+                    SettingData {
+                        key: "allow_comments".to_string(),
+                        value: settings.allow_comments.to_string(),
+                        setting_type: "site".to_string(),
+                        description: Some("Allow comments on posts".to_string()),
+                    },
+                    SettingData {
+                        key: "moderate_comments".to_string(),
+                        value: settings.moderate_comments.to_string(),
+                        setting_type: "site".to_string(),
+                        description: Some("Require comment moderation".to_string()),
+                    },
+                    SettingData {
+                        key: "admin_button_visible".to_string(),
+                        value: settings.admin_button_visible.to_string(),
+                        setting_type: "site".to_string(),
+                        description: Some("Show admin button in public navigation".to_string()),
+                    },
+                    SettingData {
+                        key: "theme".to_string(),
+                        value: settings.theme,
+                        setting_type: "site".to_string(),
+                        description: Some("Site theme".to_string()),
+                    },
+                ];
                 
-                // Simulate delay
-                gloo_timers::future::TimeoutFuture::new(1000).await;
-                
-                saving.set(false);
-                save_message.set(Some("Settings saved successfully!".to_string()));
+                match update_settings(settings_data).await {
+                    Ok(_) => {
+                        saving.set(false);
+                        save_message.set(Some("Settings saved successfully!".to_string()));
+                        web_sys::console::log_1(&"Settings saved successfully".into());
+                    }
+                    Err(e) => {
+                        saving.set(false);
+                        save_message.set(Some(format!("Error saving settings: {}", e)));
+                        web_sys::console::error_1(&format!("Failed to save settings: {}", e).into());
+                    }
+                }
                 
                 // Clear message after 3 seconds
                 let save_message = save_message.clone();
@@ -425,6 +488,25 @@ pub fn system_settings() -> Html {
                                                 })}
                                             />
                                             {"Moderate Comments"}
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <h3>{"Navigation Settings"}</h3>
+                                <div class="form-grid">
+                                    <div class="form-group checkbox-group">
+                                        <label>
+                                            <input 
+                                                type="checkbox" 
+                                                checked={site_settings.admin_button_visible}
+                                                onchange={let site_settings = site_settings.clone(); Callback::from(move |e: Event| {
+                                                    let target = e.target().unwrap().unchecked_into::<web_sys::HtmlInputElement>();
+                                                    let mut settings = (*site_settings).clone();
+                                                    settings.admin_button_visible = target.checked();
+                                                    site_settings.set(settings);
+                                                })}
+                                            />
+                                            {"Show Admin Button in Public Navigation"}
                                         </label>
                                     </div>
                                 </div>

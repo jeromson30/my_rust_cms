@@ -1,5 +1,6 @@
 use yew::prelude::*;
 use crate::services::navigation_service::get_navigation_items;
+use crate::services::api_service::get_settings;
 use crate::pages::public::PublicPage;
 use crate::pages::admin::design_system::{PublicColorScheme, apply_public_css_variables};
 
@@ -16,26 +17,52 @@ pub struct PublicLayoutProps {
 pub fn public_layout(props: &PublicLayoutProps) -> Html {
     let navigation_items = use_state(Vec::new);
     let loading = use_state(|| true);
+    let admin_button_visible = use_state(|| true); // Default to true until loaded
 
-    // Load navigation items
+    // Load navigation items and admin button setting
     {
         let navigation_items = navigation_items.clone();
         let loading = loading.clone();
+        let admin_button_visible = admin_button_visible.clone();
 
         use_effect_with_deps(move |_| {
-            web_sys::console::log_1(&"PublicLayout: Starting to fetch navigation items".into());
+            web_sys::console::log_1(&"PublicLayout: Starting to fetch navigation items and settings".into());
             wasm_bindgen_futures::spawn_local(async move {
-                match get_navigation_items().await {
+                // Load navigation items
+                let nav_result = get_navigation_items().await;
+                
+                // Load admin button setting
+                let settings_result = get_settings(Some("site")).await;
+                
+                match nav_result {
                     Ok(items) => {
                         web_sys::console::log_1(&format!("Navigation items loaded: {:?}", items).into());
                         navigation_items.set(items);
-                        loading.set(false);
                     }
                     Err(e) => {
                         web_sys::console::log_1(&format!("Navigation error: {:?}", e).into());
-                        loading.set(false);
                     }
                 }
+                
+                match settings_result {
+                    Ok(settings) => {
+                        web_sys::console::log_1(&format!("Settings loaded: {:?}", settings).into());
+                        // Find admin button setting
+                        if let Some(setting) = settings.iter().find(|s| s.setting_key == "admin_button_visible") {
+                            if let Some(value) = &setting.setting_value {
+                                let visible = value.parse::<bool>().unwrap_or(true);
+                                admin_button_visible.set(visible);
+                                web_sys::console::log_1(&format!("Admin button visibility set to: {}", visible).into());
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        web_sys::console::log_1(&format!("Settings error: {:?}", e).into());
+                        // Keep default value of true if settings fail to load
+                    }
+                }
+                
+                loading.set(false);
             });
             || ()
         }, ());
@@ -113,9 +140,15 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
                             }}
                         }
                         
-                        <button class="nav-button admin-button" onclick={on_admin_click}>
-                            {"Admin"}
-                        </button>
+                        {if *admin_button_visible {
+                            html! {
+                                <button class="nav-button admin-button" onclick={on_admin_click}>
+                                    {"Admin"}
+                                </button>
+                            }
+                        } else {
+                            html! {}
+                        }}
                     </nav>
                 </div>
             </header>

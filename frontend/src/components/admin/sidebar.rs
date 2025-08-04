@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum AdminTab {
     Dashboard,
     Posts,
