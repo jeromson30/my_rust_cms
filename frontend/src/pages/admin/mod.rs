@@ -8,6 +8,7 @@ pub mod media_library;
 pub mod page_builder;
 pub mod system_settings;
 pub mod navigation_manager;
+pub mod template_manager;
 pub mod analytics;
 pub mod design_system;
 

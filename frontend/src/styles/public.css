@@ -519,6 +519,35 @@
     color: var(--footer-text-muted);
 }
 
+/* Footer Navigation */
+.footer-nav {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.footer-nav-link {
+    color: var(--footer-text);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: var(--transition);
+    padding: 0.5rem 0;
+    font-weight: 500;
+}
+
+.footer-nav-link:hover {
+    color: var(--text-primary);
+}
+
+.footer-copyright {
+    margin: 0;
+    text-align: center;
+    color: var(--footer-text-muted);
+    font-size: var(--font-size-sm);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .site-header .container {
@@ -550,6 +579,12 @@
     
     .post-content {
         padding: var(--spacing-xl) 0;
+    }
+    
+    .footer-nav {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
     }
 }
 

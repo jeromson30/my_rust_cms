@@ -8,6 +8,49 @@ pub struct NavigationItem {
     pub url: String,
     pub order: i32,
     pub is_active: bool,
+    pub menu_area: String,
+    pub parent_id: Option<i32>,
+    pub icon: Option<String>,
+    pub css_class: Option<String>,
+    pub target: Option<String>,
+    pub mobile_visible: bool,
+    pub description: Option<String>,
+    pub children: Option<Vec<NavigationItem>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MenuArea {
+    pub id: i32,
+    pub area_name: String,
+    pub display_name: String,
+    pub template_id: Option<i32>,
+    pub settings: serde_json::Value,
+    pub mobile_behavior: Option<String>,
+    pub hamburger_icon: Option<String>,
+    pub is_active: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MenuTemplate {
+    pub id: i32,
+    pub name: String,
+    pub template_type: String,
+    pub layout_style: String,
+    pub settings: serde_json::Value,
+    pub is_active: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ComponentTemplate {
+    pub id: i32,
+    pub name: String,
+    pub component_type: String,
+    pub template_data: serde_json::Value,
+    pub breakpoints: serde_json::Value,
+    pub width_setting: Option<String>,
+    pub max_width: Option<String>,
+    pub is_default: bool,
+    pub is_active: bool,
 }
 
 #[derive(Debug)]
@@ -96,6 +139,184 @@ pub async fn delete_navigation_item(id: i32) -> Result<(), NavigationServiceErro
         Ok(response) => {
             if response.status() == 200 {
                 Ok(())
+            } else {
+                Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
+            }
+        }
+        Err(e) => Err(NavigationServiceError::NetworkError(e.to_string())),
+    }
+}
+
+// Enhanced navigation functions
+
+pub async fn get_navigation_by_area(area: &str) -> Result<Vec<NavigationItem>, NavigationServiceError> {
+    match gloo_net::http::Request::get(&format!("http://localhost:8081/api/navigation/area/{}", area))
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status() == 200 {
+                match response.json::<Vec<NavigationItem>>().await {
+                    Ok(items) => Ok(items),
+                    Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
+                }
+            } else {
+                Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
+            }
+        }
+        Err(e) => Err(NavigationServiceError::NetworkError(e.to_string())),
+    }
+}
+
+pub async fn get_menu_area(name: &str) -> Result<MenuArea, NavigationServiceError> {
+    match gloo_net::http::Request::get(&format!("http://localhost:8081/api/menu-areas/{}", name))
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status() == 200 {
+                match response.json::<MenuArea>().await {
+                    Ok(area) => Ok(area),
+                    Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
+                }
+            } else {
+                Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
+            }
+        }
+        Err(e) => Err(NavigationServiceError::NetworkError(e.to_string())),
+    }
+}
+
+pub async fn get_menu_areas() -> Result<Vec<MenuArea>, NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
+    match gloo_net::http::Request::get("http://localhost:8081/api/menu-areas")
+        .header("Authorization", &format!("Bearer {}", token))
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status() == 200 {
+                match response.json::<Vec<MenuArea>>().await {
+                    Ok(areas) => Ok(areas),
+                    Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
+                }
+            } else {
+                Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
+            }
+        }
+        Err(e) => Err(NavigationServiceError::NetworkError(e.to_string())),
+    }
+}
+
+pub async fn update_menu_area(name: &str, area: &MenuArea) -> Result<MenuArea, NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
+    match gloo_net::http::Request::put(&format!("http://localhost:8081/api/menu-areas/{}", name))
+        .header("Authorization", &format!("Bearer {}", token))
+        .json(area)
+        .map_err(|e| NavigationServiceError::ParseError(e.to_string()))?
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status() == 200 {
+                match response.json::<MenuArea>().await {
+                    Ok(updated_area) => Ok(updated_area),
+                    Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
+                }
+            } else {
+                Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
+            }
+        }
+        Err(e) => Err(NavigationServiceError::NetworkError(e.to_string())),
+    }
+}
+
+pub async fn get_menu_templates() -> Result<Vec<MenuTemplate>, NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
+    match gloo_net::http::Request::get("http://localhost:8081/api/menu-templates")
+        .header("Authorization", &format!("Bearer {}", token))
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status() == 200 {
+                match response.json::<Vec<MenuTemplate>>().await {
+                    Ok(templates) => Ok(templates),
+                    Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
+                }
+            } else {
+                Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
+            }
+        }
+        Err(e) => Err(NavigationServiceError::NetworkError(e.to_string())),
+    }
+}
+
+pub async fn get_component_templates() -> Result<Vec<ComponentTemplate>, NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
+    match gloo_net::http::Request::get("http://localhost:8081/api/component-templates")
+        .header("Authorization", &format!("Bearer {}", token))
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status() == 200 {
+                match response.json::<Vec<ComponentTemplate>>().await {
+                    Ok(templates) => Ok(templates),
+                    Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
+                }
+            } else {
+                Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
+            }
+        }
+        Err(e) => Err(NavigationServiceError::NetworkError(e.to_string())),
+    }
+}
+
+pub async fn create_component_template(template: &ComponentTemplate) -> Result<ComponentTemplate, NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
+    match gloo_net::http::Request::post("http://localhost:8081/api/component-templates")
+        .header("Authorization", &format!("Bearer {}", token))
+        .json(template)
+        .map_err(|e| NavigationServiceError::ParseError(e.to_string()))?
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status() == 201 {
+                match response.json::<ComponentTemplate>().await {
+                    Ok(created_template) => Ok(created_template),
+                    Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
+                }
+            } else {
+                Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
+            }
+        }
+        Err(e) => Err(NavigationServiceError::NetworkError(e.to_string())),
+    }
+}
+
+pub async fn update_component_template(id: i32, template: &ComponentTemplate) -> Result<ComponentTemplate, NavigationServiceError> {
+    let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
+    
+    match gloo_net::http::Request::put(&format!("http://localhost:8081/api/component-templates/{}", id))
+        .header("Authorization", &format!("Bearer {}", token))
+        .json(template)
+        .map_err(|e| NavigationServiceError::ParseError(e.to_string()))?
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status() == 200 {
+                match response.json::<ComponentTemplate>().await {
+                    Ok(updated_template) => Ok(updated_template),
+                    Err(e) => Err(NavigationServiceError::ParseError(e.to_string())),
+                }
             } else {
                 Err(NavigationServiceError::NetworkError(format!("HTTP {}: {}", response.status(), response.status_text())))
             }

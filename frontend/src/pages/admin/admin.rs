@@ -1,7 +1,7 @@
 use yew::prelude::*;
 use crate::components::admin::{AdminSidebar, AdminHeader};
 use crate::components::admin::sidebar::AdminTab;
-use crate::pages::admin::{dashboard::Dashboard, post_list::PostList, page_builder::PageBuilder, media_library::MediaLibrary, user_management::UserManagement, comment_moderation::CommentModeration, navigation_manager::NavigationManager, analytics::Analytics, system_settings::SystemSettings, design_system::DesignSystemPage};
+use crate::pages::admin::{dashboard::Dashboard, post_list::PostList, page_builder::PageBuilder, media_library::MediaLibrary, user_management::UserManagement, comment_moderation::CommentModeration, navigation_manager::NavigationManager, template_manager::TemplateManager, analytics::Analytics, system_settings::SystemSettings, design_system::DesignSystemPage};
 use crate::pages::admin::design_system::{AdminColorScheme, apply_admin_css_variables};
 use crate::services::auth_service::User;
 
@@ -58,6 +58,7 @@ pub fn admin(props: &AdminProps) -> Html {
                         AdminTab::Users => html! { <UserManagement /> },
                         AdminTab::Comments => html! { <CommentModeration /> },
                         AdminTab::Navigation => html! { <NavigationManager /> },
+                        AdminTab::Templates => html! { <TemplateManager /> },
                         AdminTab::Analytics => html! { <Analytics /> },
                         AdminTab::DesignSystem => html! { <DesignSystemPage /> },
                         AdminTab::SystemSettings => html! { <SystemSettings /> },

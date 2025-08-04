@@ -50,6 +50,22 @@ diesel::table! {
 }
 
 diesel::table! {
+    component_templates (id) {
+        id -> Int4,
+        name -> Varchar,
+        component_type -> Varchar,
+        template_data -> Jsonb,
+        breakpoints -> Jsonb,
+        width_setting -> Nullable<Varchar>,
+        max_width -> Nullable<Varchar>,
+        is_default -> Bool,
+        is_active -> Bool,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     components (id) {
         id -> Int4,
         name -> Varchar,
@@ -72,6 +88,34 @@ diesel::table! {
 }
 
 diesel::table! {
+    menu_areas (id) {
+        id -> Int4,
+        area_name -> Varchar,
+        display_name -> Varchar,
+        template_id -> Nullable<Int4>,
+        settings -> Jsonb,
+        mobile_behavior -> Nullable<Varchar>,
+        hamburger_icon -> Nullable<Varchar>,
+        is_active -> Bool,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
+    menu_templates (id) {
+        id -> Int4,
+        name -> Varchar,
+        template_type -> Varchar,
+        layout_style -> Varchar,
+        settings -> Jsonb,
+        is_active -> Bool,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     navigation (id) {
         id -> Int4,
         title -> Varchar,
@@ -80,6 +124,13 @@ diesel::table! {
         is_active -> Bool,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
+        menu_area -> Varchar,
+        parent_id -> Nullable<Int4>,
+        icon -> Nullable<Varchar>,
+        css_class -> Nullable<Varchar>,
+        target -> Nullable<Varchar>,
+        mobile_visible -> Bool,
+        description -> Nullable<Text>,
     }
 }
 
@@ -180,6 +231,7 @@ diesel::joinable!(component_events -> components (component_id));
 diesel::joinable!(component_styles -> components (component_id));
 diesel::joinable!(components -> templates (template_id));
 diesel::joinable!(media -> users (user_id));
+diesel::joinable!(menu_areas -> menu_templates (template_id));
 diesel::joinable!(page_components -> components (component_id));
 diesel::joinable!(page_components -> pages (page_id));
 diesel::joinable!(page_sections -> pages (page_id));
@@ -194,8 +246,11 @@ diesel::allow_tables_to_appear_in_same_query!(
     comments,
     component_events,
     component_styles,
+    component_templates,
     components,
     media,
+    menu_areas,
+    menu_templates,
     navigation,
     page_components,
     page_sections,

@@ -4901,54 +4901,83 @@ tr:last-child td {
 }
 
 /* Settings Tabs */
-.settings .settings-tabs {
+.settings-tabs {
     display: flex;
     background: rgba(255, 255, 255, 0.05);
-    padding: 0.5rem;
-    gap: 0.5rem;
+    padding: 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 2rem;
+    border-radius: 16px 16px 0 0;
 }
 
-.settings .tab-button {
-    background: transparent;
-    border: none;
-    color: rgba(255, 255, 255, 0.7);
+.settings-tabs .tab-button {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.08) 0%, rgba(51, 65, 85, 0.08) 100%);
+    border: 1px solid rgba(30, 41, 59, 0.15);
+    color: #475569;
     padding: 1rem 1.5rem;
-    border-radius: 12px;
+    margin-right: 1rem !important;
+    border-radius: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-weight: 500;
-    font-size: 0.95rem;
+    font-weight: 600;
+    font-size: 1rem;
     position: relative;
-    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    flex: none !important;
+    min-width: auto !important;
 }
 
-.settings .tab-button::before {
+.settings-tabs .tab-button:last-child {
+    margin-right: 0 !important;
+}
+
+.settings-tabs .tab-button::before {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: left 0.5s ease;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px 16px 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.settings .tab-button:hover::before {
-    left: 100%;
+.settings-tabs .tab-button:hover::before {
+    opacity: 0.6;
 }
 
-.settings .tab-button:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
-    transform: translateY(-1px);
-}
-
-.settings .tab-button.active {
-    background: linear-gradient(135deg, #f093fb, #f5576c);
-    color: white;
-    box-shadow: 0 10px 25px rgba(240, 147, 251, 0.3);
+.settings-tabs .tab-button:hover {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.12) 0%, rgba(51, 65, 85, 0.12) 100%);
+    color: #1e293b;
     transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    border-color: rgba(76, 29, 149, 0.2);
+}
+
+.settings-tabs .tab-button.active {
+    background: linear-gradient(135deg, #4c1d95 0%, #312e81 50%, #1e1b4b 100%);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 30px rgba(76, 29, 149, 0.3);
+    transform: translateY(-2px);
+}
+
+.settings-tabs .tab-button.active::before {
+    opacity: 1;
+    background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+/* Tab Content */
+.settings .tab-content {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0 0 16px 16px;
+    padding: 2.5rem;
+    margin-top: -2rem;
+    min-height: 500px;
 }
 
 /* Settings Panel */
@@ -4957,7 +4986,11 @@ tr:last-child td {
 }
 
 .settings .settings-section {
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .settings .settings-section h3 {
@@ -4983,14 +5016,15 @@ tr:last-child td {
 /* Form Grid */
 .settings .form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2.5rem;
 }
 
 .settings .form-group {
     display: flex;
     flex-direction: column;
+    gap: 0.5rem;
 }
 
 .settings .form-group label {
@@ -5030,6 +5064,16 @@ tr:last-child td {
 .settings .form-group textarea {
     resize: vertical;
     min-height: 100px;
+}
+
+/* Form Actions */
+.settings .form-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
 }
 
 /* Checkbox Groups */
@@ -6531,17 +6575,48 @@ tr:last-child td {
     }
     
     /* Settings */
-    .settings .settings-tabs {
+    .settings-tabs {
         flex-direction: column;
-        padding: 0.25rem;
+        padding: 1rem;
+    }
+    
+    .settings-tabs .tab-button {
+        margin-right: 0 !important;
+        margin-bottom: 0.75rem;
+        flex: none !important;
+        min-width: auto !important;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.08) 0%, rgba(51, 65, 85, 0.08) 100%);
+        border: 1px solid rgba(30, 41, 59, 0.15);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .settings-tabs .tab-button:last-child {
+        margin-bottom: 0;
+    }
+    
+    .settings .tab-content {
+        padding: 1.5rem;
+        margin-top: -1rem;
     }
     
     .settings .settings-panel {
         padding: 1.5rem;
     }
     
+    .settings .settings-section {
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
     .settings .settings-section h3 {
         font-size: 1.2rem;
+    }
+    
+    .settings .form-grid {
+        gap: 1.5rem;
+        grid-template-columns: 1fr;
     }
     
     .settings .users-table {

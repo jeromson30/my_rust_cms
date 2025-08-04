@@ -1,0 +1,468 @@
+/* Mobile Menu & Hamburger Styles */
+
+/* ==============================================
+   HAMBURGER MENU SYSTEM
+   ============================================== */
+
+.hamburger-menu-container {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Hamburger Button */
+.hamburger-button {
+    display: none; /* Hidden by default, shown on mobile */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    color: var(--public-header-text, #fff);
+}
+
+.hamburger-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--public-header-text-hover, #ccc);
+}
+
+.hamburger-button:focus {
+    outline: 2px solid var(--public-link-primary, #2563eb);
+    outline-offset: 2px;
+}
+
+/* Hamburger Icon */
+.hamburger-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.hamburger-svg {
+    width: 100%;
+    height: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hamburger-svg .hamburger-line {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+.hamburger-svg.open .top-line {
+    transform: rotate(45deg) translate(0, 0);
+}
+
+.hamburger-svg.open .middle-line {
+    opacity: 0;
+    transform: scale(0);
+}
+
+.hamburger-svg.open .bottom-line {
+    transform: rotate(-45deg) translate(0, 0);
+}
+
+.hamburger-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Mobile Menu Content */
+.mobile-menu-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80%;
+    max-width: 320px;
+    height: 100vh;
+    background: var(--public-background-light, #ffffff);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* Mobile Menu Header */
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--public-border-light, #e2e8f0);
+    background: var(--public-header-bg, #000000);
+    color: var(--public-header-text, #ffffff);
+}
+
+.mobile-menu-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: inherit;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: inherit;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.close-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile Navigation */
+.mobile-menu-nav {
+    padding: 1rem 0;
+}
+
+.mobile-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mobile-nav-item {
+    border-bottom: 1px solid var(--public-border-light, #e2e8f0);
+}
+
+.mobile-nav-item:last-child {
+    border-bottom: none;
+}
+
+.mobile-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem 1.5rem;
+    color: var(--public-text-primary, #0f172a);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.mobile-nav-link:hover {
+    background: var(--public-background-light, #f8fafc);
+    color: var(--public-link-primary, #2563eb);
+}
+
+.mobile-nav-link.active {
+    background: var(--public-link-primary, #2563eb);
+    color: white;
+}
+
+.mobile-nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--public-link-hover, #1d4ed8);
+}
+
+.mobile-nav-link .nav-icon {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.mobile-nav-link .nav-text {
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.mobile-nav-link .nav-description {
+    font-size: 0.875rem;
+    opacity: 0.7;
+    line-height: 1.3;
+}
+
+/* Mobile Nav Children (Submenu) */
+.mobile-nav-children {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: var(--public-background-light, #f8fafc);
+}
+
+.mobile-nav-children .mobile-nav-link {
+    padding-left: 2.5rem;
+    font-size: 0.875rem;
+}
+
+.mobile-nav-children .nav-text {
+    font-weight: 400;
+}
+
+/* ==============================================
+   COLLAPSED MENU SYSTEM
+   ============================================== */
+
+.collapsed-menu {
+    display: none; /* Hidden by default, shown on mobile */
+}
+
+.nav-list-collapsed {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nav-item-collapsed {
+    width: 100%;
+}
+
+.nav-link-collapsed {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--public-text-primary, #0f172a);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.nav-link-collapsed:hover {
+    background: var(--public-background-light, #f8fafc);
+    color: var(--public-link-primary, #2563eb);
+}
+
+.nav-link-collapsed.active {
+    background: var(--public-link-primary, #2563eb);
+    color: white;
+}
+
+.nav-link-collapsed .nav-icon {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+/* ==============================================
+   DEFAULT MOBILE MENU
+   ============================================== */
+
+.default-mobile-menu {
+    display: none; /* Hidden by default, shown on mobile */
+}
+
+.nav-list-default {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.nav-item-default {
+    flex: 1;
+    min-width: 120px;
+}
+
+.nav-link-default {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    color: var(--public-text-primary, #0f172a);
+    text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid var(--public-border-light, #e2e8f0);
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.nav-link-default:hover {
+    background: var(--public-background-light, #f8fafc);
+    border-color: var(--public-link-primary, #2563eb);
+    color: var(--public-link-primary, #2563eb);
+}
+
+.nav-link-default.active {
+    background: var(--public-link-primary, #2563eb);
+    border-color: var(--public-link-primary, #2563eb);
+    color: white;
+}
+
+.nav-link-default .nav-icon {
+    font-size: 1.5rem;
+}
+
+.nav-link-default .nav-text {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+/* ==============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================== */
+
+/* Show hamburger menu on mobile */
+@media (max-width: 768px) {
+    .hamburger-button {
+        display: flex;
+    }
+    
+    .hamburger-menu-container.active .hamburger-button {
+        background: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Show collapsed menu on tablet */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .collapsed-menu {
+        display: block;
+    }
+}
+
+/* Show default mobile menu on small tablets */
+@media (max-width: 640px) {
+    .default-mobile-menu {
+        display: block;
+    }
+    
+    .mobile-menu-content {
+        width: 90%;
+        max-width: 280px;
+    }
+    
+    .nav-list-default {
+        flex-direction: column;
+    }
+    
+    .nav-item-default {
+        flex: none;
+        min-width: auto;
+    }
+}
+
+/* ==============================================
+   ICON SYSTEM FOR NAVIGATION
+   ============================================== */
+
+/* Icon base styles */
+.nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Common icon classes - you can replace these with your icon font or SVG system */
+.icon-home::before { content: "🏠"; }
+.icon-article::before { content: "📄"; }
+.icon-menu::before { content: "☰"; }
+.icon-dots::before { content: "⋯"; }
+.icon-plus::before { content: "+"; }
+.icon-search::before { content: "🔍"; }
+.icon-user::before { content: "👤"; }
+.icon-settings::before { content: "⚙️"; }
+.icon-about::before { content: "ℹ️"; }
+.icon-contact::before { content: "📞"; }
+.icon-blog::before { content: "📝"; }
+.icon-gallery::before { content: "🖼️"; }
+
+/* ==============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================== */
+
+/* Focus management */
+.mobile-menu-overlay[aria-hidden="true"] {
+    visibility: hidden;
+}
+
+/* Screen reader only text */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .mobile-nav-link {
+        border: 1px solid transparent;
+    }
+    
+    .mobile-nav-link:hover,
+    .mobile-nav-link:focus {
+        border-color: currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .hamburger-svg,
+    .hamburger-svg .hamburger-line,
+    .mobile-menu-overlay,
+    .mobile-menu-content,
+    .mobile-nav-link {
+        transition: none;
+        animation: none;
+    }
+    
+    .mobile-menu-content {
+        animation: none;
+        transform: translateX(0);
+    }
+}
+
+/* ==============================================
+   DARK MODE SUPPORT
+   ============================================== */
+
+@media (prefers-color-scheme: dark) {
+    .mobile-menu-content {
+        background: var(--public-background-dark, #1e293b);
+        color: var(--public-text-dark, #f1f5f9);
+    }
+    
+    .mobile-nav-link {
+        color: var(--public-text-dark, #f1f5f9);
+    }
+    
+    .mobile-nav-link:hover {
+        background: var(--public-background-dark-hover, #334155);
+    }
+}

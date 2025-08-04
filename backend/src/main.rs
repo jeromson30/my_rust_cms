@@ -127,6 +127,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 url: "/".to_string(),
                 order_position: 1,
                 is_active: true,
+                menu_area: "header".to_string(),
+                parent_id: None,
+                icon: Some("home".to_string()),
+                css_class: None,
+                target: Some("_self".to_string()),
+                mobile_visible: true,
+                description: Some("Homepage link".to_string()),
             };
             let _home = Navigation::create(&mut conn, home_nav)?;
             info!("Created default navigation item: Home");
@@ -136,6 +143,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 url: "/posts".to_string(),
                 order_position: 2,
                 is_active: true,
+                menu_area: "header".to_string(),
+                parent_id: None,
+                icon: Some("article".to_string()),
+                css_class: None,
+                target: Some("_self".to_string()),
+                mobile_visible: true,
+                description: Some("View all posts".to_string()),
             };
             let _posts = Navigation::create(&mut conn, posts_nav)?;
             info!("Created default navigation item: Posts");
@@ -154,6 +168,205 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             };
             let _setting = Setting::create(&mut conn, admin_button_setting)?;
             info!("Created default setting: admin_button_visible = true");
+        }
+
+        // Create default menu areas if they don't exist
+        use diesel::prelude::*;
+        use crate::schema::menu_areas;
+        
+        let existing_areas = menu_areas::table.load::<MenuArea>(&mut conn)?;
+        if existing_areas.is_empty() {
+            let default_areas = vec![
+                (
+                    "header",
+                    "Header Menu",
+                    serde_json::json!({
+                        "layout": "horizontal",
+                        "position": "sticky",
+                        "background": "#ffffff",
+                        "text_color": "#333333"
+                    }),
+                    Some("hamburger"),
+                    true
+                ),
+                (
+                    "footer", 
+                    "Footer Menu",
+                    serde_json::json!({
+                        "layout": "horizontal",
+                        "position": "bottom",
+                        "background": "#f8f9fa",
+                        "text_color": "#666666"
+                    }),
+                    None,
+                    true
+                ),
+                (
+                    "floating",
+                    "Floating Menu", 
+                    serde_json::json!({
+                        "layout": "vertical",
+                        "position": "fixed-right",
+                        "background": "#ffffff",
+                        "text_color": "#333333"
+                    }),
+                    None,
+                    false
+                ),
+            ];
+
+            for (area_name_str, display_name_str, settings_val, mobile_behavior_opt, is_active_val) in default_areas {
+                let new_area = crate::models::navigation::NewMenuArea {
+                    area_name: area_name_str.to_string(),
+                    display_name: display_name_str.to_string(),
+                    template_id: None,
+                    settings: settings_val,
+                    mobile_behavior: mobile_behavior_opt.map(|s| s.to_string()),
+                    hamburger_icon: if area_name_str == "header" { Some("☰".to_string()) } else { None },
+                    is_active: is_active_val,
+                };
+                
+                use crate::schema::menu_areas::dsl::*;
+                diesel::insert_into(menu_areas)
+                    .values(&new_area)
+                    .execute(&mut conn)?;
+                info!("Created default menu area: {}", display_name_str);
+            }
+        }
+
+        // Create default component templates if they don't exist
+        use crate::schema::component_templates;
+        
+        let existing_templates = component_templates::table.load::<ComponentTemplate>(&mut conn)?;
+        if existing_templates.is_empty() {
+            let default_templates = vec![
+                (
+                    "Header Template",
+                    "header",
+                    serde_json::json!({
+                        "position": "sticky",
+                        "height": "80px",
+                        "background": "#ffffff",
+                        "container_width": "contained",
+                        "navigation_layout": "horizontal",
+                        "logo_type": "text",
+                        "logo_size": "1.5rem",
+                        "mobile_menu": "hamburger",
+                        "mobile_breakpoint": "768px"
+                    }),
+                    serde_json::json!({
+                        "mobile": "768px",
+                        "tablet": "1024px", 
+                        "desktop": "1200px"
+                    }),
+                    Some("contained"),
+                    Some("1200px"),
+                    true,
+                    true
+                ),
+                (
+                    "Footer Template",
+                    "footer",
+                    serde_json::json!({
+                        "style": "simple",
+                        "container_width": "full",
+                        "padding": "3rem 0",
+                        "navigation_layout": "horizontal",
+                        "copyright_position": "center",
+                        "copyright_text": "© 2024 My Rust CMS",
+                        "additional_text": "Built with Rust & Yew"
+                    }),
+                    serde_json::json!({
+                        "mobile": "768px",
+                        "tablet": "1024px",
+                        "desktop": "1200px"
+                    }),
+                    Some("full"),
+                    None,
+                    true,
+                    true
+                ),
+                (
+                    "Sidebar Template",
+                    "sidebar",
+                    serde_json::json!({
+                        "position": "right",
+                        "width": "300px",
+                        "sticky": true,
+                        "mobile_display": "hidden",
+                        "mobile_breakpoint": "768px",
+                        "sections": ["navigation", "recent_posts"]
+                    }),
+                    serde_json::json!({
+                        "mobile": "768px",
+                        "tablet": "1024px",
+                        "desktop": "1200px"
+                    }),
+                    Some("fixed"),
+                    Some("300px"),
+                    false,
+                    true
+                ),
+                (
+                    "Modal Template",
+                    "modal",
+                    serde_json::json!({
+                        "backdrop": "blur",
+                        "position": "center",
+                        "animation": "fade",
+                        "max_width": "600px",
+                        "z_index": 1000
+                    }),
+                    serde_json::json!({
+                        "mobile": "95%",
+                        "tablet": "80%",
+                        "desktop": "600px"
+                    }),
+                    Some("responsive"),
+                    Some("600px"),
+                    false,
+                    true
+                ),
+                (
+                    "Main Container Template",
+                    "main_container",
+                    serde_json::json!({
+                        "width_type": "fixed",
+                        "max_width": "1200px",
+                        "padding": "1rem",
+                        "grid_system": "css_grid",
+                        "responsive": true
+                    }),
+                    serde_json::json!({
+                        "mobile": "100%",
+                        "tablet": "90%", 
+                        "desktop": "1200px"
+                    }),
+                    Some("fixed"),
+                    Some("1200px"),
+                    true,
+                    true
+                ),
+            ];
+
+            for (name_str, component_type_str, template_data_val, breakpoints_val, width_setting_opt, max_width_opt, is_default_val, is_active_val) in default_templates {
+                let new_template = crate::models::navigation::NewComponentTemplate {
+                    name: name_str.to_string(),
+                    component_type: component_type_str.to_string(),
+                    template_data: template_data_val,
+                    breakpoints: breakpoints_val,
+                    width_setting: width_setting_opt.map(|s| s.to_string()),
+                    max_width: max_width_opt.map(|s| s.to_string()),
+                    is_default: is_default_val,
+                    is_active: is_active_val,
+                };
+                
+                use crate::schema::component_templates::dsl::*;
+                diesel::insert_into(component_templates)
+                    .values(&new_template)
+                    .execute(&mut conn)?;
+                info!("Created default component template: {}", name_str);
+            }
         }
     }
 
@@ -188,6 +401,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/posts/:id", get(controllers::posts::get_post))
         .route("/api/categories", get(controllers::admin::get_categories))
         .route("/api/navigation", get(controllers::navigation::get_navigation))
+        .route("/api/navigation/area/:area", get(controllers::navigation::get_navigation_by_area))
+        .route("/api/menu-areas/:name", get(controllers::navigation::get_menu_area_by_name))
         .route("/api/pages", get(controllers::pages::get_pages))
         .route("/api/pages/:id", get(controllers::pages::get_page))
         .route("/api/pages/slug/:slug", get(controllers::pages::get_page_by_slug))
@@ -218,6 +433,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/components", get(controllers::admin::get_components))
         .route("/api/navigation", post(controllers::navigation::create_navigation_item))
         .route("/api/navigation/:id", put(controllers::navigation::update_navigation_item).delete(controllers::navigation::delete_navigation_item))
+        // Enhanced navigation management routes
+        .route("/api/menu-areas", get(controllers::navigation::get_menu_areas))
+        .route("/api/menu-areas/:name", put(controllers::navigation::update_menu_area))
+        .route("/api/menu-templates", get(controllers::navigation::get_menu_templates).post(controllers::navigation::create_menu_template))
+        .route("/api/menu-templates/type/:template_type", get(controllers::navigation::get_menu_templates_by_type))
+        .route("/api/component-templates", get(controllers::navigation::get_component_templates).post(controllers::navigation::create_component_template))
+        .route("/api/component-templates/:id", put(controllers::navigation::update_component_template))
+        .route("/api/component-templates/type/:component_type", get(controllers::navigation::get_component_templates_by_type))
         .route("/api/pages", post(controllers::pages::create_page))
         .route("/api/pages/:id", put(controllers::pages::update_page).delete(controllers::pages::delete_page))
         .route("/api/stats", get(controllers::admin::get_stats))
