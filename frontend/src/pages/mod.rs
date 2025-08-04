@@ -12,4 +12,5 @@ mod comment_moderation;
 mod not_found;
 
 // Export modules for direct access
-// Pages are accessed via module::Page syntax 
+// Pages are accessed via module::Page syntax
+pub use dashboard::Dashboard; 

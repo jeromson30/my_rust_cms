@@ -1,5 +1,5 @@
-mod header;
-mod sidebar;
+pub mod header;
+pub mod sidebar;
 mod notification;
 mod public_layout;
 mod media_picker;
@@ -12,6 +12,7 @@ pub mod page_builder;
 pub mod performance_monitor;
 
 // Export essential components that are used across the app
+pub use sidebar::ActiveTab;
 pub use public_layout::PublicLayout;
 pub use posts_list_widget::PostsListWidget;
 pub use auth_guard::AdminGuard;

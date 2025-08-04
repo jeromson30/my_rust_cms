@@ -26,7 +26,7 @@ pub fn app() -> Html {
                 <Sidebar on_tab_click={switch_tab} active_tab={(*active_tab).clone()} />
                 <main class="content">
                     {match *active_tab {
-                        ActiveTab::Dashboard => html! { <Dashboard /> },
+                        ActiveTab::Dashboard => html! { <Dashboard on_navigate={switch_tab.clone()} /> },
                         ActiveTab::Posts => html! { <PostList /> },
                         ActiveTab::Pages => html! { <PageBuilder /> },
                         ActiveTab::Media => html! { <MediaLibrary /> },

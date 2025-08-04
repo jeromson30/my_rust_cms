@@ -1,8 +1,14 @@
 use yew::prelude::*;
 use crate::services::api_service::{get_stats, get_posts, Stats, Post};
+use crate::components::ActiveTab;
+
+#[derive(Properties, PartialEq)]
+pub struct DashboardProps {
+    pub on_navigate: Callback<ActiveTab>,
+}
 
 #[function_component(Dashboard)]
-pub fn dashboard() -> Html {
+pub fn dashboard(props: &DashboardProps) -> Html {
     let stats = use_state(|| Stats {
         total_posts: 0,
         total_users: 0,
@@ -126,10 +132,34 @@ pub fn dashboard() -> Html {
                         <div class="quick-actions">
                             <h2>{"Quick Actions"}</h2>
                             <div class="actions-grid">
-                                <button class="action-btn">{"Create New Post"}</button>
-                                <button class="action-btn">{"Add New Page"}</button>
-                                <button class="action-btn">{"Upload Media"}</button>
-                                <button class="action-btn">{"Manage Users"}</button>
+                                <button 
+                                    class="action-btn"
+                                    onclick={{
+                                        let on_navigate = props.on_navigate.clone();
+                                        Callback::from(move |_| on_navigate.emit(ActiveTab::Posts))
+                                    }}
+                                >{"Create New Post"}</button>
+                                <button 
+                                    class="action-btn"
+                                    onclick={{
+                                        let on_navigate = props.on_navigate.clone();
+                                        Callback::from(move |_| on_navigate.emit(ActiveTab::Pages))
+                                    }}
+                                >{"Add New Page"}</button>
+                                <button 
+                                    class="action-btn"
+                                    onclick={{
+                                        let on_navigate = props.on_navigate.clone();
+                                        Callback::from(move |_| on_navigate.emit(ActiveTab::Media))
+                                    }}
+                                >{"Upload Media"}</button>
+                                <button 
+                                    class="action-btn"
+                                    onclick={{
+                                        let on_navigate = props.on_navigate.clone();
+                                        Callback::from(move |_| on_navigate.emit(ActiveTab::Users))
+                                    }}
+                                >{"Manage Users"}</button>
                             </div>
                         </div>
                     </div>
