@@ -77,6 +77,7 @@ pub struct PageItem {
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
+#[allow(dead_code)]
 pub struct Category {
     pub id: i32,
     pub name: String,
@@ -503,6 +504,7 @@ pub async fn delete_page(id: i32) -> Result<(), ApiServiceError> {
 }
 
 // Categories API
+#[allow(dead_code)]
 pub async fn get_categories() -> Result<Vec<Category>, ApiServiceError> {
     let response = create_authenticated_request("GET", &format!("{}/categories", API_BASE_URL))?
         .send()
@@ -726,6 +728,7 @@ pub async fn get_data_snapshot() -> Result<DataSnapshot, ApiServiceError> {
     }
 }
 
+#[allow(dead_code)]
 pub async fn restore_backup(backup_id: &str) -> Result<String, ApiServiceError> {
     let response = create_authenticated_request("POST", &format!("{}/system/backup/{}/restore", API_BASE_URL, backup_id))?
         .send()

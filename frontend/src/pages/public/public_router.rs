@@ -403,39 +403,341 @@ fn render_page_builder_content_with_navigation(content: &str, on_navigate: Optio
 
 
 
-// Simplified component renderer for public pages with navigation callback
-fn render_component_content_public_with_navigation(component: &PageComponent, on_navigate: Option<Callback<PublicPage>>) -> Html {
+// Comprehensive component renderer for public pages with navigation callback
+pub fn render_component_content_public_with_navigation(component: &PageComponent, on_navigate: Option<Callback<PublicPage>>) -> Html {
     match component.component_type {
-        ComponentType::Text | ComponentType::Heading | ComponentType::Subheading | 
-        ComponentType::Hero | ComponentType::Card | ComponentType::List | ComponentType::Quote => {
-            // Render as markdown
-            let parser = pulldown_cmark::Parser::new(&component.content);
-            let mut html_output = String::new();
-            pulldown_cmark::html::push_html(&mut html_output, parser);
+        ComponentType::Text => {
             html! {
-                <div class="component" style={format_component_styles(&component.styles)}>
-                    {Html::from_html_unchecked(html_output.into())}
+                <div class="component text-component" style={format_component_styles(&component.styles)}>
+                    <p>{&component.content}</p>
                 </div>
             }
         }
-        ComponentType::Button | ComponentType::Link => {
-            let parser = pulldown_cmark::Parser::new(&component.content);
-            let mut html_output = String::new();
-            pulldown_cmark::html::push_html(&mut html_output, parser);
+        ComponentType::Heading => {
             html! {
-                <div class="component button-component" style={format_component_styles(&component.styles)}>
-                    {Html::from_html_unchecked(html_output.into())}
+                <div class="component heading-component" style={format_component_styles(&component.styles)}>
+                    <h1>{&component.content}</h1>
+                </div>
+            }
+        }
+        ComponentType::Subheading => {
+            html! {
+                <div class="component subheading-component" style={format_component_styles(&component.styles)}>
+                    <h2>{&component.content}</h2>
+                </div>
+            }
+        }
+        ComponentType::Hero => {
+            // Create hero section with full-width background and centered content
+            let hero_style = format!(
+                "{}; display: flex; align-items: center; justify-content: center; min-height: 300px; position: relative; overflow: hidden;",
+                format_component_styles(&component.styles)
+            );
+            
+            html! {
+                <div class="component hero-component" style={hero_style}>
+                    <div class="hero-content" style="text-align: center; z-index: 2; position: relative;">
+                        <h1 style="margin: 0; font-size: inherit; color: inherit;">{&component.content}</h1>
+                    </div>
+                </div>
+            }
+        }
+        ComponentType::Card => {
+            // Parse content for structured card display
+            let lines: Vec<&str> = component.content.lines().collect();
+            let title = lines.first().unwrap_or(&"").to_string();
+            let content = lines.get(1..).map(|l| l.join("\n")).unwrap_or_default();
+            
+            let card_style = format!(
+                "{}; display: block; transition: transform 0.2s ease, box-shadow 0.2s ease;",
+                format_component_styles(&component.styles)
+            );
+            
+            html! {
+                <div class="component card-component" style={card_style}>
+                    if !title.is_empty() {
+                        <h3 style="margin-top: 0; color: inherit;">{title}</h3>
+                    }
+                    <div class="card-content">
+                        {render_markdown_content(&content)}
+                    </div>
+                </div>
+            }
+        }
+        ComponentType::Button => {
+            let button_url = &component.properties.button_url;
+            let button_target = &component.properties.button_target;
+            let button_text = if component.properties.button_text.is_empty() {
+                &component.content
+            } else {
+                &component.properties.button_text
+            };
+            
+            let button_style = format!(
+                "{}; display: inline-block; text-decoration: none; cursor: pointer; border: none; transition: all 0.2s ease;",
+                format_component_styles(&component.styles)
+            );
+            
+            if button_url.starts_with('/') {
+                // Internal link - use navigation callback
+                let url = button_url.clone();
+                let nav_callback = on_navigate.clone();
+                let onclick = move |_: web_sys::MouseEvent| {
+                    if let Some(nav_cb) = &nav_callback {
+                        if url.starts_with("/page/") {
+                            let slug = url.strip_prefix("/page/").unwrap_or("").to_string();
+                            nav_cb.emit(PublicPage::Page(slug));
+                        } else if url == "/posts" {
+                            nav_cb.emit(PublicPage::Posts);
+                        } else if url == "/" {
+                            nav_cb.emit(PublicPage::Home);
+                        }
+                    }
+                };
+                
+                html! {
+                    <div class="component button-component">
+                        <button class="btn" style={button_style} onclick={onclick}>
+                            {button_text}
+                        </button>
+                    </div>
+                }
+            } else {
+                // External link
+                html! {
+                    <div class="component button-component">
+                        <a href={button_url.clone()} target={button_target.clone()} class="btn" style={button_style}>
+                            {button_text}
+                        </a>
+                    </div>
+                }
+            }
+        }
+        ComponentType::Link => {
+            let button_url = &component.properties.button_url;
+            let button_target = &component.properties.button_target;
+            let link_text = if component.properties.button_text.is_empty() {
+                &component.content
+            } else {
+                &component.properties.button_text
+            };
+            
+            html! {
+                <div class="component link-component" style={format_component_styles(&component.styles)}>
+                    <a href={button_url.clone()} target={button_target.clone()}>
+                        {link_text}
+                    </a>
+                </div>
+            }
+        }
+        ComponentType::Container => {
+            let max_width = &component.properties.container_max_width;
+            let align = &component.properties.container_align;
+            
+            let container_style = format!(
+                "{}; max-width: {}; margin: 0 {}; width: 100%;",
+                format_component_styles(&component.styles),
+                max_width,
+                if align == "center" { "auto" } else if align == "right" { "0 0 0 auto" } else { "0 auto 0 0" }
+            );
+            
+            html! {
+                <div class="component container-component" style={container_style}>
+                    {render_nested_content(&component.content, on_navigate.clone())}
+                </div>
+            }
+        }
+        ComponentType::TwoColumn => {
+            let column_style = format!(
+                "display: grid; grid-template-columns: 1fr 1fr; gap: 20px; {}",
+                format_component_styles(&component.styles)
+            );
+            
+            // Try to parse as nested column content first
+            if component.content.trim().starts_with('{') && component.content.contains("\"column1\"") && component.content.contains("\"column2\"") {
+                match serde_json::from_str::<serde_json::Value>(&component.content) {
+                    Ok(columns_data) => {
+                        let column1_content = columns_data.get("column1").and_then(|v| v.as_str()).unwrap_or("");
+                        let column2_content = columns_data.get("column2").and_then(|v| v.as_str()).unwrap_or("");
+                        
+                        return html! {
+                            <div class="component two-column-component" style={column_style}>
+                                <div class="column">
+                                    {render_nested_content(column1_content, on_navigate.clone())}
+                                </div>
+                                <div class="column">
+                                    {render_nested_content(column2_content, on_navigate.clone())}
+                                </div>
+                            </div>
+                        }
+                    }
+                    Err(_) => {
+                        // Fall back to text splitting
+                    }
+                }
+            }
+            
+            // Fall back to original text splitting approach
+            let parts: Vec<&str> = component.content.split("\n\n").collect();
+            html! {
+                <div class="component two-column-component" style={column_style}>
+                    <div class="column">
+                        {render_markdown_content(parts.get(0).unwrap_or(&""))}
+                    </div>
+                    <div class="column">
+                        {render_markdown_content(parts.get(1).unwrap_or(&""))}
+                    </div>
                 </div>
             }
         }
         ComponentType::ThreeColumn => {
+            let column_style = format!(
+                "display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; {}",
+                format_component_styles(&component.styles)
+            );
+            
+            // Try to parse as nested column content first
+            if component.content.trim().starts_with('{') && component.content.contains("\"column1\"") && component.content.contains("\"column2\"") && component.content.contains("\"column3\"") {
+                match serde_json::from_str::<serde_json::Value>(&component.content) {
+                    Ok(columns_data) => {
+                        let column1_content = columns_data.get("column1").and_then(|v| v.as_str()).unwrap_or("");
+                        let column2_content = columns_data.get("column2").and_then(|v| v.as_str()).unwrap_or("");
+                        let column3_content = columns_data.get("column3").and_then(|v| v.as_str()).unwrap_or("");
+                        
+                        return html! {
+                            <div class="component three-column-component" style={column_style}>
+                                <div class="column">
+                                    {render_nested_content(column1_content, on_navigate.clone())}
+                                </div>
+                                <div class="column">
+                                    {render_nested_content(column2_content, on_navigate.clone())}
+                                </div>
+                                <div class="column">
+                                    {render_nested_content(column3_content, on_navigate.clone())}
+                                </div>
+                            </div>
+                        }
+                    }
+                    Err(_) => {
+                        // Fall back to text splitting
+                    }
+                }
+            }
+            
+            // Fall back to original text splitting approach
             let parts: Vec<&str> = component.content.split("\n\n").collect();
-            html! { 
-                <div class="component three-column-component" style={format!("display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; {}", format_component_styles(&component.styles))}>
-                    <div class="column">{render_markdown_content(parts.get(0).unwrap_or(&""))}</div>
-                    <div class="column">{render_markdown_content(parts.get(1).unwrap_or(&""))}</div>
-                    <div class="column">{render_markdown_content(parts.get(2).unwrap_or(&""))}</div>
-                </div> 
+            html! {
+                <div class="component three-column-component" style={column_style}>
+                    <div class="column">
+                        {render_markdown_content(parts.get(0).unwrap_or(&""))}
+                    </div>
+                    <div class="column">
+                        {render_markdown_content(parts.get(1).unwrap_or(&""))}
+                    </div>
+                    <div class="column">
+                        {render_markdown_content(parts.get(2).unwrap_or(&""))}
+                    </div>
+                </div>
+            }
+        }
+        ComponentType::Image => {
+            let image_url = &component.properties.image_url;
+            let image_alt = &component.properties.image_alt;
+            let image_title = &component.properties.image_title;
+            
+            html! {
+                <div class="component image-component" style={format_component_styles(&component.styles)}>
+                    <img 
+                        src={image_url.clone()} 
+                        alt={image_alt.clone()} 
+                        title={image_title.clone()}
+                        style="max-width: 100%; height: auto; display: block;"
+                    />
+                    if !component.content.is_empty() {
+                        <figcaption style="margin-top: 8px; font-style: italic; color: #666;">
+                            {&component.content}
+                        </figcaption>
+                    }
+                </div>
+            }
+        }
+        ComponentType::List => {
+            let list_type = &component.properties.list_type;
+            let items: Vec<&str> = component.content.lines()
+                .filter(|line| !line.trim().is_empty())
+                .map(|line| line.trim_start_matches("• ").trim_start_matches("- ").trim_start_matches("* "))
+                .collect();
+            
+            html! {
+                <div class="component list-component" style={format_component_styles(&component.styles)}>
+                    if list_type == "ordered" {
+                        <ol>
+                            {items.iter().map(|item| html! { <li>{item}</li> }).collect::<Html>()}
+                        </ol>
+                    } else {
+                        <ul>
+                            {items.iter().map(|item| html! { <li>{item}</li> }).collect::<Html>()}
+                        </ul>
+                    }
+                </div>
+            }
+        }
+        ComponentType::Quote => {
+            html! {
+                <div class="component quote-component" style={format_component_styles(&component.styles)}>
+                    <blockquote style="margin: 0; padding-left: 20px; border-left: 4px solid #ddd; font-style: italic;">
+                        {render_markdown_content(&component.content)}
+                    </blockquote>
+                </div>
+            }
+        }
+        ComponentType::Spacer => {
+            let height = if component.content.is_empty() { "20px" } else { &component.content };
+            html! {
+                <div class="component spacer-component" style={format!("height: {}; {}", height, format_component_styles(&component.styles))}>
+                </div>
+            }
+        }
+        ComponentType::Divider => {
+            let thickness = &component.properties.divider_thickness;
+            let color = &component.properties.divider_color;
+            let divider_style = &component.properties.divider_style;
+            let width = &component.properties.divider_width;
+            
+            let hr_style = format!(
+                "border: none; border-top: {} {} {}; width: {}; margin: 0; {}",
+                thickness, divider_style, color, width, format_component_styles(&component.styles)
+            );
+            
+            html! {
+                <div class="component divider-component">
+                    <hr style={hr_style} />
+                </div>
+            }
+        }
+        ComponentType::Video => {
+            let video_url = &component.properties.video_url;
+            let autoplay = component.properties.video_autoplay;
+            let controls = component.properties.video_controls;
+            let muted = component.properties.video_muted;
+            let loop_video = component.properties.video_loop;
+            
+            html! {
+                <div class="component video-component" style={format_component_styles(&component.styles)}>
+                    <video 
+                        src={video_url.clone()}
+                        controls={controls}
+                        autoplay={autoplay}
+                        muted={muted}
+                        loop={loop_video}
+                        style="width: 100%; height: auto;"
+                    >
+                        {"Your browser does not support the video tag."}
+                    </video>
+                    if !component.content.is_empty() {
+                        <p style="margin-top: 8px;">{&component.content}</p>
+                    }
+                </div>
             }
         }
         ComponentType::PostsList => {
@@ -508,19 +810,128 @@ fn render_component_content_public_with_navigation(component: &PageComponent, on
                 </div>
             }
         }
-        _ => {
-            // Fallback for other component types
+        ComponentType::Gallery => {
+            let columns = component.properties.gallery_columns;
+            let _layout = &component.properties.gallery_layout;
+            
             html! {
-                <div class="component" style={format_component_styles(&component.styles)}>
-                    {render_markdown_content(&component.content)}
+                <div class="component gallery-component" style={format_component_styles(&component.styles)}>
+                    <div class="gallery-grid" style={format!(
+                        "display: grid; grid-template-columns: repeat({}, 1fr); gap: 16px;",
+                        columns
+                    )}>
+                        {component.properties.gallery_images.iter().map(|image| {
+                            html! {
+                                <div class="gallery-item">
+                                    <img 
+                                        src={image.url.clone()} 
+                                        alt={image.alt.clone()}
+                                        title={image.title.clone()}
+                                        style="width: 100%; height: auto; border-radius: 8px;"
+                                    />
+                                    if !image.caption.is_empty() {
+                                        <p class="caption" style="margin: 8px 0 0 0; font-size: 14px; color: #666;">
+                                            {&image.caption}
+                                        </p>
+                                    }
+                                </div>
+                            }
+                        }).collect::<Html>()}
+                    </div>
+                </div>
+            }
+        }
+        ComponentType::ContactForm => {
+            html! {
+                <div class="component contact-form-component" style={format_component_styles(&component.styles)}>
+                    <form>
+                        <div style="margin-bottom: 16px;">
+                            <label for="name" style="display: block; margin-bottom: 4px;">{"Name"}</label>
+                            <input type="text" id="name" name="name" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label for="email" style="display: block; margin-bottom: 4px;">{"Email"}</label>
+                            <input type="email" id="email" name="email" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label for="message" style="display: block; margin-bottom: 4px;">{"Message"}</label>
+                            <textarea id="message" name="message" rows="5" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
+                        </div>
+                        <button type="submit" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+                            {"Send Message"}
+                        </button>
+                    </form>
+                </div>
+            }
+        }
+        ComponentType::Newsletter => {
+            html! {
+                <div class="component newsletter-component" style={format_component_styles(&component.styles)}>
+                    <div style="text-align: center;">
+                        if !component.content.is_empty() {
+                            <p>{&component.content}</p>
+                        } else {
+                            <p>{"Subscribe to our newsletter for updates!"}</p>
+                        }
+                        <form style="display: flex; gap: 8px; justify-content: center; max-width: 400px; margin: 0 auto;">
+                            <input 
+                                type="email" 
+                                placeholder="Enter your email" 
+                                style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"
+                            />
+                            <button 
+                                type="submit" 
+                                style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;"
+                            >
+                                {"Subscribe"}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        ComponentType::Map => {
+            html! {
+                <div class="component map-component" style={format_component_styles(&component.styles)}>
+                    <div style="background: #f0f0f0; padding: 40px; text-align: center; border-radius: 8px; color: #666;">
+                        <p>{"🗺️ Map Component"}</p>
+                        <p>{"Map integration would be implemented here"}</p>
+                        if !component.content.is_empty() {
+                            <p>{&component.content}</p>
+                        }
+                    </div>
                 </div>
             }
         }
     }
 }
 
+// Helper function to render nested components or markdown content
+fn render_nested_content(content: &str, on_navigate: Option<Callback<PublicPage>>) -> Html {
+    // Try to parse as JSON array of nested components first
+    if content.trim().starts_with('[') && content.trim().ends_with(']') {
+        match serde_json::from_str::<Vec<PageComponent>>(content) {
+            Ok(nested_components) => {
+                return html! {
+                    <div class="nested-components">
+                        {nested_components.iter().map(|component| {
+                            render_component_content_public_with_navigation(component, on_navigate.clone())
+                        }).collect::<Html>()}
+                    </div>
+                }
+            }
+            Err(_) => {
+                // Fall back to markdown if JSON parsing fails
+            }
+        }
+    }
+    
+    // Render as markdown
+    render_markdown_content(content)
+}
+
 // Helper function to render markdown content
-fn render_markdown_content(content: &str) -> Html {
+pub fn render_markdown_content(content: &str) -> Html {
     let parser = pulldown_cmark::Parser::new(content);
     let mut html_output = String::new();
     pulldown_cmark::html::push_html(&mut html_output, parser);
@@ -528,7 +939,7 @@ fn render_markdown_content(content: &str) -> Html {
 }
 
 // Helper function to format component styles
-fn format_component_styles(styles: &crate::components::page_builder::ComponentStyles) -> String {
+pub fn format_component_styles(styles: &crate::components::page_builder::ComponentStyles) -> String {
     format!(
         "background-color: {}; color: {}; padding: {}; margin: {}; border-radius: {}; font-size: {}; font-weight: {}; text-align: {}; border: {}px {} {}; opacity: {}; z-index: {}; font-family: {}; line-height: {}; letter-spacing: {}; text-decoration: {}; text-transform: {};",
         styles.background_color,

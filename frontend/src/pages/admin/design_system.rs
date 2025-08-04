@@ -2222,7 +2222,7 @@ pub fn apply_admin_css_variables(scheme: &AdminColorScheme) {
             body.set_class_name(&new_class);
         }
         
-        if let Some(root) = document.document_element() {
+        if let Some(_root) = document.document_element() {
             // Remove any existing admin variables to prevent conflicts
             if let Some(style_element) = document.query_selector("style#admin-theme-overrides").ok().flatten() {
                 let _ = style_element.remove();

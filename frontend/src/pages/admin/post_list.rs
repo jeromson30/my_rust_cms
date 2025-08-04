@@ -1,15 +1,23 @@
 use yew::prelude::*;
 use crate::services::api_service::{get_posts, delete_post, Post};
+use crate::components::admin::sidebar::AdminTab;
 
 #[derive(Clone, PartialEq)]
+#[allow(dead_code)]
 pub enum PostListView {
     List,
     Create,
     Edit(Post),
 }
 
+#[derive(Properties, PartialEq)]
+pub struct PostListProps {
+    #[prop_or_default]
+    pub on_navigate: Option<Callback<AdminTab>>,
+}
+
 #[function_component(PostList)]
-pub fn post_list() -> Html {
+pub fn post_list(props: &PostListProps) -> Html {
     let posts = use_state(Vec::<Post>::new);
     let loading = use_state(|| true);
     let error = use_state(|| None::<String>);
@@ -60,8 +68,12 @@ pub fn post_list() -> Html {
     };
 
     let on_create_post = {
-        let current_view = current_view.clone();
-        Callback::from(move |_| current_view.set(PostListView::Create))
+        let on_navigate = props.on_navigate.clone();
+        Callback::from(move |_| {
+            if let Some(ref navigate) = on_navigate {
+                navigate.emit(AdminTab::PostCreate);
+            }
+        })
     };
 
     let on_edit_post = {

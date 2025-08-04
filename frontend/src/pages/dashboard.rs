@@ -3,6 +3,7 @@ use crate::services::api_service::{get_stats, get_posts, Stats, Post};
 use crate::components::ActiveTab;
 
 #[derive(Properties, PartialEq)]
+#[allow(dead_code)]
 pub struct DashboardProps {
     pub on_navigate: Callback<ActiveTab>,
 }

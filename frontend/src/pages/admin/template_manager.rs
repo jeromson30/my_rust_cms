@@ -10,15 +10,7 @@ pub enum TemplateView {
     ContainerSettings,
 }
 
-#[derive(Clone, PartialEq)]
-pub struct MenuAreaState {
-    pub area_name: String,
-    pub display_name: String,
-    pub is_active: bool,
-    pub mobile_behavior: Option<String>,
-    pub hamburger_icon: Option<String>,
-    pub settings: serde_json::Value,
-}
+
 
 #[derive(Clone, PartialEq)]
 pub struct ContainerSettings {
@@ -56,18 +48,7 @@ impl Default for ContainerSettings {
     }
 }
 
-impl Default for MenuAreaState {
-    fn default() -> Self {
-        Self {
-            area_name: String::new(),
-            display_name: String::new(),
-            is_active: false,
-            mobile_behavior: None,
-            hamburger_icon: None,
-            settings: serde_json::json!({}),
-        }
-    }
-}
+
 
 #[function_component(TemplateManager)]
 pub fn template_manager() -> Html {
@@ -709,7 +690,7 @@ pub fn component_templates_view(props: &ComponentTemplatesViewProps) -> Html {
                             web_sys::console::log_1(&"Component template saved successfully".into());
                             saving_clone.set(false);
                             // Close editor programmatically - create a dummy mouse event
-                            if let Some(window) = web_sys::window() {
+                            if let Some(_window) = web_sys::window() {
                                 if let Ok(event) = web_sys::MouseEvent::new("click") {
                                     close_editor_clone.emit(event);
                                 }

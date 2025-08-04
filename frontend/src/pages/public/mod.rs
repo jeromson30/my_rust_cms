@@ -7,4 +7,4 @@ mod public_router;
 
 // Export modules for direct access  
 // Public pages are accessed via module::Page syntax
-pub use public_router::{PublicRouter, PublicPage}; 
+pub use public_router::{PublicRouter, PublicPage, render_component_content_public_with_navigation}; 

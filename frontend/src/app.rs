@@ -24,6 +24,7 @@ fn admin_tab_to_path(tab: &AdminTab) -> String {
     match tab {
         AdminTab::Dashboard => "/admin".to_string(),
         AdminTab::Posts => "/admin/posts".to_string(),
+        AdminTab::PostCreate => "/admin/posts/create".to_string(),
         AdminTab::Pages => "/admin/pages".to_string(),
         AdminTab::Media => "/admin/media".to_string(),
         AdminTab::Users => "/admin/users".to_string(),
@@ -42,6 +43,7 @@ fn path_to_admin_tab(path: &str) -> Option<AdminTab> {
         "/admin" | "/admin/" => Some(AdminTab::Dashboard),
         "/admin/dashboard" => Some(AdminTab::Dashboard),
         "/admin/posts" => Some(AdminTab::Posts),
+        "/admin/posts/create" => Some(AdminTab::PostCreate),
         "/admin/pages" => Some(AdminTab::Pages),
         "/admin/media" => Some(AdminTab::Media),
         "/admin/users" => Some(AdminTab::Users),

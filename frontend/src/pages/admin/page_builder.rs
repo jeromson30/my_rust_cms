@@ -1,7 +1,7 @@
 use yew::prelude::*;
 use crate::components::page_builder::{DragDropPageBuilder, PageComponent};
 use crate::services::api_service::{get_pages, create_page, update_page, delete_page, PageItem};
-
+use crate::pages::public::{PublicPage, render_component_content_public_with_navigation};
 use crate::services::migrate_pages::create_essential_pages;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlInputElement, HtmlSelectElement, Event, MouseEvent};
@@ -259,12 +259,21 @@ pub fn page_builder() -> Html {
         })
     };
 
-    // Toggle preview
-    let toggle_preview = {
+    // Toggle preview callback for toolbar button
+    let toggle_preview_toolbar = {
         let show_preview = show_preview.clone();
         
-        Callback::from(move |_| {
+        Callback::from(move |_: MouseEvent| {
             show_preview.set(!*show_preview);
+        })
+    };
+
+    // Toggle preview callback for preview header button  
+    let toggle_preview_header = {
+        let show_preview = show_preview.clone();
+        
+        Callback::from(move |_: MouseEvent| {
+            show_preview.set(false); // Always return to edit mode
         })
     };
 
@@ -398,7 +407,7 @@ pub fn page_builder() -> Html {
                     }}
                     <button
                         class="btn btn-info"
-                        onclick={toggle_preview}
+                        onclick={toggle_preview_toolbar}
                     >
                         {if *show_preview { "Edit" } else { "Preview" }}
                     </button>
@@ -441,16 +450,20 @@ pub fn page_builder() -> Html {
                     {if *show_preview {
                         html! {
                             <div class="page-preview">
-                                <h1>{(*page_title).clone()}</h1>
-                                <div class="preview-content">
+                                <div class="preview-header">
+                                    <h1 style="margin: 0; color: #2c3e50; font-size: 2.5rem;">{(*page_title).clone()}</h1>
+                                    <p style="margin: 10px 0 20px 0; color: #666; font-size: 1.1rem;">{"Live Preview - This is how your page will appear to visitors"}</p>
+                                    <button
+                                        class="btn btn-primary"
+                                        onclick={toggle_preview_header}
+                                        style="background: #007bff; border: none; padding: 12px 24px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 2px 8px rgba(0,123,255,0.3);"
+                                    >
+                                        {"← Back to Editor"}
+                                    </button>
+                                </div>
+                                <div class="preview-content" style="background: white; min-height: 400px;">
                                     {for page_components.iter().map(|component| {
-                                        html! {
-                                            <div class="preview-component" key={component.id.clone()}>
-                                                <div class="component-content">
-                                                    {component.content.clone()}
-                                                </div>
-                                            </div>
-                                        }
+                                        render_component_content_public_with_navigation(component, None::<Callback<PublicPage>>)
                                     })}
                                 </div>
                             </div>

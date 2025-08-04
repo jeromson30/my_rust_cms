@@ -4,6 +4,7 @@ use yew::prelude::*;
 pub enum AdminTab {
     Dashboard,
     Posts,
+    PostCreate,
     Pages,
     Media,
     Users,

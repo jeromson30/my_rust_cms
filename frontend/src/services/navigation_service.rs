@@ -31,6 +31,7 @@ pub struct MenuArea {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct MenuTemplate {
     pub id: i32,
     pub name: String,
@@ -177,6 +178,7 @@ pub async fn get_navigation_by_area(area: &str) -> Result<Vec<NavigationItem>, N
     }
 }
 
+#[allow(dead_code)]
 pub async fn get_menu_area(name: &str) -> Result<MenuArea, NavigationServiceError> {
     match gloo_net::http::Request::get(&format!("http://localhost:8081/api/menu-areas/{}", name))
         .send()
@@ -242,6 +244,7 @@ pub async fn update_menu_area(name: &str, area: &MenuArea) -> Result<MenuArea, N
     }
 }
 
+#[allow(dead_code)]
 pub async fn get_menu_templates() -> Result<Vec<MenuTemplate>, NavigationServiceError> {
     let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
     
@@ -284,6 +287,7 @@ pub async fn get_component_templates() -> Result<Vec<ComponentTemplate>, Navigat
     }
 }
 
+#[allow(dead_code)]
 pub async fn create_component_template(template: &ComponentTemplate) -> Result<ComponentTemplate, NavigationServiceError> {
     let token = get_auth_token().map_err(|_| NavigationServiceError::NetworkError("Not authenticated".to_string()))?;
     

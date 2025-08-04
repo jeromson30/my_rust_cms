@@ -400,6 +400,43 @@ docker push yourusername/my-rust-cms:latest
       cargo audit
    ```
 
+### Frontend Development Notes
+
+When developing the frontend (Yew WebAssembly), you may encounter build issues depending on the complexity of your changes:
+
+#### Build Mode Guidelines
+
+- **Simple changes**: Use debug mode for faster builds:
+  ```bash
+  cd frontend
+  trunk serve --port 8080
+  ```
+
+- **Complex changes**: Use release mode to avoid WASM compilation errors:
+  ```bash
+  cd frontend
+  trunk serve --port 8080 --release
+  ```
+
+#### "Too Many Locals" Error
+
+If you encounter the error `too many locals: locals exceed maximum`, this is a WASM compilation limitation in debug mode. To resolve:
+
+1. **Always use release mode** for complex applications:
+   ```bash
+   trunk serve --port 8080 --release
+   ```
+
+2. **Clear build cache** if switching between modes:
+   ```bash
+   rm -rf target
+   trunk serve --port 8080 --release
+   ```
+
+3. **Production deployments** should always use release mode for optimal performance.
+
+> **Note**: Release builds take longer but are necessary for complex Rust/Yew applications to avoid WASM local variable limits.
+
 ### Testing
 
 The project includes comprehensive testing:
