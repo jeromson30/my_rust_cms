@@ -179,7 +179,7 @@ pub struct GalleryImage {
     pub title: String,
 }
 
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum ComponentType {
     Text,
     Heading,

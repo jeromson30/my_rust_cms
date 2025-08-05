@@ -611,44 +611,21 @@ pub fn render_component_content_public_with_navigation(component: &PageComponent
                 &component.properties.button_text
             };
             
+            // Enhanced button styling for public pages - ensure visibility
             let button_style = format!(
-                "{}; display: inline-block; text-decoration: none; cursor: pointer; border: none; transition: all 0.2s ease;",
+                "{}; display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; cursor: pointer; border: 1px solid #007bff; border-radius: 4px; font-weight: 500; text-align: center; transition: all 0.2s ease; min-width: 80px;",
                 format_component_styles(&component.styles)
             );
             
-            if button_url.starts_with('/') {
-                // Internal link - use navigation callback
-                let url = button_url.clone();
-                let nav_callback = on_navigate.clone();
-                let onclick = move |_: web_sys::MouseEvent| {
-                    if let Some(nav_cb) = &nav_callback {
-                        if url.starts_with("/page/") {
-                            let slug = url.strip_prefix("/page/").unwrap_or("").to_string();
-                            nav_cb.emit(PublicPage::Page(slug));
-                        } else if url == "/posts" {
-                            nav_cb.emit(PublicPage::Posts);
-                        } else if url == "/" {
-                            nav_cb.emit(PublicPage::Home);
-                        }
-                    }
-                };
-                
-                html! {
-                    <div class="component button-component">
-                        <button class="btn" style={button_style} onclick={onclick}>
-                            {button_text}
-                        </button>
-                    </div>
-                }
-            } else {
-                // External link
-                html! {
-                    <div class="component button-component">
-                        <a href={button_url.clone()} target={button_target.clone()} class="btn" style={button_style}>
-                            {button_text}
-                        </a>
-                    </div>
-                }
+            let href = if button_url.is_empty() { "#".to_string() } else { button_url.clone() };
+            let target = if button_target.is_empty() { "_self".to_string() } else { button_target.clone() };
+            
+            html! {
+                <div class="component button-component" style="margin: 8px 0;">
+                    <a href={href} target={target} class="btn" style={button_style}>
+                        {button_text}
+                    </a>
+                </div>
             }
         }
         ComponentType::Link => {
