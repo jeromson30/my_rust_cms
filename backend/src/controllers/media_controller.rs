@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 use tokio::fs;
 use uuid::Uuid;
+use crate::services::file_security::FileSecurityService;
+use crate::config::Config;
 use crate::database::DbPool;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -39,6 +41,8 @@ async fn upload_file(
     State(_pool): State<DbPool>,
     mut multipart: Multipart,
 ) -> impl IntoResponse {
+    // Initialize file security service with max file size from config
+    let file_security = FileSecurityService::new(10_485_760); // 10MB max
     // Create upload directory if it doesn't exist
     let upload_dir = "backend/uploads";
     if !Path::new(upload_dir).exists() {
@@ -62,8 +66,21 @@ async fn upload_file(
             let content_type = field.content_type().unwrap().to_string();
             let data = field.bytes().await.unwrap();
             
-            // Generate unique filename
-            let file_extension = Path::new(&file_name)
+            // Validate file security before processing
+            if let Err(security_error) = file_security.validate_file(&content_type, &data) {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(UploadResponse {
+                        success: false,
+                        message: format!("File validation failed: {}", security_error),
+                        media: None,
+                    }),
+                );
+            }
+            
+            // Sanitize and generate unique filename
+            let safe_filename = file_security.sanitize_filename(&file_name);
+            let file_extension = Path::new(&safe_filename)
                 .extension()
                 .and_then(|ext| ext.to_str())
                 .unwrap_or("");

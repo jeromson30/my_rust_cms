@@ -22,6 +22,9 @@ use config::Config;
 use database::{DbPool, establish_connection_pool};
 use models::*;
 use middleware::auth::{auth_middleware_with_services, admin_auth_middleware_with_services};
+// Rate limiting temporarily disabled due to API changes
+// use middleware::rate_limiting::{create_auth_rate_limiter, create_upload_rate_limiter};
+use middleware::security_headers::security_headers_middleware;
 
 use services::{SessionManager, SessionConfig};
 
@@ -371,13 +374,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Configure CORS with proper security
-    let cors = CorsLayer::new()
-        .allow_origin([
-            "http://localhost:3000".parse().unwrap(),  // Frontend dev server
-            "http://localhost:8080".parse().unwrap(),  // Frontend prod server
-            "http://127.0.0.1:3000".parse().unwrap(),
-            "http://127.0.0.1:8080".parse().unwrap(),
-        ])
+    let cors = if config.is_development() {
+        // Development CORS - more permissive
+        CorsLayer::new()
+            .allow_origin([
+                "http://localhost:3000".parse().unwrap(),  // Frontend dev server
+                "http://localhost:8080".parse().unwrap(),  // Frontend prod server  
+                "http://127.0.0.1:3000".parse().unwrap(),
+                "http://127.0.0.1:8080".parse().unwrap(),
+            ])
+    } else {
+        // Production CORS - strict origins only
+        // Replace with your actual production frontend domain
+        CorsLayer::new()
+            .allow_origin([
+                "https://yourdomain.com".parse().unwrap(),
+                "https://www.yourdomain.com".parse().unwrap(),
+            ])
+    }
         .allow_methods([
             axum::http::Method::GET,
             axum::http::Method::POST,
@@ -396,8 +410,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let public_routes = Router::new()
         .route("/", get(root))
         .route("/health", get(health))
-        .route("/api/auth/login", post(controllers::auth::login))
         .route("/api/posts", get(controllers::posts::get_posts))
+        .route("/api/auth/login", post(controllers::auth::login))
+        // TODO: Re-enable rate limiting when API is stabilized
+        // .layer(create_auth_rate_limiter())
         .route("/api/posts/:id", get(controllers::posts::get_post))
         .route("/api/categories", get(controllers::admin::get_categories))
         .route("/api/navigation", get(controllers::navigation::get_navigation))
@@ -427,6 +443,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/comments/:id", put(controllers::comments::update_comment).delete(controllers::comments::delete_comment))
         .route("/api/media", get(controllers::media::get_media))
         .route("/api/media/upload", post(controllers::media::upload_media))
+        // TODO: Re-enable upload rate limiting when API is stabilized
+        // .layer(create_upload_rate_limiter())
         .route("/api/media/:id", delete(controllers::media::delete_media))
         .route("/api/sessions", get(controllers::admin::get_sessions))
         .route("/api/settings", get(controllers::admin::get_settings))
@@ -468,10 +486,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .merge(auth_routes)
         .merge(admin_routes)
         .nest_service("/uploads", tower_http::services::ServeDir::new("backend/uploads"))
-        // TODO: Re-enable rate limiting with proper Axum 0.7 compatible middleware
-        // .layer(axum_middleware::from_fn(rate_limit_middleware))
-        .with_state(app_services)
-        .layer(cors);
+        .with_state(app_services.clone())
+        .layer(cors)
+        .layer(axum_middleware::from_fn_with_state(
+            config.clone(),
+            security_headers_middleware
+        ));
 
     // Run the server
     let addr = SocketAddr::new(config.backend_host.parse()?, config.backend_port);

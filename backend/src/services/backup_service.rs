@@ -3,6 +3,11 @@ use std::path::Path;
 use std::fs;
 use chrono::{DateTime, Utc};
 use sha2::{Sha256, Digest};
+use aes_gcm::{
+    aead::{Aead, AeadCore, KeyInit, OsRng},
+    Aes256Gcm, Key, Nonce,
+};
+
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 
@@ -13,6 +18,7 @@ use crate::database::DbPool;
 pub struct BackupService {
     pub backup_dir: String,
     pub database_url: String,
+    pub encryption_key: Option<[u8; 32]>,
 }
 
 #[derive(Debug)]
@@ -46,7 +52,104 @@ impl BackupService {
         Self {
             backup_dir,
             database_url,
+            encryption_key: None,
         }
+    }
+    
+    /// Create a new backup service with encryption enabled
+    pub fn new_with_encryption(backup_dir: String, database_url: String, encryption_key: [u8; 32]) -> Self {
+        // Ensure backup directory exists and set secure permissions
+        if let Err(e) = fs::create_dir_all(&backup_dir) {
+            eprintln!("Warning: Could not create backup directory: {}", e);
+        }
+        
+        // Set restrictive permissions on backup directory (Unix only)
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            if let Ok(metadata) = fs::metadata(&backup_dir) {
+                let mut permissions = metadata.permissions();
+                permissions.set_mode(0o700); // Owner read/write/execute only
+                let _ = fs::set_permissions(&backup_dir, permissions);
+            }
+        }
+        
+        Self {
+            backup_dir,
+            database_url,
+            encryption_key: Some(encryption_key),
+        }
+    }
+    
+    /// Encrypt backup file data
+    fn encrypt_backup_data(&self, data: &[u8]) -> Result<Vec<u8>, BackupError> {
+        if let Some(key) = &self.encryption_key {
+            let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
+            let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
+            
+            match cipher.encrypt(&nonce, data) {
+                Ok(ciphertext) => {
+                    // Prepend nonce to ciphertext for storage
+                    let mut encrypted_data = nonce.to_vec();
+                    encrypted_data.extend_from_slice(&ciphertext);
+                    Ok(encrypted_data)
+                }
+                Err(e) => Err(BackupError::ProcessError(format!("Encryption failed: {}", e)))
+            }
+        } else {
+            // Return data as-is if encryption is not enabled
+            Ok(data.to_vec())
+        }
+    }
+    
+    /// Decrypt backup file data
+    fn decrypt_backup_data(&self, encrypted_data: &[u8]) -> Result<Vec<u8>, BackupError> {
+        if let Some(key) = &self.encryption_key {
+            if encrypted_data.len() < 12 {
+                return Err(BackupError::ValidationError("Encrypted data too short".to_string()));
+            }
+            
+            let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
+            let (nonce_bytes, ciphertext) = encrypted_data.split_at(12);
+            let nonce = Nonce::from_slice(nonce_bytes);
+            
+            match cipher.decrypt(nonce, ciphertext) {
+                Ok(plaintext) => Ok(plaintext),
+                Err(e) => Err(BackupError::ProcessError(format!("Decryption failed: {}", e)))
+            }
+        } else {
+            // Return data as-is if encryption is not enabled
+            Ok(encrypted_data.to_vec())
+        }
+    }
+    
+    /// Write encrypted backup to file
+    fn write_encrypted_backup(&self, data: &[u8], file_path: &str) -> Result<(), BackupError> {
+        let encrypted_data = self.encrypt_backup_data(data)?;
+        
+        fs::write(file_path, encrypted_data)
+            .map_err(|e| BackupError::FileSystemError(format!("Failed to write backup: {}", e)))?;
+        
+        // Set restrictive permissions on backup file (Unix only)
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            if let Ok(metadata) = fs::metadata(file_path) {
+                let mut permissions = metadata.permissions();
+                permissions.set_mode(0o600); // Owner read/write only
+                let _ = fs::set_permissions(file_path, permissions);
+            }
+        }
+        
+        Ok(())
+    }
+    
+    /// Read and decrypt backup from file
+    fn read_encrypted_backup(&self, file_path: &str) -> Result<Vec<u8>, BackupError> {
+        let encrypted_data = fs::read(file_path)
+            .map_err(|e| BackupError::FileSystemError(format!("Failed to read backup: {}", e)))?;
+        
+        self.decrypt_backup_data(&encrypted_data)
     }
 
     /// Create a database backup using pg_dump
