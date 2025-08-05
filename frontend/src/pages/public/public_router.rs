@@ -428,39 +428,177 @@ pub fn render_component_content_public_with_navigation(component: &PageComponent
             }
         }
         ComponentType::Hero => {
-            // Create hero section with full-width background and centered content
+            // Dynamic hero using component properties
+            let background_style = match component.properties.hero_background_type.as_str() {
+                "gradient" => format!(
+                    "background: linear-gradient(135deg, {} 0%, {} 100%);",
+                    component.properties.hero_background_gradient_start,
+                    component.properties.hero_background_gradient_end
+                ),
+                "solid" => format!("background: {};", component.properties.hero_background_color),
+                "image" => if !component.properties.hero_background_image.is_empty() {
+                    format!(
+                        "background: linear-gradient(135deg, {}66 0%, {}66 100%), url({}) center/cover;",
+                        component.properties.hero_background_color,
+                        component.properties.hero_background_color,
+                        component.properties.hero_background_image
+                    )
+                } else {
+                    format!("background: {};", component.properties.hero_background_color)
+                },
+                _ => format!(
+                    "background: linear-gradient(135deg, {} 0%, {} 100%);",
+                    component.properties.hero_background_gradient_start,
+                    component.properties.hero_background_gradient_end
+                ),
+            };
+            
             let hero_style = format!(
-                "{}; display: flex; align-items: center; justify-content: center; min-height: 300px; position: relative; overflow: hidden;",
-                format_component_styles(&component.styles)
+                "{} {}; color: {}; padding: {}; text-align: {}; border-radius: 12px; position: relative; overflow: hidden; min-height: {};",
+                background_style,
+                format_component_styles(&component.styles),
+                component.properties.hero_text_color,
+                component.properties.hero_padding,
+                component.properties.hero_alignment,
+                component.properties.hero_min_height
             );
             
             html! {
-                <div class="component hero-component" style={hero_style}>
-                    <div class="hero-content" style="text-align: center; z-index: 2; position: relative;">
-                        <h1 style="margin: 0; font-size: inherit; color: inherit;">{&component.content}</h1>
+                <section class="component hero-section" style={hero_style}>
+                    // Background pattern
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; background-image: radial-gradient(circle at 25% 25%, white 2px, transparent 2px), radial-gradient(circle at 75% 75%, white 2px, transparent 2px); background-size: 50px 50px;"></div>
+                    
+                    <div class="hero-content" style="position: relative; z-index: 1; max-width: 800px; margin: 0 auto;">
+                        // Hero badge (conditional)
+                        if component.properties.hero_show_badge && !component.properties.hero_badge_text.is_empty() {
+                            <div class="hero-badge" style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 14px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.3);">
+                                {&component.properties.hero_badge_text}
+                            </div>
+                        }
+                        
+                        // Hero title
+                        <h1 style="font-size: 48px; font-weight: 700; margin: 0 0 24px 0; line-height: 1.2;">
+                            {&component.properties.hero_title}
+                        </h1>
+                        
+                        // Hero subtitle (conditional)
+                        if !component.properties.hero_subtitle.is_empty() {
+                            <h2 style="font-size: 28px; font-weight: 400; margin: 0 0 24px 0; opacity: 0.9;">
+                                {&component.properties.hero_subtitle}
+                            </h2>
+                        }
+                        
+                        // Hero description
+                        <p style="font-size: 20px; margin: 0 0 32px 0; opacity: 0.9; line-height: 1.6;">
+                            {&component.properties.hero_description}
+                        </p>
+                        
+                        // Hero action buttons (conditional)
+                        if component.properties.hero_show_primary_button || component.properties.hero_show_secondary_button {
+                            <div class="hero-actions" style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                                if component.properties.hero_show_primary_button && !component.properties.hero_primary_button_text.is_empty() {
+                                    <a 
+                                        href={component.properties.hero_primary_button_url.clone()}
+                                        style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; background: white; color: var(--public-primary, #3b82f6); text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+                                    >
+                                        {&component.properties.hero_primary_button_text} <span>{"→"}</span>
+                                    </a>
+                                }
+                                if component.properties.hero_show_secondary_button && !component.properties.hero_secondary_button_text.is_empty() {
+                                    <a 
+                                        href={component.properties.hero_secondary_button_url.clone()}
+                                        style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; background: transparent; color: white; text-decoration: none; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; font-weight: 600; font-size: 16px; transition: all 0.2s;"
+                                    >
+                                        {&component.properties.hero_secondary_button_text}
+                                    </a>
+                                }
+                            </div>
+                        }
+                        
+                        // Hero stats (conditional)
+                        if component.properties.hero_show_stats && (!component.properties.hero_stat1_number.is_empty() || !component.properties.hero_stat2_number.is_empty() || !component.properties.hero_stat3_number.is_empty()) {
+                            <div class="hero-stats" style="margin-top: 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 24px; opacity: 0.9;">
+                                if !component.properties.hero_stat1_number.is_empty() {
+                                    <div class="stat-item" style="text-align: center;">
+                                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{&component.properties.hero_stat1_number}</div>
+                                        <div style="font-size: 14px; opacity: 0.8;">{&component.properties.hero_stat1_label}</div>
+                                    </div>
+                                }
+                                if !component.properties.hero_stat2_number.is_empty() {
+                                    <div class="stat-item" style="text-align: center;">
+                                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{&component.properties.hero_stat2_number}</div>
+                                        <div style="font-size: 14px; opacity: 0.8;">{&component.properties.hero_stat2_label}</div>
+                                    </div>
+                                }
+                                if !component.properties.hero_stat3_number.is_empty() {
+                                    <div class="stat-item" style="text-align: center;">
+                                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{&component.properties.hero_stat3_number}</div>
+                                        <div style="font-size: 14px; opacity: 0.8;">{&component.properties.hero_stat3_label}</div>
+                                    </div>
+                                }
+                            </div>
+                        }
                     </div>
-                </div>
+                </section>
             }
         }
         ComponentType::Card => {
-            // Parse content for structured card display
-            let lines: Vec<&str> = component.content.lines().collect();
-            let title = lines.first().unwrap_or(&"").to_string();
-            let content = lines.get(1..).map(|l| l.join("\n")).unwrap_or_default();
-            
+            // Use component properties for dynamic content and post-card styling
             let card_style = format!(
-                "{}; display: block; transition: transform 0.2s ease, box-shadow 0.2s ease;",
+                "background: {}; border-radius: {}; padding: {}; box-shadow: {}; border: 1px solid #eee; transition: transform 0.2s ease, box-shadow 0.2s ease; {}",
+                component.properties.card_background,
+                component.properties.card_border_radius,
+                component.properties.card_padding,
+                match component.properties.card_shadow.as_str() {
+                    "none" => "none",
+                    "small" => "0 2px 4px rgba(0, 0, 0, 0.05)",
+                    "medium" => "0 4px 12px rgba(0, 0, 0, 0.1)",
+                    "large" => "0 8px 32px rgba(0, 0, 0, 0.15)",
+                    _ => "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
                 format_component_styles(&component.styles)
             );
             
             html! {
-                <div class="component card-component" style={card_style}>
-                    if !title.is_empty() {
-                        <h3 style="margin-top: 0; color: inherit;">{title}</h3>
+                <div class="component post-card" style={card_style}>
+                    // Card image if provided
+                    if !component.properties.card_image.is_empty() {
+                        <div class="card-image" style="margin-bottom: 1rem;">
+                            <img 
+                                src={component.properties.card_image.clone()} 
+                                alt={component.properties.card_image_alt.clone()}
+                                style="width: 100%; height: 200px; object-fit: cover; border-radius: 4px;"
+                            />
+                        </div>
                     }
-                    <div class="card-content">
-                        {render_markdown_content(&content)}
+                    
+                    // Card title
+                    <h4 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--public-heading-h3, #000);">
+                        {&component.properties.card_title}
+                    </h4>
+                    
+                    // Card meta text if provided
+                    if !component.properties.card_meta_text.is_empty() {
+                        <div class="post-meta" style="color: var(--public-text-meta, #666); font-size: 0.9rem; margin-bottom: 1rem;">
+                            {&component.properties.card_meta_text}
+                        </div>
+                    }
+                    
+                    // Card description
+                    <div class="post-excerpt" style="color: var(--public-text-secondary, #555); margin-bottom: 1rem;">
+                        {&component.properties.card_description}
                     </div>
+                    
+                    // Card button if enabled
+                    if component.properties.card_button_show && !component.properties.card_button_text.is_empty() {
+                        <a 
+                            href={component.properties.card_button_url.clone()}
+                            class="read-more"
+                            style="color: var(--public-link-primary, #000); text-decoration: none; font-weight: 600; border-bottom: 2px solid var(--public-link-primary, #000); transition: border-color 0.2s ease;"
+                        >
+                            {&component.properties.card_button_text}
+                        </a>
+                    }
                 </div>
             }
         }
@@ -543,7 +681,18 @@ pub fn render_component_content_public_with_navigation(component: &PageComponent
             
             html! {
                 <div class="component container-component" style={container_style}>
-                    {render_nested_content(&component.content, on_navigate.clone())}
+                    {if !component.properties.nested_components.is_empty() {
+                        html! {
+                            <div class="nested-components">
+                                {component.properties.nested_components.iter().map(|nested_comp| {
+                                    render_component_content_public_with_navigation(nested_comp, on_navigate.clone())
+                                }).collect::<Html>()}
+                            </div>
+                        }
+                    } else {
+                        // Fallback to content-based rendering for backward compatibility
+                        render_nested_content(&component.content, on_navigate.clone())
+                    }}
                 </div>
             }
         }
@@ -553,41 +702,61 @@ pub fn render_component_content_public_with_navigation(component: &PageComponent
                 format_component_styles(&component.styles)
             );
             
-            // Try to parse as nested column content first
-            if component.content.trim().starts_with('{') && component.content.contains("\"column1\"") && component.content.contains("\"column2\"") {
-                match serde_json::from_str::<serde_json::Value>(&component.content) {
-                    Ok(columns_data) => {
-                        let column1_content = columns_data.get("column1").and_then(|v| v.as_str()).unwrap_or("");
-                        let column2_content = columns_data.get("column2").and_then(|v| v.as_str()).unwrap_or("");
-                        
-                        return html! {
-                            <div class="component two-column-component" style={column_style}>
-                                <div class="column">
-                                    {render_nested_content(column1_content, on_navigate.clone())}
+            // Use new nested components structure if available
+            if !component.properties.column_1_components.is_empty() || !component.properties.column_2_components.is_empty() {
+                html! {
+                    <div class="component two-column-component" style={column_style}>
+                        <div class="column">
+                            {component.properties.column_1_components.iter().map(|nested_comp| {
+                                render_component_content_public_with_navigation(nested_comp, on_navigate.clone())
+                            }).collect::<Html>()}
+                        </div>
+                        <div class="column">
+                            {component.properties.column_2_components.iter().map(|nested_comp| {
+                                render_component_content_public_with_navigation(nested_comp, on_navigate.clone())
+                            }).collect::<Html>()}
+                        </div>
+                    </div>
+                }
+            } else {
+                // Fallback to content-based rendering for backward compatibility
+                
+                // Try to parse as nested column content first
+                if component.content.trim().starts_with('{') && component.content.contains("\"column1\"") && component.content.contains("\"column2\"") {
+                    match serde_json::from_str::<serde_json::Value>(&component.content) {
+                        Ok(columns_data) => {
+                            let column1_content = columns_data.get("column1").and_then(|v| v.as_str()).unwrap_or("");
+                            let column2_content = columns_data.get("column2").and_then(|v| v.as_str()).unwrap_or("");
+                            
+                            return html! {
+                                <div class="component two-column-component" style={column_style}>
+                                    <div class="column">
+                                        {render_nested_content(column1_content, on_navigate.clone())}
+                                    </div>
+                                    <div class="column">
+                                        {render_nested_content(column2_content, on_navigate.clone())}
+                                    </div>
                                 </div>
-                                <div class="column">
-                                    {render_nested_content(column2_content, on_navigate.clone())}
-                                </div>
-                            </div>
+                            }
+                        }
+                        Err(_) => {
+                            // Fall back to text splitting
                         }
                     }
-                    Err(_) => {
-                        // Fall back to text splitting
-                    }
                 }
-            }
-            
-            // Fall back to original text splitting approach
-            let parts: Vec<&str> = component.content.split("\n\n").collect();
-            html! {
-                <div class="component two-column-component" style={column_style}>
-                    <div class="column">
-                        {render_markdown_content(parts.get(0).unwrap_or(&""))}
+                
+                // Fall back to original text splitting approach
+                let parts: Vec<&str> = component.content.split("\n\n").collect();
+                html! {
+                    <div class="component two-column-component" style={column_style}>
+                        <div class="column">
+                            {render_markdown_content(parts.get(0).unwrap_or(&""))}
+                        </div>
+                        <div class="column">
+                            {render_markdown_content(parts.get(1).unwrap_or(&""))}
+                        </div>
                     </div>
-                    <div class="column">
-                        {render_markdown_content(parts.get(1).unwrap_or(&""))}
-                    </div>
-                </div>
+                }
             }
         }
         ComponentType::ThreeColumn => {
@@ -596,48 +765,73 @@ pub fn render_component_content_public_with_navigation(component: &PageComponent
                 format_component_styles(&component.styles)
             );
             
-            // Try to parse as nested column content first
-            if component.content.trim().starts_with('{') && component.content.contains("\"column1\"") && component.content.contains("\"column2\"") && component.content.contains("\"column3\"") {
-                match serde_json::from_str::<serde_json::Value>(&component.content) {
-                    Ok(columns_data) => {
-                        let column1_content = columns_data.get("column1").and_then(|v| v.as_str()).unwrap_or("");
-                        let column2_content = columns_data.get("column2").and_then(|v| v.as_str()).unwrap_or("");
-                        let column3_content = columns_data.get("column3").and_then(|v| v.as_str()).unwrap_or("");
-                        
-                        return html! {
-                            <div class="component three-column-component" style={column_style}>
-                                <div class="column">
-                                    {render_nested_content(column1_content, on_navigate.clone())}
+            // Use new nested components structure if available
+            if !component.properties.column_1_components.is_empty() || !component.properties.column_2_components.is_empty() || !component.properties.column_3_components.is_empty() {
+                html! {
+                    <div class="component three-column-component" style={column_style}>
+                        <div class="column">
+                            {component.properties.column_1_components.iter().map(|nested_comp| {
+                                render_component_content_public_with_navigation(nested_comp, on_navigate.clone())
+                            }).collect::<Html>()}
+                        </div>
+                        <div class="column">
+                            {component.properties.column_2_components.iter().map(|nested_comp| {
+                                render_component_content_public_with_navigation(nested_comp, on_navigate.clone())
+                            }).collect::<Html>()}
+                        </div>
+                        <div class="column">
+                            {component.properties.column_3_components.iter().map(|nested_comp| {
+                                render_component_content_public_with_navigation(nested_comp, on_navigate.clone())
+                            }).collect::<Html>()}
+                        </div>
+                    </div>
+                }
+            } else {
+                // Fallback to content-based rendering for backward compatibility
+                
+                // Try to parse as nested column content first
+                if component.content.trim().starts_with('{') && component.content.contains("\"column1\"") && component.content.contains("\"column2\"") && component.content.contains("\"column3\"") {
+                    match serde_json::from_str::<serde_json::Value>(&component.content) {
+                        Ok(columns_data) => {
+                            let column1_content = columns_data.get("column1").and_then(|v| v.as_str()).unwrap_or("");
+                            let column2_content = columns_data.get("column2").and_then(|v| v.as_str()).unwrap_or("");
+                            let column3_content = columns_data.get("column3").and_then(|v| v.as_str()).unwrap_or("");
+                            
+                            return html! {
+                                <div class="component three-column-component" style={column_style}>
+                                    <div class="column">
+                                        {render_nested_content(column1_content, on_navigate.clone())}
+                                    </div>
+                                    <div class="column">
+                                        {render_nested_content(column2_content, on_navigate.clone())}
+                                    </div>
+                                    <div class="column">
+                                        {render_nested_content(column3_content, on_navigate.clone())}
+                                    </div>
                                 </div>
-                                <div class="column">
-                                    {render_nested_content(column2_content, on_navigate.clone())}
-                                </div>
-                                <div class="column">
-                                    {render_nested_content(column3_content, on_navigate.clone())}
-                                </div>
-                            </div>
+                            }
+                        }
+                        Err(_) => {
+                            // Fall back to text splitting
                         }
                     }
-                    Err(_) => {
-                        // Fall back to text splitting
-                    }
                 }
-            }
-            
-            // Fall back to original text splitting approach
-            let parts: Vec<&str> = component.content.split("\n\n").collect();
-            html! {
-                <div class="component three-column-component" style={column_style}>
-                    <div class="column">
-                        {render_markdown_content(parts.get(0).unwrap_or(&""))}
+                
+                // Fall back to original text splitting approach
+                let parts: Vec<&str> = component.content.split("\n\n").collect();
+                html! {
+                    <div class="component three-column-component" style={column_style}>
+                        <div class="column">
+                            {render_markdown_content(parts.get(0).unwrap_or(&""))}
+                        </div>
+                        <div class="column">
+                            {render_markdown_content(parts.get(1).unwrap_or(&""))}
+                        </div>
+                        <div class="column">
+                            {render_markdown_content(parts.get(2).unwrap_or(&""))}
+                        </div>
                     </div>
-                    <div class="column">
-                        {render_markdown_content(parts.get(1).unwrap_or(&""))}
-                    </div>
-                    <div class="column">
-                        {render_markdown_content(parts.get(2).unwrap_or(&""))}
-                    </div>
-                </div>
+                }
             }
         }
         ComponentType::Image => {
@@ -662,23 +856,50 @@ pub fn render_component_content_public_with_navigation(component: &PageComponent
             }
         }
         ComponentType::List => {
-            let list_type = &component.properties.list_type;
-            let items: Vec<&str> = component.content.lines()
-                .filter(|line| !line.trim().is_empty())
-                .map(|line| line.trim_start_matches("• ").trim_start_matches("- ").trim_start_matches("* "))
-                .collect();
+            let list_style = format!(
+                "background: {}; border-radius: {}; padding: {}; border: 1px solid #e1e5e9; {}",
+                component.properties.list_background,
+                component.properties.list_border_radius,
+                component.properties.list_padding,
+                format_component_styles(&component.styles)
+            );
             
             html! {
-                <div class="component list-component" style={format_component_styles(&component.styles)}>
-                    if list_type == "ordered" {
-                        <ol>
-                            {items.iter().map(|item| html! { <li>{item}</li> }).collect::<Html>()}
-                        </ol>
-                    } else {
-                        <ul>
-                            {items.iter().map(|item| html! { <li>{item}</li> }).collect::<Html>()}
-                        </ul>
-                    }
+                <div class="component enhanced-list" style={list_style}>
+                    <div class="list-items" style={format!("display: grid; gap: {};", component.properties.list_item_spacing)}>
+                        {component.properties.list_items.iter().enumerate().map(|(index, item)| {
+                            // Icon colors for visual variety
+                            let icon_colors = [
+                                "linear-gradient(135deg, #10b981, #059669)", // Green
+                                "linear-gradient(135deg, #3b82f6, #1d4ed8)", // Blue  
+                                "linear-gradient(135deg, #8b5cf6, #7c3aed)", // Purple
+                                "linear-gradient(135deg, #f59e0b, #d97706)", // Orange
+                                "linear-gradient(135deg, #ef4444, #dc2626)", // Red
+                                "linear-gradient(135deg, #06b6d4, #0891b2)", // Cyan
+                            ];
+                            let icon_gradient = icon_colors[index % icon_colors.len()];
+                            
+                            html! {
+                                <div class="list-item" style="display: flex; align-items: flex-start; gap: 16px; padding: 16px; background: #f8f9fa; border-radius: 8px; transition: all 0.2s;">
+                                    if component.properties.list_show_icons {
+                                        <div class="item-icon" style={format!("flex-shrink: 0; width: 40px; height: 40px; background: {}; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;", icon_gradient)}>
+                                            {&item.icon}
+                                        </div>
+                                    }
+                                    <div class="item-content" style="flex: 1;">
+                                        <h4 style={format!("margin: 0 0 4px 0; font-size: 16px; font-weight: 600; color: #333333;")}>
+                                            {&item.title}
+                                        </h4>
+                                        if !item.description.is_empty() {
+                                            <p style={format!("margin: 0; color: {}; font-size: 14px; line-height: 1.5;", component.properties.list_text_color)}>
+                                                {&item.description}
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }).collect::<Html>()}
+                    </div>
                 </div>
             }
         }

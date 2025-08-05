@@ -251,17 +251,39 @@ body.admin-body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
     border: 1px solid transparent;
     border-radius: 8px;
     font-weight: 500;
-    font-size: 0.875rem;
     text-decoration: none;
     cursor: pointer;
     transition: all 0.2s ease;
     background: var(--bg-primary);
     color: var(--text-primary);
     box-shadow: var(--shadow-sm);
+    /* Default to large size */
+    padding: 1.25rem 2.5rem;
+    font-size: 1.1rem;
+}
+
+/* Button Size Classes */
+.btn-small {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.75rem !important;
+}
+
+.btn-medium {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.875rem !important;
+}
+
+.btn-large {
+    padding: 1.25rem 2.5rem !important;
+    font-size: 1.1rem !important;
+}
+
+.btn-xl {
+    padding: 2rem 4rem !important;
+    font-size: 1.5rem !important;
 }
 
 .btn:hover {

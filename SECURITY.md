@@ -156,6 +156,6 @@ cargo audit
 
 ## Contact
 
-For security issues, please contact the development team at: security@yourcompany.com
+For security issues, please contact riverwalkit@proton.me
 
 **Do not** report security vulnerabilities through public GitHub issues.

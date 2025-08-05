@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use web_sys::{DragEvent, Element, MouseEvent, HtmlInputElement, InputEvent, KeyboardEvent};
+use web_sys::{DragEvent, Element, MouseEvent, HtmlInputElement, HtmlTextAreaElement, InputEvent, KeyboardEvent};
 use wasm_bindgen::JsCast;
 use serde::{Deserialize, Serialize};
 use crate::components::markdown_editor::MarkdownEditor;
@@ -14,6 +14,14 @@ pub struct PageComponent {
     pub styles: ComponentStyles,
     pub position: Position,
     pub properties: ComponentProperties,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ListItem {
+    pub id: String,
+    pub title: String,
+    pub description: String,
+    pub icon: String,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -50,9 +58,7 @@ pub struct ComponentProperties {
     pub gallery_layout: String,
     pub gallery_columns: i32,
     
-    // List specific
-    pub list_type: String,
-    pub list_items: Vec<String>,
+
     
     // Container specific
     pub container_max_width: String,
@@ -79,6 +85,80 @@ pub struct ComponentProperties {
     pub aria_label: String,
     pub aria_description: String,
     pub tab_index: i32,
+    
+    // Nested components for layout containers
+    pub nested_components: Vec<PageComponent>,
+    pub column_1_components: Vec<PageComponent>,
+    pub column_2_components: Vec<PageComponent>,
+    pub column_3_components: Vec<PageComponent>,
+    
+    // Card specific properties
+    pub card_title: String,
+    pub card_description: String,
+    pub card_image: String,
+    pub card_image_alt: String,
+    pub card_background: String,
+    pub card_border_radius: String,
+    pub card_shadow: String,
+    pub card_padding: String,
+    pub card_meta_text: String,
+    pub card_button_text: String,
+    pub card_button_url: String,
+    pub card_button_show: bool,
+    
+    // Hero specific properties
+    pub hero_badge_text: String,
+    pub hero_title: String,
+    pub hero_subtitle: String,
+    pub hero_description: String,
+    pub hero_background_type: String, // "gradient", "solid", "image"
+    pub hero_background_color: String,
+    pub hero_background_gradient_start: String,
+    pub hero_background_gradient_end: String,
+    pub hero_background_image: String,
+    pub hero_text_color: String,
+    pub hero_alignment: String, // "left", "center", "right"
+    pub hero_padding: String,
+    pub hero_min_height: String,
+    pub hero_primary_button_text: String,
+    pub hero_primary_button_url: String,
+    pub hero_secondary_button_text: String,
+    pub hero_secondary_button_url: String,
+    pub hero_show_primary_button: bool,
+    pub hero_show_secondary_button: bool,
+    pub hero_show_badge: bool,
+    pub hero_show_stats: bool,
+    pub hero_stat1_number: String,
+    pub hero_stat1_label: String,
+    pub hero_stat2_number: String,
+    pub hero_stat2_label: String,
+    pub hero_stat3_number: String,
+    pub hero_stat3_label: String,
+    
+    // List specific properties
+    pub list_items: Vec<ListItem>,
+    pub list_background: String,
+    pub list_border_radius: String,
+    pub list_padding: String,
+    pub list_item_spacing: String,
+    pub list_text_color: String,
+    pub list_show_icons: bool,
+    
+    // PostsList specific properties
+    pub posts_list_card_background: String,
+    pub posts_list_grid_gap: String,
+    pub posts_list_card_radius: String,
+    pub posts_list_card_shadow: String,
+    pub posts_list_title_color: String,
+    pub posts_list_meta_color: String,
+    pub posts_list_link_color: String,
+    pub posts_list_columns: i32,
+    pub posts_list_count: i32,
+    pub posts_list_excerpt_length: i32,
+    pub posts_list_show_author: bool,
+    pub posts_list_show_date: bool,
+    pub posts_list_show_excerpt: bool,
+    pub posts_list_show_view_all: bool,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -210,43 +290,128 @@ impl Default for ComponentProperties {
             image_lazy_load: true,
             
             // Button/Link specific
-            button_text: "var(--public-background-light, #f8fafc)".to_string(), // PostsList: Card background (design system)
-            button_url: "24px".to_string(), // PostsList: Grid gap
+            button_text: "Button".to_string(),
+            button_url: "#".to_string(),
             button_target: "_self".to_string(),
-            button_size: "8px".to_string(), // PostsList: Card border radius
-            button_variant: "medium".to_string(), // PostsList: Card shadow
-            button_icon: "var(--public-text-primary, #0f172a)".to_string(), // PostsList: Title color (design system)
+            button_size: "large".to_string(),
+            button_variant: "primary".to_string(),
+            button_icon: "".to_string(),
+            
+            // Card specific properties
+            card_title: "Feature Highlight".to_string(),
+            card_description: "Add your feature description here. This card component uses the same styling as post cards for a consistent design.".to_string(),
+            card_image: "".to_string(),
+            card_image_alt: "".to_string(),
+            card_background: "#ffffff".to_string(),
+            card_border_radius: "4px".to_string(),
+            card_shadow: "medium".to_string(),
+            card_padding: "1.5rem".to_string(),
+            card_meta_text: "".to_string(),
+            card_button_text: "Learn More".to_string(),
+            card_button_url: "#".to_string(),
+            card_button_show: true,
+            
+            // Hero specific properties
+            hero_badge_text: "🚀 Welcome to the Future".to_string(),
+            hero_title: "Transform Your Ideas Into Reality".to_string(),
+            hero_subtitle: "".to_string(),
+            hero_description: "Experience the power of modern web technology with our comprehensive content management system. Built for creators, designed for success.".to_string(),
+            hero_background_type: "gradient".to_string(),
+            hero_background_color: "#3b82f6".to_string(),
+            hero_background_gradient_start: "#3b82f6".to_string(),
+            hero_background_gradient_end: "#1d4ed8".to_string(),
+            hero_background_image: "".to_string(),
+            hero_text_color: "#ffffff".to_string(),
+            hero_alignment: "center".to_string(),
+            hero_padding: "80px 40px".to_string(),
+            hero_min_height: "500px".to_string(),
+            hero_primary_button_text: "Get Started".to_string(),
+            hero_primary_button_url: "#get-started".to_string(),
+            hero_secondary_button_text: "📖 Learn More".to_string(),
+            hero_secondary_button_url: "#learn-more".to_string(),
+            hero_show_primary_button: true,
+            hero_show_secondary_button: true,
+            hero_show_badge: true,
+            hero_show_stats: true,
+            hero_stat1_number: "1000+".to_string(),
+            hero_stat1_label: "Happy Users".to_string(),
+            hero_stat2_number: "99.9%".to_string(),
+            hero_stat2_label: "Uptime".to_string(),
+            hero_stat3_number: "24/7".to_string(),
+            hero_stat3_label: "Support".to_string(),
+            
+            // List specific properties
+            list_items: vec![
+                ListItem {
+                    id: uuid::Uuid::new_v4().to_string(),
+                    title: "Drag & Drop Page Builder".to_string(),
+                    description: "Build beautiful pages without code using our intuitive visual editor".to_string(),
+                    icon: "✓".to_string(),
+                },
+                ListItem {
+                    id: uuid::Uuid::new_v4().to_string(),
+                    title: "Lightning Fast Performance".to_string(),
+                    description: "Rust-powered backend delivers exceptional speed and reliability".to_string(),
+                    icon: "⚡".to_string(),
+                },
+                ListItem {
+                    id: uuid::Uuid::new_v4().to_string(),
+                    title: "Enterprise Security".to_string(),
+                    description: "Advanced security features to protect your content and users".to_string(),
+                    icon: "🔒".to_string(),
+                },
+            ],
+            list_background: "#ffffff".to_string(),
+            list_border_radius: "12px".to_string(),
+            list_padding: "32px".to_string(),
+            list_item_spacing: "16px".to_string(),
+            list_text_color: "#666666".to_string(),
+            list_show_icons: true,
+            
+            // PostsList specific properties
+            posts_list_card_background: "var(--public-background-light, #f8fafc)".to_string(),
+            posts_list_grid_gap: "24px".to_string(),
+            posts_list_card_radius: "8px".to_string(),
+            posts_list_card_shadow: "medium".to_string(),
+            posts_list_title_color: "var(--public-text-primary, #0f172a)".to_string(),
+            posts_list_meta_color: "var(--public-text-meta, #64748b)".to_string(),
+            posts_list_link_color: "var(--public-link-primary, #2563eb)".to_string(),
+            posts_list_columns: 3,
+            posts_list_count: 6,
+            posts_list_excerpt_length: 200,
+            posts_list_show_author: true,
+            posts_list_show_date: true,
+            posts_list_show_excerpt: true,
+            posts_list_show_view_all: true,
             
             // Form specific
-            form_action: "var(--public-text-meta, #64748b)".to_string(), // PostsList: Meta text color (design system)
-            form_method: "var(--public-link-primary, #2563eb)".to_string(), // PostsList: Link color (design system)
+            form_action: "/submit".to_string(),
+            form_method: "POST".to_string(),
             form_fields: vec![],
             
             // Video specific
             video_url: "".to_string(),
-            video_autoplay: true, // PostsList: Show author
-            video_controls: true, // PostsList: Show date
-            video_muted: true, // PostsList: Show excerpt
-            video_loop: true, // PostsList: Show 'View All' button
+            video_autoplay: false,
+            video_controls: true,
+            video_muted: false,
+            video_loop: false,
             
             // Gallery specific
             gallery_images: vec![],
             gallery_layout: "grid".to_string(),
-            gallery_columns: 3, // PostsList: Grid columns
+            gallery_columns: 3,
             
-            // List specific
-            list_type: "unordered".to_string(),
-            list_items: vec![],
+
             
             // Container specific
-            container_max_width: "6".to_string(), // PostsList: Posts to show
+            container_max_width: "1200px".to_string(),
             container_align: "center".to_string(),
             
             // Divider specific
             divider_style: "solid".to_string(),
             divider_thickness: "1px".to_string(),
             divider_color: "var(--public-border-light, #ddd)".to_string(),
-            divider_margin: "200".to_string(), // PostsList: Excerpt length
+            divider_margin: "20px".to_string(),
             divider_width: "100%".to_string(),
             
             // Animation
@@ -263,6 +428,12 @@ impl Default for ComponentProperties {
             aria_label: "".to_string(),
             aria_description: "".to_string(),
             tab_index: 0,
+            
+            // Nested components for layout containers
+            nested_components: vec![],
+            column_1_components: vec![],
+            column_2_components: vec![],
+            column_3_components: vec![],
         }
     }
 }
@@ -355,6 +526,164 @@ pub struct DragDropPageBuilderProps {
     pub initial_components: Vec<PageComponent>,
 }
 
+// Helper function to find a nested component by ID and return its parent and location
+fn find_nested_component_location(components: &[PageComponent], target_id: &str) -> Option<(String, String)> {
+    for component in components {
+        // Check nested_components
+        if component.properties.nested_components.iter().any(|c| c.id == target_id) {
+            return Some((component.id.clone(), "nested_components".to_string()));
+        }
+        // Check column_1_components
+        if component.properties.column_1_components.iter().any(|c| c.id == target_id) {
+            return Some((component.id.clone(), "column_1_components".to_string()));
+        }
+        // Check column_2_components
+        if component.properties.column_2_components.iter().any(|c| c.id == target_id) {
+            return Some((component.id.clone(), "column_2_components".to_string()));
+        }
+        // Check column_3_components
+        if component.properties.column_3_components.iter().any(|c| c.id == target_id) {
+            return Some((component.id.clone(), "column_3_components".to_string()));
+        }
+    }
+    None
+}
+
+// Helper function to remove a nested component
+fn remove_nested_component(components: &mut Vec<PageComponent>, target_id: &str) -> bool {
+    // First check if it's a top-level component
+    if let Some(pos) = components.iter().position(|c| c.id == target_id) {
+        components.remove(pos);
+        return true;
+    }
+    
+    // Otherwise, look for it in nested components
+    for component in components.iter_mut() {
+        if component.properties.nested_components.iter().any(|c| c.id == target_id) {
+            component.properties.nested_components.retain(|c| c.id != target_id);
+            return true;
+        }
+        if component.properties.column_1_components.iter().any(|c| c.id == target_id) {
+            component.properties.column_1_components.retain(|c| c.id != target_id);
+            return true;
+        }
+        if component.properties.column_2_components.iter().any(|c| c.id == target_id) {
+            component.properties.column_2_components.retain(|c| c.id != target_id);
+            return true;
+        }
+        if component.properties.column_3_components.iter().any(|c| c.id == target_id) {
+            component.properties.column_3_components.retain(|c| c.id != target_id);
+            return true;
+        }
+    }
+    false
+}
+
+// Helper function to duplicate a nested component
+fn duplicate_nested_component(components: &mut Vec<PageComponent>, target_id: &str) -> bool {
+    // First check if it's a top-level component
+    if let Some(pos) = components.iter().position(|c| c.id == target_id) {
+        if let Some(component) = components.get(pos).cloned() {
+            let mut new_component = component;
+            new_component.id = uuid::Uuid::new_v4().to_string();
+            components.insert(pos + 1, new_component);
+            return true;
+        }
+    }
+    
+    // Otherwise, look for it in nested components
+    for component in components.iter_mut() {
+        if let Some(pos) = component.properties.nested_components.iter().position(|c| c.id == target_id) {
+            if let Some(nested_comp) = component.properties.nested_components.get(pos).cloned() {
+                let mut new_component = nested_comp;
+                new_component.id = uuid::Uuid::new_v4().to_string();
+                component.properties.nested_components.insert(pos + 1, new_component);
+                return true;
+            }
+        }
+        if let Some(pos) = component.properties.column_1_components.iter().position(|c| c.id == target_id) {
+            if let Some(nested_comp) = component.properties.column_1_components.get(pos).cloned() {
+                let mut new_component = nested_comp;
+                new_component.id = uuid::Uuid::new_v4().to_string();
+                component.properties.column_1_components.insert(pos + 1, new_component);
+                return true;
+            }
+        }
+        if let Some(pos) = component.properties.column_2_components.iter().position(|c| c.id == target_id) {
+            if let Some(nested_comp) = component.properties.column_2_components.get(pos).cloned() {
+                let mut new_component = nested_comp;
+                new_component.id = uuid::Uuid::new_v4().to_string();
+                component.properties.column_2_components.insert(pos + 1, new_component);
+                return true;
+            }
+        }
+        if let Some(pos) = component.properties.column_3_components.iter().position(|c| c.id == target_id) {
+            if let Some(nested_comp) = component.properties.column_3_components.get(pos).cloned() {
+                let mut new_component = nested_comp;
+                new_component.id = uuid::Uuid::new_v4().to_string();
+                component.properties.column_3_components.insert(pos + 1, new_component);
+                return true;
+            }
+        }
+    }
+    false
+}
+
+// Helper function to update nested component content
+fn update_nested_component_content(components: &mut Vec<PageComponent>, target_id: &str, new_content: String) -> bool {
+    // First check if it's a top-level component
+    if let Some(component) = components.iter_mut().find(|c| c.id == target_id) {
+        component.content = new_content;
+        return true;
+    }
+    
+    // Otherwise, look for it in nested components
+    for component in components.iter_mut() {
+        if let Some(nested_comp) = component.properties.nested_components.iter_mut().find(|c| c.id == target_id) {
+            nested_comp.content = new_content;
+            return true;
+        }
+        if let Some(nested_comp) = component.properties.column_1_components.iter_mut().find(|c| c.id == target_id) {
+            nested_comp.content = new_content;
+            return true;
+        }
+        if let Some(nested_comp) = component.properties.column_2_components.iter_mut().find(|c| c.id == target_id) {
+            nested_comp.content = new_content;
+            return true;
+        }
+        if let Some(nested_comp) = component.properties.column_3_components.iter_mut().find(|c| c.id == target_id) {
+            nested_comp.content = new_content;
+            return true;
+        }
+    }
+    false
+}
+
+// Helper function to find any component by ID (including nested components)
+fn find_component_by_id<'a>(components: &'a [PageComponent], target_id: &str) -> Option<&'a PageComponent> {
+    // First check if it's a top-level component
+    if let Some(component) = components.iter().find(|c| c.id == target_id) {
+        return Some(component);
+    }
+    
+    // Otherwise, look for it in nested components
+    for component in components {
+        if let Some(nested_comp) = component.properties.nested_components.iter().find(|c| c.id == target_id) {
+            return Some(nested_comp);
+        }
+        if let Some(nested_comp) = component.properties.column_1_components.iter().find(|c| c.id == target_id) {
+            return Some(nested_comp);
+        }
+        if let Some(nested_comp) = component.properties.column_2_components.iter().find(|c| c.id == target_id) {
+            return Some(nested_comp);
+        }
+        if let Some(nested_comp) = component.properties.column_3_components.iter().find(|c| c.id == target_id) {
+            return Some(nested_comp);
+        }
+    }
+    None
+}
+
 #[function_component(DragDropPageBuilder)]
 pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
     let components = use_state(Vec::<PageComponent>::new);
@@ -362,6 +691,10 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
     let editing_component = use_state(|| None::<String>);
     let drag_over = use_state(|| false);
     let dragging_component = use_state(|| None::<ComponentType>);
+    
+    // Individual drag-over states for nested drop zones  
+    let container_drag_over = use_state(|| None::<String>); // stores container ID when dragging over
+    let column_drag_over = use_state(|| None::<(String, String)>); // stores (container_id, column) when dragging over
     let show_media_picker = use_state(|| false);
     let media_picker_target_component = use_state(|| None::<String>);
 
@@ -458,8 +791,13 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
 
     let on_drag_leave = {
         let drag_over = drag_over.clone();
+        let container_drag_over = container_drag_over.clone();
+        let column_drag_over = column_drag_over.clone();
         Callback::from(move |_: DragEvent| {
             drag_over.set(false);
+            // Clear nested drag states when leaving the main builder area
+            container_drag_over.set(None);
+            column_drag_over.set(None);
         })
     };
 
@@ -467,13 +805,17 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
         let components = components.clone();
         let drag_over = drag_over.clone();
         let dragging_component = dragging_component.clone();
+        let container_drag_over = container_drag_over.clone();
+        let column_drag_over = column_drag_over.clone();
         Callback::from(move |e: DragEvent| {
             e.prevent_default();
             drag_over.set(false);
             
-            // Use the dragged component type or default to Text
-            let component_type = (*dragging_component).clone().unwrap_or(ComponentType::Text);
+            // Clear all drag-over states
+            container_drag_over.set(None);
+            column_drag_over.set(None);
             
+            if let Some(component_type) = (*dragging_component).clone() {
             let new_component = PageComponent {
                 id: uuid::Uuid::new_v4().to_string(),
                 component_type: component_type.clone(),
@@ -486,9 +828,64 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
             let mut current_components = (*components).clone();
             current_components.push(new_component);
             components.set(current_components);
+            } else {
+                // Log warning but don't crash if no component is being dragged
+                web_sys::console::log_1(&"No component being dragged to main canvas".into());
+            }
             
-            // Clear the dragging state
+            // Always clear the dragging state
             dragging_component.set(None);
+        })
+    };
+
+    // Callback for handling drops into nested container components
+    let on_nested_drop = {
+        let components = components.clone();
+        let dragging_component = dragging_component.clone();
+        let container_drag_over = container_drag_over.clone();
+        let column_drag_over = column_drag_over.clone();
+        Callback::from(move |(container_id, drop_zone): (String, String)| {
+            // Clear drag-over states first
+            container_drag_over.set(None);
+            column_drag_over.set(None);
+            
+            if let Some(component_type) = (*dragging_component).clone() {
+                let new_component = PageComponent {
+                    id: uuid::Uuid::new_v4().to_string(),
+                    component_type: component_type.clone(),
+                    content: component_type.default_content(),
+                    styles: ComponentStyles::default(),
+                    position: Position::default(),
+                    properties: ComponentProperties::default(),
+                };
+                
+                let mut current_components = (*components).clone();
+                
+                // Find the container component and add the new component to the appropriate nested area
+                if let Some(container) = current_components.iter_mut().find(|c| c.id == container_id) {
+                    match drop_zone.as_str() {
+                        "container" => container.properties.nested_components.push(new_component),
+                        "column-1" => container.properties.column_1_components.push(new_component),
+                        "column-2" => container.properties.column_2_components.push(new_component),
+                        "column-3" => container.properties.column_3_components.push(new_component),
+                        _ => {
+                            // Log error for invalid drop zone but don't crash
+                            web_sys::console::log_1(&format!("Invalid drop zone: {}", drop_zone).into());
+                        }
+                    }
+                    
+                    components.set(current_components);
+                } else {
+                    // Log error if container not found but don't crash
+                    web_sys::console::log_1(&format!("Container not found: {}", container_id).into());
+                }
+                
+                dragging_component.set(None);
+            } else {
+                // Log warning if no component is being dragged
+                web_sys::console::log_1(&"No component being dragged".into());
+                dragging_component.set(None);
+            }
         })
     };
 
@@ -511,9 +908,10 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
         let selected_component = selected_component.clone();
         Callback::from(move |component_id: String| {
             let mut current_components = (*components).clone();
-            current_components.retain(|c| c.id != component_id);
-            components.set(current_components);
-            selected_component.set(None);
+            if remove_nested_component(&mut current_components, &component_id) {
+                components.set(current_components);
+                selected_component.set(None);
+            }
         })
     };
 
@@ -521,14 +919,8 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
         let components = components.clone();
         Callback::from(move |component_id: String| {
             let mut current_components = (*components).clone();
-            if let Some(component) = current_components.iter().find(|c| c.id == component_id) {
-                let mut new_component = component.clone();
-                new_component.id = uuid::Uuid::new_v4().to_string();
-                // Insert the duplicated component right after the original
-                if let Some(pos) = current_components.iter().position(|c| c.id == component_id) {
-                    current_components.insert(pos + 1, new_component);
-                    components.set(current_components);
-                }
+            if duplicate_nested_component(&mut current_components, &component_id) {
+                components.set(current_components);
             }
         })
     };
@@ -538,11 +930,10 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
         let editing_component = editing_component.clone();
         Callback::from(move |(component_id, new_content): (String, String)| {
             let mut current_components = (*components).clone();
-            if let Some(component) = current_components.iter_mut().find(|c| c.id == component_id) {
-                component.content = new_content;
+            if update_nested_component_content(&mut current_components, &component_id, new_content) {
+                components.set(current_components);
+                editing_component.set(None);
             }
-            components.set(current_components);
-            editing_component.set(None);
         })
     };
 
@@ -600,6 +991,52 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                     "button_size" => component.properties.button_size = property_value,
                     "button_variant" => component.properties.button_variant = property_value,
                     "button_icon" => component.properties.button_icon = property_value,
+                    
+                    // Card properties
+                    "card_title" => component.properties.card_title = property_value,
+                    "card_description" => component.properties.card_description = property_value,
+                    "card_image" => component.properties.card_image = property_value,
+                    "card_image_alt" => component.properties.card_image_alt = property_value,
+                    "card_background" => component.properties.card_background = property_value,
+                    "card_border_radius" => component.properties.card_border_radius = property_value,
+                    "card_shadow" => component.properties.card_shadow = property_value,
+                    "card_padding" => component.properties.card_padding = property_value,
+                    "card_meta_text" => component.properties.card_meta_text = property_value,
+                    "card_button_text" => component.properties.card_button_text = property_value,
+                    "card_button_url" => component.properties.card_button_url = property_value,
+                    
+                    // Hero properties
+                    "hero_badge_text" => component.properties.hero_badge_text = property_value,
+                    "hero_title" => component.properties.hero_title = property_value,
+                    "hero_subtitle" => component.properties.hero_subtitle = property_value,
+                    "hero_description" => component.properties.hero_description = property_value,
+                    "hero_background_type" => component.properties.hero_background_type = property_value,
+                    "hero_background_color" => component.properties.hero_background_color = property_value,
+                    "hero_background_gradient_start" => component.properties.hero_background_gradient_start = property_value,
+                    "hero_background_gradient_end" => component.properties.hero_background_gradient_end = property_value,
+                    "hero_background_image" => component.properties.hero_background_image = property_value,
+                    "hero_text_color" => component.properties.hero_text_color = property_value,
+                    "hero_alignment" => component.properties.hero_alignment = property_value,
+                    "hero_padding" => component.properties.hero_padding = property_value,
+                    "hero_min_height" => component.properties.hero_min_height = property_value,
+                    "hero_primary_button_text" => component.properties.hero_primary_button_text = property_value,
+                    "hero_primary_button_url" => component.properties.hero_primary_button_url = property_value,
+                    "hero_secondary_button_text" => component.properties.hero_secondary_button_text = property_value,
+                    "hero_secondary_button_url" => component.properties.hero_secondary_button_url = property_value,
+                    "hero_stat1_number" => component.properties.hero_stat1_number = property_value,
+                    "hero_stat1_label" => component.properties.hero_stat1_label = property_value,
+                    "hero_stat2_number" => component.properties.hero_stat2_number = property_value,
+                    "hero_stat2_label" => component.properties.hero_stat2_label = property_value,
+                    "hero_stat3_number" => component.properties.hero_stat3_number = property_value,
+                    "hero_stat3_label" => component.properties.hero_stat3_label = property_value,
+                    
+                    // List properties
+                    "list_background" => component.properties.list_background = property_value,
+                    "list_border_radius" => component.properties.list_border_radius = property_value,
+                    "list_padding" => component.properties.list_padding = property_value,
+                    "list_item_spacing" => component.properties.list_item_spacing = property_value,
+                    "list_text_color" => component.properties.list_text_color = property_value,
+                    
                     "video_url" => component.properties.video_url = property_value,
                     "gallery_layout" => component.properties.gallery_layout = property_value,
                     "gallery_columns" => {
@@ -612,6 +1049,30 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                     "divider_color" => component.properties.divider_color = property_value,
                     "divider_margin" => component.properties.divider_margin = property_value,
                     "divider_width" => component.properties.divider_width = property_value,
+                    
+                    // PostsList properties
+                    "posts_list_card_background" => component.properties.posts_list_card_background = property_value,
+                    "posts_list_grid_gap" => component.properties.posts_list_grid_gap = property_value,
+                    "posts_list_card_radius" => component.properties.posts_list_card_radius = property_value,
+                    "posts_list_card_shadow" => component.properties.posts_list_card_shadow = property_value,
+                    "posts_list_title_color" => component.properties.posts_list_title_color = property_value,
+                    "posts_list_meta_color" => component.properties.posts_list_meta_color = property_value,
+                    "posts_list_link_color" => component.properties.posts_list_link_color = property_value,
+                    "posts_list_columns" => {
+                        if let Ok(columns) = property_value.parse::<i32>() {
+                            component.properties.posts_list_columns = columns;
+                        }
+                    },
+                    "posts_list_count" => {
+                        if let Ok(count) = property_value.parse::<i32>() {
+                            component.properties.posts_list_count = count;
+                        }
+                    },
+                    "posts_list_excerpt_length" => {
+                        if let Ok(length) = property_value.parse::<i32>() {
+                            component.properties.posts_list_excerpt_length = length;
+                        }
+                    },
                     _ => {}
                 }
             }
@@ -630,6 +1091,24 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                     "video_controls" => component.properties.video_controls = property_value,
                     "video_muted" => component.properties.video_muted = property_value,
                     "video_loop" => component.properties.video_loop = property_value,
+                    
+                    // Card boolean properties
+                    "card_button_show" => component.properties.card_button_show = property_value,
+                    
+                    // Hero boolean properties
+                    "hero_show_primary_button" => component.properties.hero_show_primary_button = property_value,
+                    "hero_show_secondary_button" => component.properties.hero_show_secondary_button = property_value,
+                    "hero_show_badge" => component.properties.hero_show_badge = property_value,
+                    "hero_show_stats" => component.properties.hero_show_stats = property_value,
+                    
+                    // List boolean properties
+                    "list_show_icons" => component.properties.list_show_icons = property_value,
+                    
+                    // PostsList boolean properties
+                    "posts_list_show_author" => component.properties.posts_list_show_author = property_value,
+                    "posts_list_show_date" => component.properties.posts_list_show_date = property_value,
+                    "posts_list_show_excerpt" => component.properties.posts_list_show_excerpt = property_value,
+                    "posts_list_show_view_all" => component.properties.posts_list_show_view_all = property_value,
                     _ => {}
                 }
             }
@@ -668,6 +1147,22 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                         ondragover={on_drag_over}
                         ondragleave={on_drag_leave}
                         ondrop={on_drop}
+                        onclick={{
+                            let selected_component = selected_component.clone();
+                            Callback::from(move |e: web_sys::MouseEvent| {
+                                // Only deselect if clicking on the canvas itself (not on a component)
+                                if let Some(target) = e.target() {
+                                    if let Ok(element) = target.dyn_into::<web_sys::Element>() {
+                                        let class_name = element.class_name();
+                                        if class_name.contains("drop-zone") || 
+                                           class_name.contains("canvas-components") ||
+                                           class_name.contains("empty-canvas") {
+                                            selected_component.set(None);
+                                        }
+                                    }
+                                }
+                            })
+                        }}
                     >
                         {if components.is_empty() {
                             html! {
@@ -757,12 +1252,24 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                 })
                                             };
                                             
+                                            let selection_border = if is_selected {
+                                                "3px solid #007bff"
+                                            } else {
+                                                &format!("{} {} {}", component.styles.border_width, component.styles.border_style, component.styles.border_color)
+                                            };
+                                            
+                                            let selection_box_shadow = if is_selected {
+                                                format!("{}, 0 0 0 2px rgba(0, 123, 255, 0.25)", component.styles.box_shadow)
+                                            } else {
+                                                component.styles.box_shadow.clone()
+                                            };
+                                            
                                             html! {
                                                 <div 
                                                     class={classes!("canvas-component", if is_selected { Some("selected") } else { None })}
                                                     onclick={on_click}
                                                     style={format!(
-                                                        "background-color: {}; color: {}; padding: {}; margin: {}; border-radius: {}; font-size: {}; font-weight: {}; text-align: {}; border: {} {} {}; box-shadow: {}; opacity: {}; z-index: {}; font-family: {}; line-height: {}; letter-spacing: {}; text-decoration: {}; text-transform: {}; background-image: {}; background-size: {}; background-position: {}; background-repeat: {};",
+                                                        "background-color: {}; color: {}; padding: {}; margin: {}; border-radius: {}; font-size: {}; font-weight: {}; text-align: {}; border: {}; box-shadow: {}; opacity: {}; z-index: {}; font-family: {}; line-height: {}; letter-spacing: {}; text-decoration: {}; text-transform: {}; background-image: {}; background-size: {}; background-position: {}; background-repeat: {}; position: relative;",
                                                         component.styles.background_color,
                                                         component.styles.text_color,
                                                         component.styles.padding,
@@ -771,12 +1278,10 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                         component.styles.font_size,
                                                         component.styles.font_weight,
                                                         component.styles.text_align,
-                                                        component.styles.border_width,
-                                                        component.styles.border_style,
-                                                        component.styles.border_color,
-                                                        component.styles.box_shadow,
+                                                        selection_border,
+                                                        selection_box_shadow,
                                                         component.styles.opacity,
-                                                        component.styles.z_index,
+                                                        if is_selected { "10" } else { &component.styles.z_index.to_string() },
                                                         component.styles.font_family,
                                                         component.styles.line_height,
                                                         component.styles.letter_spacing,
@@ -788,14 +1293,30 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                         component.styles.background_repeat
                                                     )}
                                                 >
-                                                    {render_component_content(component)}
+                                                    {render_component_content_with_drop_zones(
+                                                        component, 
+                                                        on_nested_drop.clone(), 
+                                                        dragging_component.clone(), 
+                                                        container_drag_over.clone(), 
+                                                        column_drag_over.clone(),
+                                                        selected_component.clone(),
+                                                        on_component_click.clone(),
+                                                        on_component_edit.clone(),
+                                                        on_component_duplicate.clone(),
+                                                        on_component_delete.clone()
+                                                    )}
                                                     {if is_selected {
                                                         html! {
+                                                            <>
+                                                                <div class="selection-indicator" style="position: absolute; top: -8px; left: -8px; background: #007bff; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; z-index: 11; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                                                    {"✓ Selected"}
+                                                                </div>
                                                             <div class="component-controls">
                                                                 <button class="control-btn" onclick={on_edit} title="Edit Content">{"✏️"}</button>
                                                                 <button class="control-btn" onclick={on_duplicate} title="Duplicate">{"📋"}</button>
                                                                 <button class="control-btn" onclick={on_delete} title="Delete">{"🗑️"}</button>
                                                             </div>
+                                                            </>
                                                         }
                                                     } else {
                                                         html! {}
@@ -815,7 +1336,8 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
 
             // Properties Modal - Opens when editing_component is set
             {if let Some(editing_id) = editing_component.as_ref() {
-                if let Some(component) = components.iter().find(|c| &c.id == editing_id) {
+                // Find the component from current state each render to ensure reactivity (including nested components)
+                if let Some(component) = find_component_by_id(&(*components), editing_id) {
                     let close_modal = {
                         let editing_component = editing_component.clone();
                         Callback::from(move |e: MouseEvent| {
@@ -842,6 +1364,7 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                     html! {
                         <div 
                             class="properties-modal" 
+                            key={format!("modal-{}", component.id)}
                             onclick={close_modal_overlay}
                             onkeydown={{
                                 let editing_component = editing_component.clone();
@@ -871,8 +1394,8 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
 
                                 <div class="modal-body">
                                     <div class="property-sections">
-                                        // Content Section (hide for image components as they use image-specific properties)
-                                        {if !matches!(component.component_type, ComponentType::Image) {
+                                        // Content Section (hide for image and list components as they use component-specific properties)
+                                        {if !matches!(component.component_type, ComponentType::Image | ComponentType::List) {
                                             html! {
                                                 <div class="property-section">
                                                     <h4 class="section-title">{"Content"}</h4>
@@ -896,6 +1419,191 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                         <div class="property-preview">
                                                             {render_component_content(component)}
                                                         </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        } else {
+                                            html! {}
+                                        }}
+
+                                        // List Properties Section (show at top for List components)
+                                        {if matches!(component.component_type, ComponentType::List) {
+                                            html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"List Properties"}</h4>
+                                                    
+                                                    // List Items Management
+                                                    <div class="property-group">
+                                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                                            <label style="font-weight: 600;">{"List Items"}</label>
+                                                            <button 
+                                                                type="button"
+                                                                style="padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: not-allowed; font-size: 12px;"
+                                                                disabled=true
+                                                                title="Add/Remove items will be implemented in next update"
+                                                            >
+                                                                {"+ Add Item (Coming Soon)"}
+                                                            </button>
+                                                        </div>
+                                                        
+                                                        <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e1e5e9; border-radius: 6px; padding: 8px;">
+                                                            {component.properties.list_items.iter().enumerate().map(|(index, item)| {
+                                                                html! {
+                                                                    <div style="border: 1px solid #e1e5e9; border-radius: 6px; padding: 12px; margin-bottom: 8px; background: #f8f9fa;">
+                                                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                                                            <span style="font-weight: 600; font-size: 12px; color: #666;">
+                                                                                {format!("Item #{}", index + 1)}
+                                                                            </span>
+                                                                            if component.properties.list_items.len() > 1 {
+                                                                                <button 
+                                                                                    type="button"
+                                                                                    style="padding: 2px 6px; background: #9ca3af; color: white; border: none; border-radius: 3px; cursor: not-allowed; font-size: 10px;"
+                                                                                    disabled=true
+                                                                                    title="Add/Remove items will be implemented in next update"
+                                                                                >
+                                                                                    {"Remove"}
+                                                                                </button>
+                                                                            }
+                                                                        </div>
+                                                                        
+                                                                        if component.properties.list_show_icons {
+                                                                            <div style="margin-bottom: 8px;">
+                                                                                <label style="font-size: 12px; display: block; margin-bottom: 4px;">{"Icon"}</label>
+                                                                                <input 
+                                                                                    type="text" 
+                                                                                    value={item.icon.clone()}
+                                                                                    placeholder="✓"
+                                                                                    style="width: 100%; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; background: #f9f9f9;"
+                                                                                    readonly=true
+                                                                                    title="Item editing will be implemented in next update"
+                                                                                />
+                                                                            </div>
+                                                                        }
+                                                                        
+                                                                        <div style="margin-bottom: 8px;">
+                                                                            <label style="font-size: 12px; display: block; margin-bottom: 4px;">{"Title"}</label>
+                                                                            <input 
+                                                                                type="text" 
+                                                                                value={item.title.clone()}
+                                                                                placeholder="List item title"
+                                                                                style="width: 100%; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; background: #f9f9f9;"
+                                                                                readonly=true
+                                                                                title="Item editing will be implemented in next update"
+                                                                            />
+                                                                        </div>
+                                                                        
+                                                                        <div>
+                                                                            <label style="font-size: 12px; display: block; margin-bottom: 4px;">{"Description"}</label>
+                                                                            <textarea 
+                                                                                value={item.description.clone()}
+                                                                                placeholder="Item description"
+                                                                                style="width: 100%; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; min-height: 60px; resize: vertical; background: #f9f9f9;"
+                                                                                readonly=true
+                                                                                title="Item editing will be implemented in next update"
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                            }).collect::<Html>()}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    // Display Settings
+                                                    <div class="property-group">
+                                                        <label>
+                                                            <input type="checkbox" 
+                                                                checked={component.properties.list_show_icons}
+                                                                onchange={
+                                                                    let on_boolean_property_update = on_boolean_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: Event| {
+                                                                        let target = e.target().unwrap().unchecked_into::<web_sys::HtmlInputElement>();
+                                                                        on_boolean_property_update.emit((component_id.clone(), "list_show_icons".to_string(), target.checked()));
+                                                                    })
+                                                                }
+                                                            />
+                                                            {" Show Icons"}
+                                                        </label>
+                                                    </div>
+                                                    
+                                                    // List-specific styling Settings
+                                                    <div class="property-group">
+                                                        <label>{"List Background Color"}</label>
+                                                        <input type="color"
+                                                            value={component.properties.list_background.clone()}
+                                                            oninput={
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<web_sys::HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "list_background".to_string(), target.value()));
+                                                                })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    
+                                                    <div class="property-group">
+                                                        <label>{"List Text Color"}</label>
+                                                        <input type="color"
+                                                            value={component.properties.list_text_color.clone()}
+                                                            oninput={
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<web_sys::HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "list_text_color".to_string(), target.value()));
+                                                                })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    
+                                                    // Layout Settings
+                                                    <div class="property-group">
+                                                        <label>{"Border Radius"}</label>
+                                                        <input type="text" 
+                                                            value={component.properties.list_border_radius.clone()}
+                                                            placeholder="12px"
+                                                            oninput={
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<web_sys::HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "list_border_radius".to_string(), target.value()));
+                                                                })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    
+                                                    <div class="property-group">
+                                                        <label>{"Padding"}</label>
+                                                        <input type="text" 
+                                                            value={component.properties.list_padding.clone()}
+                                                            placeholder="32px"
+                                                            oninput={
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<web_sys::HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "list_padding".to_string(), target.value()));
+                                                                })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    
+                                                    <div class="property-group">
+                                                        <label>{"Item Spacing"}</label>
+                                                        <input type="text" 
+                                                            value={component.properties.list_item_spacing.clone()}
+                                                            placeholder="16px"
+                                                            oninput={
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<web_sys::HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "list_item_spacing".to_string(), target.value()));
+                                                                })
+                                                            }
+                                                        />
                                                     </div>
                                                 </div>
                                             }
@@ -1064,6 +1772,10 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                         
                                         // Component-Specific Properties
                                         {match component.component_type {
+                                            ComponentType::List => html! {
+                                                // List properties are handled at the top of the modal
+                                                <></>
+                                            },
                                             ComponentType::Image => html! {
                                                 <div class="property-section">
                                                     <h4 class="section-title">{"Image Properties"}</h4>
@@ -1247,7 +1959,6 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                     <div class="property-group">
                                                         <label>{"Button Size"}</label>
                                                         <select 
-                                                            value={component.properties.button_size.clone()}
                                                             onchange={{
                                                                 let on_property_update = on_property_update.clone();
                                                                 let component_id = component.id.clone();
@@ -1257,10 +1968,10 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                                 })
                                                             }}
                                                         >
-                                                            <option value="small">{"Small"}</option>
-                                                            <option value="medium">{"Medium"}</option>
-                                                            <option value="large">{"Large"}</option>
-                                                            <option value="xl">{"Extra Large"}</option>
+                                                            <option value="small" selected={component.properties.button_size == "small"}>{"Small"}</option>
+                                                            <option value="medium" selected={component.properties.button_size == "medium"}>{"Medium"}</option>
+                                                            <option value="large" selected={component.properties.button_size == "large"}>{"Large"}</option>
+                                                            <option value="xl" selected={component.properties.button_size == "xl"}>{"Extra Large"}</option>
                                                         </select>
                                                     </div>
                                                     <div class="property-group">
@@ -1299,6 +2010,643 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                             }}
                                                         />
                                                     </div>
+                                                    <div class="property-group">
+                                                        <label>{"Preview"}</label>
+                                                        <div class="property-preview">
+                                                            {render_component_content(component)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            },
+                                            ComponentType::Card => html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"Card Properties"}</h4>
+                                                    <div class="property-group">
+                                                        <label>{"Card Title"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.card_title.clone()} 
+                                                            placeholder="Enter card title"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "card_title".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Card Description"}</label>
+                                                        <textarea 
+                                                            rows="3"
+                                                            value={component.properties.card_description.clone()} 
+                                                            placeholder="Enter card description"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlTextAreaElement>();
+                                                                    on_property_update.emit((component_id.clone(), "card_description".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        ></textarea>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Card Image URL"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.card_image.clone()} 
+                                                            placeholder="https://example.com/image.jpg"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "card_image".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Image Alt Text"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.card_image_alt.clone()} 
+                                                            placeholder="Descriptive alt text"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "card_image_alt".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Meta Text"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.card_meta_text.clone()} 
+                                                            placeholder="Published on March 1, 2024"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "card_meta_text".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Show Button"}</label>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={component.properties.card_button_show}
+                                                            onchange={{
+                                                                let on_boolean_property_update = on_boolean_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: Event| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_boolean_property_update.emit((component_id.clone(), "card_button_show".to_string(), target.checked()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    if component.properties.card_button_show {
+                                                        <div class="property-group">
+                                                            <label>{"Button Text"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.card_button_text.clone()} 
+                                                                placeholder="Learn More"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "card_button_text".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div class="property-group">
+                                                            <label>{"Button URL"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.card_button_url.clone()} 
+                                                                placeholder="https://example.com"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "card_button_url".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    }
+                                                    <div class="property-group">
+                                                        <label>{"Background Color"}</label>
+                                                        <input 
+                                                            type="color" 
+                                                            value={component.properties.card_background.clone()} 
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "card_background".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Border Radius"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.card_border_radius.clone()} 
+                                                            placeholder="4px"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "card_border_radius".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Shadow"}</label>
+                                                        <select 
+                                                            onchange={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: Event| {
+                                                                    let target = e.target().unwrap().unchecked_into::<web_sys::HtmlSelectElement>();
+                                                                    on_property_update.emit((component_id.clone(), "card_shadow".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        >
+                                                            <option value="none" selected={component.properties.card_shadow == "none"}>{"None"}</option>
+                                                            <option value="small" selected={component.properties.card_shadow == "small"}>{"Small"}</option>
+                                                            <option value="medium" selected={component.properties.card_shadow == "medium"}>{"Medium"}</option>
+                                                            <option value="large" selected={component.properties.card_shadow == "large"}>{"Large"}</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Padding"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.card_padding.clone()} 
+                                                            placeholder="1.5rem"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "card_padding".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Preview"}</label>
+                                                        <div class="property-preview">
+                                                            {render_component_content(component)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            },
+                                            ComponentType::Hero => html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"Hero Properties"}</h4>
+                                                    <div class="property-group">
+                                                        <label>{"Hero Title"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.hero_title.clone()} 
+                                                            placeholder="Transform Your Ideas Into Reality"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "hero_title".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Hero Subtitle (Optional)"}</label>
+                                                        <input 
+                                                            type="text" 
+                                                            value={component.properties.hero_subtitle.clone()} 
+                                                            placeholder="Optional subtitle"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "hero_subtitle".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Hero Description"}</label>
+                                                        <textarea 
+                                                            rows="3"
+                                                            value={component.properties.hero_description.clone()} 
+                                                            placeholder="Compelling description of your product or service"
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlTextAreaElement>();
+                                                                    on_property_update.emit((component_id.clone(), "hero_description".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        ></textarea>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Background Type"}</label>
+                                                        <select 
+                                                            onchange={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: Event| {
+                                                                    let target = e.target().unwrap().unchecked_into::<web_sys::HtmlSelectElement>();
+                                                                    on_property_update.emit((component_id.clone(), "hero_background_type".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        >
+                                                            <option value="gradient" selected={component.properties.hero_background_type == "gradient"}>{"Gradient"}</option>
+                                                            <option value="solid" selected={component.properties.hero_background_type == "solid"}>{"Solid Color"}</option>
+                                                            <option value="image" selected={component.properties.hero_background_type == "image"}>{"Background Image"}</option>
+                                                        </select>
+                                                    </div>
+                                                    if component.properties.hero_background_type == "gradient" {
+                                                        <div class="property-group">
+                                                            <label>{"Gradient Start Color"}</label>
+                                                            <input 
+                                                                type="color" 
+                                                                value={component.properties.hero_background_gradient_start.clone()} 
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_background_gradient_start".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div class="property-group">
+                                                            <label>{"Gradient End Color"}</label>
+                                                            <input 
+                                                                type="color" 
+                                                                value={component.properties.hero_background_gradient_end.clone()} 
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_background_gradient_end".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    } else if component.properties.hero_background_type == "solid" {
+                                                        <div class="property-group">
+                                                            <label>{"Background Color"}</label>
+                                                            <input 
+                                                                type="color" 
+                                                                value={component.properties.hero_background_color.clone()} 
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_background_color".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    } else if component.properties.hero_background_type == "image" {
+                                                        <div class="property-group">
+                                                            <label>{"Background Image URL"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_background_image.clone()} 
+                                                                placeholder="https://example.com/background.jpg"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_background_image".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div class="property-group">
+                                                            <label>{"Overlay Color"}</label>
+                                                            <input 
+                                                                type="color" 
+                                                                value={component.properties.hero_background_color.clone()} 
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_background_color".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    }
+                                                    <div class="property-group">
+                                                        <label>{"Text Color"}</label>
+                                                        <input 
+                                                            type="color" 
+                                                            value={component.properties.hero_text_color.clone()} 
+                                                            oninput={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: InputEvent| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_property_update.emit((component_id.clone(), "hero_text_color".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Text Alignment"}</label>
+                                                        <select 
+                                                            onchange={{
+                                                                let on_property_update = on_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: Event| {
+                                                                    let target = e.target().unwrap().unchecked_into::<web_sys::HtmlSelectElement>();
+                                                                    on_property_update.emit((component_id.clone(), "hero_alignment".to_string(), target.value()));
+                                                                })
+                                                            }}
+                                                        >
+                                                            <option value="left" selected={component.properties.hero_alignment == "left"}>{"Left"}</option>
+                                                            <option value="center" selected={component.properties.hero_alignment == "center"}>{"Center"}</option>
+                                                            <option value="right" selected={component.properties.hero_alignment == "right"}>{"Right"}</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="property-group">
+                                                        <label>{"Show Badge"}</label>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={component.properties.hero_show_badge}
+                                                            onchange={{
+                                                                let on_boolean_property_update = on_boolean_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: Event| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_boolean_property_update.emit((component_id.clone(), "hero_show_badge".to_string(), target.checked()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    if component.properties.hero_show_badge {
+                                                        <div class="property-group">
+                                                            <label>{"Badge Text"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_badge_text.clone()} 
+                                                                placeholder="🚀 Welcome to the Future"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_badge_text".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    }
+                                                    <div class="property-group">
+                                                        <label>{"Show Primary Button"}</label>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={component.properties.hero_show_primary_button}
+                                                            onchange={{
+                                                                let on_boolean_property_update = on_boolean_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: Event| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_boolean_property_update.emit((component_id.clone(), "hero_show_primary_button".to_string(), target.checked()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    if component.properties.hero_show_primary_button {
+                                                        <div class="property-group">
+                                                            <label>{"Primary Button Text"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_primary_button_text.clone()} 
+                                                                placeholder="Get Started"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_primary_button_text".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div class="property-group">
+                                                            <label>{"Primary Button URL"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_primary_button_url.clone()} 
+                                                                placeholder="#get-started"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_primary_button_url".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    }
+                                                    <div class="property-group">
+                                                        <label>{"Show Secondary Button"}</label>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={component.properties.hero_show_secondary_button}
+                                                            onchange={{
+                                                                let on_boolean_property_update = on_boolean_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: Event| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_boolean_property_update.emit((component_id.clone(), "hero_show_secondary_button".to_string(), target.checked()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    if component.properties.hero_show_secondary_button {
+                                                        <div class="property-group">
+                                                            <label>{"Secondary Button Text"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_secondary_button_text.clone()} 
+                                                                placeholder="📖 Learn More"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_secondary_button_text".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div class="property-group">
+                                                            <label>{"Secondary Button URL"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_secondary_button_url.clone()} 
+                                                                placeholder="#learn-more"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_secondary_button_url".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    }
+                                                    <div class="property-group">
+                                                        <label>{"Show Statistics"}</label>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={component.properties.hero_show_stats}
+                                                            onchange={{
+                                                                let on_boolean_property_update = on_boolean_property_update.clone();
+                                                                let component_id = component.id.clone();
+                                                                Callback::from(move |e: Event| {
+                                                                    let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                    on_boolean_property_update.emit((component_id.clone(), "hero_show_stats".to_string(), target.checked()));
+                                                                })
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    if component.properties.hero_show_stats {
+                                                        <div class="property-group">
+                                                            <label>{"Stat 1 - Number"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_stat1_number.clone()} 
+                                                                placeholder="1000+"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_stat1_number".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div class="property-group">
+                                                            <label>{"Stat 1 - Label"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_stat1_label.clone()} 
+                                                                placeholder="Happy Users"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_stat1_label".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div class="property-group">
+                                                            <label>{"Stat 2 - Number"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_stat2_number.clone()} 
+                                                                placeholder="99.9%"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_stat2_number".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div class="property-group">
+                                                            <label>{"Stat 2 - Label"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_stat2_label.clone()} 
+                                                                placeholder="Uptime"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_stat2_label".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div class="property-group">
+                                                            <label>{"Stat 3 - Number"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_stat3_number.clone()} 
+                                                                placeholder="24/7"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_stat3_number".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div class="property-group">
+                                                            <label>{"Stat 3 - Label"}</label>
+                                                            <input 
+                                                                type="text" 
+                                                                value={component.properties.hero_stat3_label.clone()} 
+                                                                placeholder="Support"
+                                                                oninput={{
+                                                                    let on_property_update = on_property_update.clone();
+                                                                    let component_id = component.id.clone();
+                                                                    Callback::from(move |e: InputEvent| {
+                                                                        let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
+                                                                        on_property_update.emit((component_id.clone(), "hero_stat3_label".to_string(), target.value()));
+                                                                    })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    }
                                                     <div class="property-group">
                                                         <label>{"Preview"}</label>
                                                         <div class="property-preview">
@@ -1611,20 +2959,6 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                     </div>
                                                 </div>
                                             },
-                                            ComponentType::List => html! {
-                                                <div class="property-section">
-                                                    <h4 class="section-title">{"List Properties"}</h4>
-                                                    <div class="property-group">
-                                                        <label>{"List Type"}</label>
-                                                        <select value={component.properties.list_type.clone()}>
-                                                            <option value="unordered">{"Bulleted List"}</option>
-                                                            <option value="ordered">{"Numbered List"}</option>
-                                                            <option value="checklist">{"Checklist"}</option>
-                                                            <option value="none">{"Plain List"}</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            },
                                             ComponentType::Container => html! {
                                                 <div class="property-section">
                                                     <h4 class="section-title">{"Container Properties"}</h4>
@@ -1645,6 +2979,254 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                             <option value="center">{"Center"}</option>
                                                             <option value="right">{"Right"}</option>
                                                         </select>
+                                                    </div>
+                                                    
+                                                    // Nested Components Management
+                                                    <div class="property-group">
+                                                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">{"Nested Components"}</label>
+                                                        <div style="border: 1px solid #e1e5e9; border-radius: 6px; padding: 12px; background: #f8f9fa;">
+                                                            {if component.properties.nested_components.is_empty() {
+                                                                html! {
+                                                                    <div style="text-align: center; color: #666; font-style: italic; padding: 20px;">
+                                                                        {"No components in this container yet."}
+                                                                        <br/>
+                                                                        {"Drag components from the sidebar to add them."}
+                                                                    </div>
+                                                                }
+                                                            } else {
+                                                                html! {
+                                                                    <div>
+                                                                        <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                                                                            {format!("{} component(s) in container:", component.properties.nested_components.len())}
+                                                                        </div>
+                                                                        {component.properties.nested_components.iter().enumerate().map(|(index, nested_comp)| {
+                                                                            html! {
+                                                                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 4px; background: white;">
+                                                                                    <div style="flex: 1;">
+                                                                                        <div style="font-size: 14px; font-weight: 500; margin-bottom: 2px;">
+                                                                                            {format!("{}. {}", index + 1, nested_comp.component_type.display_name())}
+                                                                                        </div>
+                                                                                        <div style="font-size: 11px; color: #666;">
+                                                                                            {"ID: "}{&nested_comp.id[..8]}{"..."}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div style="display: flex; gap: 4px;">
+                                                                                        <button 
+                                                                                            type="button"
+                                                                                            style="padding: 4px 8px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 10px;"
+                                                                                            title="Edit nested component properties"
+                                                                                        >
+                                                                                            {"✏️ Edit"}
+                                                                                        </button>
+                                                                                        <button 
+                                                                                            type="button"
+                                                                                            style="padding: 4px 8px; background: #17a2b8; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 10px;"
+                                                                                            title="Duplicate nested component"
+                                                                                        >
+                                                                                            {"📋 Copy"}
+                                                                                        </button>
+                                                                                        <button 
+                                                                                            type="button"
+                                                                                            style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 10px;"
+                                                                                            title="Remove from container"
+                                                                                        >
+                                                                                            {"🗑️ Remove"}
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            }
+                                                                        }).collect::<Html>()}
+                                                                    </div>
+                                                                }
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            },
+                                            ComponentType::TwoColumn => html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"Two Column Layout Properties"}</h4>
+                                                    
+                                                    // Column 1 Management
+                                                    <div class="property-group">
+                                                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">{"Column 1 Components"}</label>
+                                                        <div style="border: 1px solid #e1e5e9; border-radius: 6px; padding: 12px; background: #f8f9fa;">
+                                                            {if component.properties.column_1_components.is_empty() {
+                                                                html! {
+                                                                    <div style="text-align: center; color: #666; font-style: italic; padding: 12px;">
+                                                                        {"No components in column 1."}
+                                                                        <br/>
+                                                                        {"Drag components to the left column."}
+                                                                    </div>
+                                                                }
+                                                            } else {
+                                                                html! {
+                                                                    <div>
+                                                                        <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                                                                            {format!("{} component(s) in column 1:", component.properties.column_1_components.len())}
+                                                                        </div>
+                                                                        {component.properties.column_1_components.iter().enumerate().map(|(index, nested_comp)| {
+                                                                            html! {
+                                                                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border: 1px solid #ddd; border-radius: 3px; margin-bottom: 3px; background: white; font-size: 12px;">
+                                                                                    <span>{format!("C1-{}: {}", index + 1, nested_comp.component_type.display_name())}</span>
+                                                                                    <button 
+                                                                                        type="button"
+                                                                                        style="padding: 2px 6px; background: #dc3545; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 9px;"
+                                                                                        title="Remove from column 1"
+                                                                                    >
+                                                                                        {"🗑️"}
+                                                                                    </button>
+                                                                                </div>
+                                                                            }
+                                                                        }).collect::<Html>()}
+                                                                    </div>
+                                                                }
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    // Column 2 Management
+                                                    <div class="property-group">
+                                                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">{"Column 2 Components"}</label>
+                                                        <div style="border: 1px solid #e1e5e9; border-radius: 6px; padding: 12px; background: #f8f9fa;">
+                                                            {if component.properties.column_2_components.is_empty() {
+                                                                html! {
+                                                                    <div style="text-align: center; color: #666; font-style: italic; padding: 12px;">
+                                                                        {"No components in column 2."}
+                                                                        <br/>
+                                                                        {"Drag components to the right column."}
+                                                                    </div>
+                                                                }
+                                                            } else {
+                                                                html! {
+                                                                    <div>
+                                                                        <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                                                                            {format!("{} component(s) in column 2:", component.properties.column_2_components.len())}
+                                                                        </div>
+                                                                        {component.properties.column_2_components.iter().enumerate().map(|(index, nested_comp)| {
+                                                                            html! {
+                                                                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border: 1px solid #ddd; border-radius: 3px; margin-bottom: 3px; background: white; font-size: 12px;">
+                                                                                    <span>{format!("C2-{}: {}", index + 1, nested_comp.component_type.display_name())}</span>
+                                                                                    <button 
+                                                                                        type="button"
+                                                                                        style="padding: 2px 6px; background: #dc3545; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 9px;"
+                                                                                        title="Remove from column 2"
+                                                                                    >
+                                                                                        {"🗑️"}
+                                                                                    </button>
+                                                                                </div>
+                                                                            }
+                                                                        }).collect::<Html>()}
+                                                                    </div>
+                                                                }
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            },
+                                            ComponentType::ThreeColumn => html! {
+                                                <div class="property-section">
+                                                    <h4 class="section-title">{"Three Column Layout Properties"}</h4>
+                                                    
+                                                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                                                        // Column 1
+                                                        <div class="property-group">
+                                                            <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 12px;">{"Column 1"}</label>
+                                                            <div style="border: 1px solid #e1e5e9; border-radius: 4px; padding: 8px; background: #f8f9fa; min-height: 60px;">
+                                                                {if component.properties.column_1_components.is_empty() {
+                                                                    html! {
+                                                                        <div style="text-align: center; color: #666; font-style: italic; font-size: 10px; padding: 8px;">
+                                                                            {"Empty"}
+                                                                        </div>
+                                                                    }
+                                                                } else {
+                                                                    html! {
+                                                                        <div>
+                                                                            {component.properties.column_1_components.iter().enumerate().map(|(index, nested_comp)| {
+                                                                                html! {
+                                                                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px; border: 1px solid #ddd; border-radius: 2px; margin-bottom: 2px; background: white; font-size: 10px;">
+                                                                                        <span>{format!("{}", nested_comp.component_type.display_name())}</span>
+                                                                                        <button 
+                                                                                            type="button"
+                                                                                            style="padding: 1px 3px; background: #dc3545; color: white; border: none; border-radius: 1px; cursor: pointer; font-size: 8px;"
+                                                                                            title="Remove from column 1"
+                                                                                        >
+                                                                                            {"×"}
+                                                                                        </button>
+                                                                                    </div>
+                                                                                }
+                                                                            }).collect::<Html>()}
+                                                                        </div>
+                                                                    }
+                                                                }}
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        // Column 2
+                                                        <div class="property-group">
+                                                            <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 12px;">{"Column 2"}</label>
+                                                            <div style="border: 1px solid #e1e5e9; border-radius: 4px; padding: 8px; background: #f8f9fa; min-height: 60px;">
+                                                                {if component.properties.column_2_components.is_empty() {
+                                                                    html! {
+                                                                        <div style="text-align: center; color: #666; font-style: italic; font-size: 10px; padding: 8px;">
+                                                                            {"Empty"}
+                                                                        </div>
+                                                                    }
+                                                                } else {
+                                                                    html! {
+                                                                        <div>
+                                                                            {component.properties.column_2_components.iter().enumerate().map(|(index, nested_comp)| {
+                                                                                html! {
+                                                                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px; border: 1px solid #ddd; border-radius: 2px; margin-bottom: 2px; background: white; font-size: 10px;">
+                                                                                        <span>{format!("{}", nested_comp.component_type.display_name())}</span>
+                                                                                        <button 
+                                                                                            type="button"
+                                                                                            style="padding: 1px 3px; background: #dc3545; color: white; border: none; border-radius: 1px; cursor: pointer; font-size: 8px;"
+                                                                                            title="Remove from column 2"
+                                                                                        >
+                                                                                            {"×"}
+                                                                                        </button>
+                                                                                    </div>
+                                                                                }
+                                                                            }).collect::<Html>()}
+                                                                        </div>
+                                                                    }
+                                                                }}
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        // Column 3
+                                                        <div class="property-group">
+                                                            <label style="font-weight: 600; margin-bottom: 6px; display: block; font-size: 12px;">{"Column 3"}</label>
+                                                            <div style="border: 1px solid #e1e5e9; border-radius: 4px; padding: 8px; background: #f8f9fa; min-height: 60px;">
+                                                                {if component.properties.column_3_components.is_empty() {
+                                                                    html! {
+                                                                        <div style="text-align: center; color: #666; font-style: italic; font-size: 10px; padding: 8px;">
+                                                                            {"Empty"}
+                                                                        </div>
+                                                                    }
+                                                                } else {
+                                                                    html! {
+                                                                        <div>
+                                                                            {component.properties.column_3_components.iter().enumerate().map(|(index, nested_comp)| {
+                                                                                html! {
+                                                                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px; border: 1px solid #ddd; border-radius: 2px; margin-bottom: 2px; background: white; font-size: 10px;">
+                                                                                        <span>{format!("{}", nested_comp.component_type.display_name())}</span>
+                                                                                        <button 
+                                                                                            type="button"
+                                                                                            style="padding: 1px 3px; background: #dc3545; color: white; border: none; border-radius: 1px; cursor: pointer; font-size: 8px;"
+                                                                                            title="Remove from column 3"
+                                                                                        >
+                                                                                            {"×"}
+                                                                                        </button>
+                                                                                    </div>
+                                                                                }
+                                                                            }).collect::<Html>()}
+                                                                        </div>
+                                                                    }
+                                                                }}
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             },
@@ -1784,13 +3366,13 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                         <div class="property-group">
                                                             <label>{"Grid Columns"}</label>
                                                             <select 
-                                                                value={component.properties.gallery_columns.to_string()}
+                                                                value={component.properties.posts_list_columns.to_string()}
                                                                 onchange={{
                                                                     let on_property_update = on_property_update.clone();
                                                                     let component_id = component.id.clone();
                                                                     Callback::from(move |e: Event| {
                                                                         let target = e.target().unwrap().unchecked_into::<web_sys::HtmlSelectElement>();
-                                                                        on_property_update.emit((component_id.clone(), "gallery_columns".to_string(), target.value()));
+                                                                        on_property_update.emit((component_id.clone(), "posts_list_columns".to_string(), target.value()));
                                                                     })
                                                                 }}
                                                             >
@@ -1804,13 +3386,13 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                         <div class="property-group">
                                                             <label>{"Posts to Show"}</label>
                                                             <select 
-                                                                value={component.properties.container_max_width.clone()}
+                                                                value={component.properties.posts_list_count.to_string()}
                                                                 onchange={{
                                                                     let on_property_update = on_property_update.clone();
                                                                     let component_id = component.id.clone();
                                                                     Callback::from(move |e: Event| {
                                                                         let target = e.target().unwrap().unchecked_into::<web_sys::HtmlSelectElement>();
-                                                                        on_property_update.emit((component_id.clone(), "container_max_width".to_string(), target.value()));
+                                                                        on_property_update.emit((component_id.clone(), "posts_list_count".to_string(), target.value()));
                                                                     })
                                                                 }}
                                                             >
@@ -1818,20 +3400,21 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                                 <option value="6">{"6 Posts"}</option>
                                                                 <option value="9">{"9 Posts"}</option>
                                                                 <option value="12">{"12 Posts"}</option>
-                                                                <option value="all">{"All Posts"}</option>
+                                                                <option value="18">{"18 Posts"}</option>
+                                                                <option value="24">{"24 Posts"}</option>
                                                             </select>
                                                         </div>
                                                         
                                                         <div class="property-group">
                                                             <label>{"Excerpt Length"}</label>
                                                             <select 
-                                                                value={component.properties.divider_margin.clone()}
+                                                                value={component.properties.posts_list_excerpt_length.to_string()}
                                                                 onchange={{
                                                                     let on_property_update = on_property_update.clone();
                                                                     let component_id = component.id.clone();
                                                                     Callback::from(move |e: Event| {
                                                                         let target = e.target().unwrap().unchecked_into::<web_sys::HtmlSelectElement>();
-                                                                        on_property_update.emit((component_id.clone(), "divider_margin".to_string(), target.value()));
+                                                                        on_property_update.emit((component_id.clone(), "posts_list_excerpt_length".to_string(), target.value()));
                                                                     })
                                                                 }}
                                                             >
@@ -1851,8 +3434,8 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                             <div class="color-input-group">
                                                                 <input 
                                                                     type="color" 
-                                                                    value={if component.properties.button_text.starts_with("#") { 
-                                                                        component.properties.button_text.clone() 
+                                                                    value={if component.properties.posts_list_card_background.starts_with("#") { 
+                                                                        component.properties.posts_list_card_background.clone() 
                                                                     } else { 
                                                                         "#ffffff".to_string() 
                                                                     }}
@@ -1861,20 +3444,20 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                                         let component_id = component.id.clone();
                                                                         Callback::from(move |e: Event| {
                                                                             let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
-                                                                            on_property_update.emit((component_id.clone(), "button_text".to_string(), target.value()));
+                                                                            on_property_update.emit((component_id.clone(), "posts_list_card_background".to_string(), target.value()));
                                                                         })
                                                                     }}
                                                                 />
                                                                 <input 
                                                                     type="text" 
-                                                                    value={component.properties.button_text.clone()} 
+                                                                    value={component.properties.posts_list_card_background.clone()} 
                                                                     placeholder="var(--public-background-primary, #ffffff)"
                                                                     oninput={{
                                                                         let on_property_update = on_property_update.clone();
                                                                         let component_id = component.id.clone();
                                                                         Callback::from(move |e: InputEvent| {
                                                                             let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
-                                                                            on_property_update.emit((component_id.clone(), "button_text".to_string(), target.value()));
+                                                                            on_property_update.emit((component_id.clone(), "posts_list_card_background".to_string(), target.value()));
                                                                         })
                                                                     }}
                                                                 />
@@ -1884,13 +3467,13 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                         <div class="property-group">
                                                             <label>{"Card Border Radius"}</label>
                                                             <select 
-                                                                value={component.properties.button_size.clone()}
+                                                                value={component.properties.posts_list_card_radius.clone()}
                                                                 onchange={{
                                                                     let on_property_update = on_property_update.clone();
                                                                     let component_id = component.id.clone();
                                                                     Callback::from(move |e: Event| {
                                                                         let target = e.target().unwrap().unchecked_into::<web_sys::HtmlSelectElement>();
-                                                                        on_property_update.emit((component_id.clone(), "button_size".to_string(), target.value()));
+                                                                        on_property_update.emit((component_id.clone(), "posts_list_card_radius".to_string(), target.value()));
                                                                     })
                                                                 }}
                                                             >
@@ -1905,13 +3488,13 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                         <div class="property-group">
                                                             <label>{"Card Shadow"}</label>
                                                             <select 
-                                                                value={component.properties.button_variant.clone()}
+                                                                value={component.properties.posts_list_card_shadow.clone()}
                                                                 onchange={{
                                                                     let on_property_update = on_property_update.clone();
                                                                     let component_id = component.id.clone();
                                                                     Callback::from(move |e: Event| {
                                                                         let target = e.target().unwrap().unchecked_into::<web_sys::HtmlSelectElement>();
-                                                                        on_property_update.emit((component_id.clone(), "button_variant".to_string(), target.value()));
+                                                                        on_property_update.emit((component_id.clone(), "posts_list_card_shadow".to_string(), target.value()));
                                                                     })
                                                                 }}
                                                             >
@@ -1926,13 +3509,13 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                         <div class="property-group">
                                                             <label>{"Grid Gap"}</label>
                                                             <select 
-                                                                value={component.properties.button_url.clone()}
+                                                                value={component.properties.posts_list_grid_gap.clone()}
                                                                 onchange={{
                                                                     let on_property_update = on_property_update.clone();
                                                                     let component_id = component.id.clone();
                                                                     Callback::from(move |e: Event| {
                                                                         let target = e.target().unwrap().unchecked_into::<web_sys::HtmlSelectElement>();
-                                                                        on_property_update.emit((component_id.clone(), "button_url".to_string(), target.value()));
+                                                                        on_property_update.emit((component_id.clone(), "posts_list_grid_gap".to_string(), target.value()));
                                                                     })
                                                                 }}
                                                             >
@@ -1952,8 +3535,8 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                             <div class="color-input-group">
                                                                 <input 
                                                                     type="color" 
-                                                                    value={if component.properties.button_icon.starts_with("#") { 
-                                                                        component.properties.button_icon.clone() 
+                                                                    value={if component.properties.posts_list_title_color.starts_with("#") { 
+                                                                        component.properties.posts_list_title_color.clone() 
                                                                     } else { 
                                                                         "#333333".to_string() 
                                                                     }}
@@ -1962,20 +3545,20 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                                         let component_id = component.id.clone();
                                                                         Callback::from(move |e: Event| {
                                                                             let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
-                                                                            on_property_update.emit((component_id.clone(), "button_icon".to_string(), target.value()));
+                                                                            on_property_update.emit((component_id.clone(), "posts_list_title_color".to_string(), target.value()));
                                                                         })
                                                                     }}
                                                                 />
                                                                 <input 
                                                                     type="text" 
-                                                                    value={component.properties.button_icon.clone()} 
+                                                                    value={component.properties.posts_list_title_color.clone()} 
                                                                     placeholder="var(--public-text-primary, #333)"
                                                                     oninput={{
                                                                         let on_property_update = on_property_update.clone();
                                                                         let component_id = component.id.clone();
                                                                         Callback::from(move |e: InputEvent| {
                                                                             let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
-                                                                            on_property_update.emit((component_id.clone(), "button_icon".to_string(), target.value()));
+                                                                            on_property_update.emit((component_id.clone(), "posts_list_title_color".to_string(), target.value()));
                                                                         })
                                                                     }}
                                                                 />
@@ -1987,8 +3570,8 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                             <div class="color-input-group">
                                                                 <input 
                                                                     type="color" 
-                                                                    value={if component.properties.form_action.starts_with("#") { 
-                                                                        component.properties.form_action.clone() 
+                                                                    value={if component.properties.posts_list_meta_color.starts_with("#") { 
+                                                                        component.properties.posts_list_meta_color.clone() 
                                                                     } else { 
                                                                         "#666666".to_string() 
                                                                     }}
@@ -1997,20 +3580,20 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                                         let component_id = component.id.clone();
                                                                         Callback::from(move |e: Event| {
                                                                             let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
-                                                                            on_property_update.emit((component_id.clone(), "form_action".to_string(), target.value()));
+                                                                            on_property_update.emit((component_id.clone(), "posts_list_meta_color".to_string(), target.value()));
                                                                         })
                                                                     }}
                                                                 />
                                                                 <input 
                                                                     type="text" 
-                                                                    value={component.properties.form_action.clone()} 
+                                                                    value={component.properties.posts_list_meta_color.clone()} 
                                                                     placeholder="var(--public-text-secondary, #666)"
                                                                     oninput={{
                                                                         let on_property_update = on_property_update.clone();
                                                                         let component_id = component.id.clone();
                                                                         Callback::from(move |e: InputEvent| {
                                                                             let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
-                                                                            on_property_update.emit((component_id.clone(), "form_action".to_string(), target.value()));
+                                                                            on_property_update.emit((component_id.clone(), "posts_list_meta_color".to_string(), target.value()));
                                                                         })
                                                                     }}
                                                                 />
@@ -2022,30 +3605,30 @@ pub fn drag_drop_page_builder(props: &DragDropPageBuilderProps) -> Html {
                                                             <div class="color-input-group">
                                                                 <input 
                                                                     type="color" 
-                                                                    value={if component.properties.form_method.starts_with("#") { 
-                                                                        component.properties.form_method.clone() 
+                                                                    value={if component.properties.posts_list_link_color.starts_with("#") { 
+                                                                        component.properties.posts_list_link_color.clone() 
                                                                     } else { 
-                                                                        "#3b82f6".to_string() 
+                                                                        "#2563eb".to_string() 
                                                                     }}
                                                                     onchange={{
                                                                         let on_property_update = on_property_update.clone();
                                                                         let component_id = component.id.clone();
                                                                         Callback::from(move |e: Event| {
                                                                             let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
-                                                                            on_property_update.emit((component_id.clone(), "form_method".to_string(), target.value()));
+                                                                            on_property_update.emit((component_id.clone(), "posts_list_link_color".to_string(), target.value()));
                                                                         })
                                                                     }}
                                                                 />
                                                                 <input 
                                                                     type="text" 
-                                                                    value={component.properties.form_method.clone()} 
-                                                                    placeholder="var(--public-primary, #3b82f6)"
+                                                                    value={component.properties.posts_list_link_color.clone()} 
+                                                                    placeholder="var(--public-link-primary, #2563eb)"
                                                                     oninput={{
                                                                         let on_property_update = on_property_update.clone();
                                                                         let component_id = component.id.clone();
                                                                         Callback::from(move |e: InputEvent| {
                                                                             let target = e.target().unwrap().unchecked_into::<HtmlInputElement>();
-                                                                            on_property_update.emit((component_id.clone(), "form_method".to_string(), target.value()));
+                                                                            on_property_update.emit((component_id.clone(), "posts_list_link_color".to_string(), target.value()));
                                                                         })
                                                                     }}
                                                                 />
@@ -2261,162 +3844,221 @@ fn render_component_content(component: &PageComponent) -> Html {
             Html::from_html_unchecked(html_output.into())
         }
         ComponentType::Hero => {
+            // Dynamic hero using component properties
+            let background_style = match component.properties.hero_background_type.as_str() {
+                "gradient" => format!(
+                    "background: linear-gradient(135deg, {} 0%, {} 100%);",
+                    component.properties.hero_background_gradient_start,
+                    component.properties.hero_background_gradient_end
+                ),
+                "solid" => format!("background: {};", component.properties.hero_background_color),
+                "image" => if !component.properties.hero_background_image.is_empty() {
+                    format!(
+                        "background: linear-gradient(135deg, {}66 0%, {}66 100%), url({}) center/cover;",
+                        component.properties.hero_background_color,
+                        component.properties.hero_background_color,
+                        component.properties.hero_background_image
+                    )
+                } else {
+                    format!("background: {};", component.properties.hero_background_color)
+                },
+                _ => format!(
+                    "background: linear-gradient(135deg, {} 0%, {} 100%);",
+                    component.properties.hero_background_gradient_start,
+                    component.properties.hero_background_gradient_end
+                ),
+            };
+            
+            let hero_style = format!(
+                "{} color: {}; padding: {}; text-align: {}; border-radius: 12px; position: relative; overflow: hidden; min-height: {};",
+                background_style,
+                component.properties.hero_text_color,
+                component.properties.hero_padding,
+                component.properties.hero_alignment,
+                component.properties.hero_min_height
+            );
+            
             html! {
-                <section class="hero-section" style="background: linear-gradient(135deg, var(--public-primary, #3b82f6) 0%, var(--public-secondary, #1d4ed8) 100%); color: white; padding: 80px 40px; text-align: center; border-radius: 12px; position: relative; overflow: hidden;">
+                <section class="hero-section" style={hero_style}>
                     // Background pattern
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; background-image: radial-gradient(circle at 25% 25%, white 2px, transparent 2px), radial-gradient(circle at 75% 75%, white 2px, transparent 2px); background-size: 50px 50px;"></div>
                     
                     <div class="hero-content" style="position: relative; z-index: 1; max-width: 800px; margin: 0 auto;">
+                        // Hero badge (conditional)
+                        if component.properties.hero_show_badge && !component.properties.hero_badge_text.is_empty() {
                         <div class="hero-badge" style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 14px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.3);">
-                            {"🚀 Welcome to the Future"}
+                                {&component.properties.hero_badge_text}
                         </div>
+                        }
                         
+                        // Hero title
                         <h1 style="font-size: 48px; font-weight: 700; margin: 0 0 24px 0; line-height: 1.2;">
-                            {"Transform Your Ideas Into Reality"}
+                            {&component.properties.hero_title}
                         </h1>
                         
+                        // Hero subtitle (conditional)
+                        if !component.properties.hero_subtitle.is_empty() {
+                            <h2 style="font-size: 28px; font-weight: 400; margin: 0 0 24px 0; opacity: 0.9;">
+                                {&component.properties.hero_subtitle}
+                            </h2>
+                        }
+                        
+                        // Hero description
                         <p style="font-size: 20px; margin: 0 0 32px 0; opacity: 0.9; line-height: 1.6;">
-                            {"Experience the power of modern web technology with our comprehensive content management system. Built for creators, designed for success."}
+                            {&component.properties.hero_description}
                         </p>
                         
+                        // Hero action buttons (conditional)
+                        if component.properties.hero_show_primary_button || component.properties.hero_show_secondary_button {
                         <div class="hero-actions" style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-                            <a href="#get-started" style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; background: white; color: var(--public-primary, #3b82f6); text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                                {"Get Started"} <span>{"→"}</span>
-                            </a>
-                            <a href="#learn-more" style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; background: transparent; color: white; text-decoration: none; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; font-weight: 600; font-size: 16px; transition: all 0.2s;">
-                                {"📖 Learn More"}
-                            </a>
+                                if component.properties.hero_show_primary_button && !component.properties.hero_primary_button_text.is_empty() {
+                                    <a 
+                                        href={component.properties.hero_primary_button_url.clone()}
+                                        style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; background: white; color: var(--public-primary, #3b82f6); text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+                                    >
+                                        {&component.properties.hero_primary_button_text} <span>{"→"}</span>
+                                    </a>
+                                }
+                                if component.properties.hero_show_secondary_button && !component.properties.hero_secondary_button_text.is_empty() {
+                                    <a 
+                                        href={component.properties.hero_secondary_button_url.clone()}
+                                        style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; background: transparent; color: white; text-decoration: none; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; font-weight: 600; font-size: 16px; transition: all 0.2s;"
+                                    >
+                                        {&component.properties.hero_secondary_button_text}
+                                    </a>
+                                }
                         </div>
+                        }
                         
+                        // Hero stats (conditional)
+                        if component.properties.hero_show_stats && (!component.properties.hero_stat1_number.is_empty() || !component.properties.hero_stat2_number.is_empty() || !component.properties.hero_stat3_number.is_empty()) {
                         <div class="hero-stats" style="margin-top: 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 24px; opacity: 0.9;">
+                                if !component.properties.hero_stat1_number.is_empty() {
                             <div class="stat-item" style="text-align: center;">
-                                <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{"1000+"}</div>
-                                <div style="font-size: 14px; opacity: 0.8;">{"Happy Users"}</div>
+                                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{&component.properties.hero_stat1_number}</div>
+                                        <div style="font-size: 14px; opacity: 0.8;">{&component.properties.hero_stat1_label}</div>
                             </div>
+                                }
+                                if !component.properties.hero_stat2_number.is_empty() {
                             <div class="stat-item" style="text-align: center;">
-                                <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{"99.9%"}</div>
-                                <div style="font-size: 14px; opacity: 0.8;">{"Uptime"}</div>
+                                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{&component.properties.hero_stat2_number}</div>
+                                        <div style="font-size: 14px; opacity: 0.8;">{&component.properties.hero_stat2_label}</div>
                             </div>
+                                }
+                                if !component.properties.hero_stat3_number.is_empty() {
                             <div class="stat-item" style="text-align: center;">
-                                <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{"24/7"}</div>
-                                <div style="font-size: 14px; opacity: 0.8;">{"Support"}</div>
+                                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{&component.properties.hero_stat3_number}</div>
+                                        <div style="font-size: 14px; opacity: 0.8;">{&component.properties.hero_stat3_label}</div>
                             </div>
+                                }
                         </div>
+                        }
                     </div>
                 </section>
             }
         }
         ComponentType::Card => {
+            // Use component properties for dynamic content
+            let card_style = format!(
+                "background: {}; border-radius: {}; padding: {}; box-shadow: {}; border: 1px solid #eee; transition: transform 0.2s ease, box-shadow 0.2s ease;",
+                component.properties.card_background,
+                component.properties.card_border_radius,
+                component.properties.card_padding,
+                match component.properties.card_shadow.as_str() {
+                    "none" => "none",
+                    "small" => "0 2px 4px rgba(0, 0, 0, 0.05)",
+                    "medium" => "0 4px 12px rgba(0, 0, 0, 0.1)",
+                    "large" => "0 8px 32px rgba(0, 0, 0, 0.15)",
+                    _ => "0 4px 12px rgba(0, 0, 0, 0.1)",
+                }
+            );
+            
             html! {
-                <div class="feature-card" style="background: var(--public-background-primary, #ffffff); border-radius: 16px; padding: 32px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); border: 1px solid var(--public-border-light, #e1e5e9); transition: all 0.3s ease; position: relative; overflow: hidden;">
-                    // Card accent
-                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--public-primary, #3b82f6), var(--public-secondary, #1d4ed8));"></div>
-                    
-                    <div class="card-header" style="text-align: center; margin-bottom: 24px;">
-                        <div class="card-icon" style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: linear-gradient(135deg, var(--public-primary, #3b82f6), var(--public-secondary, #1d4ed8)); border-radius: 16px; margin-bottom: 16px; font-size: 28px;">
-                            {"⚡"}
+                <div class="post-card" style={card_style}>
+                    // Card image if provided
+                    if !component.properties.card_image.is_empty() {
+                        <div class="card-image" style="margin-bottom: 1rem;">
+                            <img 
+                                src={component.properties.card_image.clone()} 
+                                alt={component.properties.card_image_alt.clone()}
+                                style="width: 100%; height: 200px; object-fit: cover; border-radius: 4px;"
+                            />
                         </div>
-                        <h3 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600; color: var(--public-text-primary, #333);">
-                            {"Lightning Fast Performance"}
-                        </h3>
-                        <p style="margin: 0; color: var(--public-text-secondary, #666); font-size: 16px;">
-                            {"Built with Rust for maximum speed and reliability"}
-                        </p>
+                    }
+                    
+                    // Card title
+                    <h4 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--public-heading-h3, #000);">
+                        {&component.properties.card_title}
+                    </h4>
+                    
+                    // Card meta text if provided
+                    if !component.properties.card_meta_text.is_empty() {
+                        <div class="post-meta" style="color: var(--public-text-meta, #666); font-size: 0.9rem; margin-bottom: 1rem;">
+                            {&component.properties.card_meta_text}
+                        </div>
+                    }
+                    
+                    // Card description
+                    <div class="post-excerpt" style="color: var(--public-text-secondary, #555); margin-bottom: 1rem;">
+                        {&component.properties.card_description}
                     </div>
                     
-                    <div class="card-content" style="margin-bottom: 24px;">
-                        <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 12px;">
-                            <li style="display: flex; align-items: center; gap: 12px; padding: 8px 0;">
-                                <span style="color: var(--public-success, #10b981); font-size: 16px;">{"✓"}</span>
-                                <span style="color: var(--public-text-primary, #333);">{"Sub-millisecond response times"}</span>
-                            </li>
-                            <li style="display: flex; align-items: center; gap: 12px; padding: 8px 0;">
-                                <span style="color: var(--public-success, #10b981); font-size: 16px;">{"✓"}</span>
-                                <span style="color: var(--public-text-primary, #333);">{"Memory-safe and secure"}</span>
-                            </li>
-                            <li style="display: flex; align-items: center; gap: 12px; padding: 8px 0;">
-                                <span style="color: var(--public-success, #10b981); font-size: 16px;">{"✓"}</span>
-                                <span style="color: var(--public-text-primary, #333);">{"Zero-downtime deployments"}</span>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <div class="card-footer">
-                        <a href="#learn-more" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--public-primary, #3b82f6); color: white; text-decoration: none; border-radius: 8px; font-weight: 500; transition: all 0.2s; width: 100%; justify-content: center;">
-                            {"Learn More"} <span>{"→"}</span>
+                    // Card button if enabled
+                    if component.properties.card_button_show && !component.properties.card_button_text.is_empty() {
+                        <a 
+                            href={component.properties.card_button_url.clone()}
+                            class="read-more"
+                            style="color: var(--public-link-primary, #000); text-decoration: none; font-weight: 600; border-bottom: 2px solid var(--public-link-primary, #000); transition: border-color 0.2s ease;"
+                        >
+                            {&component.properties.card_button_text}
                         </a>
-                    </div>
+                    }
                 </div>
             }
         }
         ComponentType::List => {
+            let list_style = format!(
+                "background: {}; border-radius: {}; padding: {}; border: 1px solid #e1e5e9;",
+                component.properties.list_background,
+                component.properties.list_border_radius,
+                component.properties.list_padding
+            );
+            
             html! {
-                <div class="enhanced-list" style="background: var(--public-background-primary, #ffffff); border-radius: 12px; padding: 32px; border: 1px solid var(--public-border-light, #e1e5e9);">
-                    <div class="list-header" style="margin-bottom: 24px; text-align: center;">
-                        <h3 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600; color: var(--public-text-primary, #333);">
-                            {"🚀 What's Included"}
-                        </h3>
-                        <p style="margin: 0; color: var(--public-text-secondary, #666); font-size: 16px;">
-                            {"Everything you need to build amazing websites"}
-                        </p>
-                    </div>
-                    
-                    <div class="list-items" style="display: grid; gap: 16px;">
-                        <div class="list-item" style="display: flex; align-items: flex-start; gap: 16px; padding: 16px; background: var(--public-background-secondary, #f8f9fa); border-radius: 8px; transition: all 0.2s;">
-                            <div class="item-icon" style="flex-shrink: 0; width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                {"✓"}
+                <div class="enhanced-list" style={list_style}>
+                    <div class="list-items" style={format!("display: grid; gap: {};", component.properties.list_item_spacing)}>
+                        {component.properties.list_items.iter().enumerate().map(|(index, item)| {
+                            // Icon colors for visual variety
+                            let icon_colors = [
+                                "linear-gradient(135deg, #10b981, #059669)", // Green
+                                "linear-gradient(135deg, #3b82f6, #1d4ed8)", // Blue  
+                                "linear-gradient(135deg, #8b5cf6, #7c3aed)", // Purple
+                                "linear-gradient(135deg, #f59e0b, #d97706)", // Orange
+                                "linear-gradient(135deg, #ef4444, #dc2626)", // Red
+                                "linear-gradient(135deg, #06b6d4, #0891b2)", // Cyan
+                            ];
+                            let icon_gradient = icon_colors[index % icon_colors.len()];
+                            
+                            html! {
+                                <div class="list-item" style="display: flex; align-items: flex-start; gap: 16px; padding: 16px; background: #f8f9fa; border-radius: 8px; transition: all 0.2s;">
+                                    if component.properties.list_show_icons {
+                                        <div class="item-icon" style={format!("flex-shrink: 0; width: 40px; height: 40px; background: {}; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;", icon_gradient)}>
+                                            {&item.icon}
                             </div>
+                                    }
                             <div class="item-content" style="flex: 1;">
-                                <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 600; color: var(--public-text-primary, #333);">
-                                    {"Drag & Drop Page Builder"}
+                                        <h4 style={format!("margin: 0 0 4px 0; font-size: 16px; font-weight: 600; color: #333333;")}>
+                                            {&item.title}
                                 </h4>
-                                <p style="margin: 0; color: var(--public-text-secondary, #666); font-size: 14px; line-height: 1.5;">
-                                    {"Build beautiful pages without code using our intuitive visual editor"}
+                                        if !item.description.is_empty() {
+                                            <p style={format!("margin: 0; color: {}; font-size: 14px; line-height: 1.5;", component.properties.list_text_color)}>
+                                                {&item.description}
                                 </p>
+                                        }
                             </div>
                         </div>
-                        
-                        <div class="list-item" style="display: flex; align-items: flex-start; gap: 16px; padding: 16px; background: var(--public-background-secondary, #f8f9fa); border-radius: 8px; transition: all 0.2s;">
-                            <div class="item-icon" style="flex-shrink: 0; width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                {"⚡"}
-                            </div>
-                            <div class="item-content" style="flex: 1;">
-                                <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 600; color: var(--public-text-primary, #333);">
-                                    {"Lightning Fast Performance"}
-                                </h4>
-                                <p style="margin: 0; color: var(--public-text-secondary, #666); font-size: 14px; line-height: 1.5;">
-                                    {"Rust-powered backend delivers exceptional speed and reliability"}
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="list-item" style="display: flex; align-items: flex-start; gap: 16px; padding: 16px; background: var(--public-background-secondary, #f8f9fa); border-radius: 8px; transition: all 0.2s;">
-                            <div class="item-icon" style="flex-shrink: 0; width: 40px; height: 40px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                {"🔒"}
-                            </div>
-                            <div class="item-content" style="flex: 1;">
-                                <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 600; color: var(--public-text-primary, #333);">
-                                    {"Enterprise Security"}
-                                </h4>
-                                <p style="margin: 0; color: var(--public-text-secondary, #666); font-size: 14px; line-height: 1.5;">
-                                    {"Built-in security features and best practices protect your data"}
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="list-item" style="display: flex; align-items: flex-start; gap: 16px; padding: 16px; background: var(--public-background-secondary, #f8f9fa); border-radius: 8px; transition: all 0.2s;">
-                            <div class="item-icon" style="flex-shrink: 0; width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                {"📱"}
-                            </div>
-                            <div class="item-content" style="flex: 1;">
-                                <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 600; color: var(--public-text-primary, #333);">
-                                    {"Mobile Responsive"}
-                                </h4>
-                                <p style="margin: 0; color: var(--public-text-secondary, #666); font-size: 14px; line-height: 1.5;">
-                                    {"Your websites look great on all devices, from phones to desktops"}
-                                </p>
-                            </div>
-                        </div>
+                            }
+                        }).collect::<Html>()}
                     </div>
                 </div>
             }
@@ -2482,7 +4124,7 @@ fn render_component_content(component: &PageComponent) -> Html {
             );
             
             let button_style = format!(
-                "display: inline-flex; align-items: center; gap: 8px; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s ease; {}", 
+                "display: inline-flex; align-items: center; gap: 8px; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s ease; pointer-events: none; {}", 
                 if component.styles.background_color != "transparent" {
                     format!("background-color: {} !important;", component.styles.background_color)
                 } else { String::new() }
@@ -2894,32 +4536,1105 @@ fn render_component_content(component: &PageComponent) -> Html {
         }
         ComponentType::Container => {
             html! { 
-                <div class="component-container">
-                    {if component.content.is_empty() {
-                        html! { <div class="placeholder">{"Container - Drop components here"}</div> }
-                    } else {
-                        Html::from_html_unchecked(component.content.clone().into())
-                    }}
+                <div class="component-container" style="min-height: 100px; border: 2px dashed #ddd; border-radius: 8px; padding: 16px; background: #f9f9f9;">
+                    <div class="container-drop-zone" 
+                         style="min-height: 60px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;">
+                        {if component.properties.nested_components.is_empty() {
+                            html! { 
+                                <div class="drop-placeholder">
+                                    {"📦 Drop components here to add them to this container"}
+                                </div>
+                            }
+                        } else {
+                            html! {
+                                <div class="nested-components">
+                                    {component.properties.nested_components.iter().map(|nested_comp| {
+                                        html! {
+                                            <div class="nested-component" style="margin: 8px 0; padding: 8px; border: 1px solid #eee; border-radius: 4px;">
+                                                <div class="nested-header" style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                                                    {format!("{} Component", nested_comp.component_type.display_name())}
+                                                </div>
+                                                <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                            </div>
+                                        }
+                                    }).collect::<Html>()}
+                                </div>
+                            }
+                        }}
+                    </div>
                 </div> 
             }
         }
         ComponentType::TwoColumn => {
             html! { 
-                <div class="component-two-column">
-                    <div class="column">{"Column 1"}</div>
-                    <div class="column">{"Column 2"}</div>
+                <div class="component-two-column" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; min-height: 120px; border: 2px dashed #ddd; border-radius: 8px; padding: 16px; background: #f9f9f9;">
+                    <div class="column column-1" style="min-height: 80px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white;">
+                        <div class="column-header" style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center;">{"Column 1"}</div>
+                        <div class="column-drop-zone" style="min-height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;">
+                            {if component.properties.column_1_components.is_empty() {
+                                html! { <div class="drop-placeholder">{"Drop components here"}</div> }
+                            } else {
+                                html! {
+                                    <div class="nested-components">
+                                        {component.properties.column_1_components.iter().map(|nested_comp| {
+                                            html! {
+                                                <div class="nested-component" style="margin: 4px 0; padding: 4px; border: 1px solid #eee; border-radius: 4px;">
+                                                    <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                                </div>
+                                            }
+                                        }).collect::<Html>()}
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
+                    <div class="column column-2" style="min-height: 80px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white;">
+                        <div class="column-header" style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center;">{"Column 2"}</div>
+                        <div class="column-drop-zone" style="min-height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;">
+                            {if component.properties.column_2_components.is_empty() {
+                                html! { <div class="drop-placeholder">{"Drop components here"}</div> }
+                            } else {
+                                html! {
+                                    <div class="nested-components">
+                                        {component.properties.column_2_components.iter().map(|nested_comp| {
+                                            html! {
+                                                <div class="nested-component" style="margin: 4px 0; padding: 4px; border: 1px solid #eee; border-radius: 4px;">
+                                                    <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                                </div>
+                                            }
+                                        }).collect::<Html>()}
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
                 </div> 
             }
         }
         ComponentType::ThreeColumn => {
             html! { 
-                <div class="component-three-column">
-                    <div class="column">{"Column 1"}</div>
-                    <div class="column">{"Column 2"}</div>
-                    <div class="column">{"Column 3"}</div>
+                <div class="component-three-column" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; min-height: 120px; border: 2px dashed #ddd; border-radius: 8px; padding: 16px; background: #f9f9f9;">
+                    <div class="column column-1" style="min-height: 80px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white;">
+                        <div class="column-header" style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center;">{"Column 1"}</div>
+                        <div class="column-drop-zone" style="min-height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;">
+                            {if component.properties.column_1_components.is_empty() {
+                                html! { <div class="drop-placeholder">{"Drop components here"}</div> }
+                            } else {
+                                html! {
+                                    <div class="nested-components">
+                                        {component.properties.column_1_components.iter().map(|nested_comp| {
+                                            html! {
+                                                <div class="nested-component" style="margin: 4px 0; padding: 4px; border: 1px solid #eee; border-radius: 4px;">
+                                                    <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                </div> 
+            }
+                                        }).collect::<Html>()}
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
+                    <div class="column column-2" style="min-height: 80px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white;">
+                        <div class="column-header" style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center;">{"Column 2"}</div>
+                        <div class="column-drop-zone" style="min-height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;">
+                            {if component.properties.column_2_components.is_empty() {
+                                html! { <div class="drop-placeholder">{"Drop components here"}</div> }
+                            } else {
+                                html! {
+                                    <div class="nested-components">
+                                        {component.properties.column_2_components.iter().map(|nested_comp| {
+                                            html! {
+                                                <div class="nested-component" style="margin: 4px 0; padding: 4px; border: 1px solid #eee; border-radius: 4px;">
+                                                    <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                                </div>
+                                            }
+                                        }).collect::<Html>()}
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
+                    <div class="column column-3" style="min-height: 80px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white;">
+                        <div class="column-header" style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center;">{"Column 3"}</div>
+                        <div class="column-drop-zone" style="min-height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;">
+                            {if component.properties.column_3_components.is_empty() {
+                                html! { <div class="drop-placeholder">{"Drop components here"}</div> }
+                            } else {
+                                html! {
+                                    <div class="nested-components">
+                                        {component.properties.column_3_components.iter().map(|nested_comp| {
+                                            html! {
+                                                <div class="nested-component" style="margin: 4px 0; padding: 4px; border: 1px solid #eee; border-radius: 4px;">
+                                                    <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                                </div>
+                                            }
+                                        }).collect::<Html>()}
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
                 </div> 
             }
         }
+    }
+}
+
+// Flatten component hierarchy - create a list of all components (main + nested) for unified rendering
+fn flatten_components_for_rendering(components: &[PageComponent]) -> Vec<ComponentWithContext> {
+    let mut flattened = Vec::new();
+    
+    for component in components {
+        // Add the main component
+        flattened.push(ComponentWithContext {
+            component: component.clone(),
+            context: ComponentContext::Main,
+            parent_id: None,
+        });
+        
+        // Add nested components based on component type
+        match component.component_type {
+            ComponentType::Container => {
+                for nested_comp in &component.properties.nested_components {
+                    flattened.push(ComponentWithContext {
+                        component: nested_comp.clone(),
+                        context: ComponentContext::NestedInContainer,
+                        parent_id: Some(component.id.clone()),
+                    });
+                }
+            },
+            ComponentType::TwoColumn => {
+                for nested_comp in &component.properties.column_1_components {
+                    flattened.push(ComponentWithContext {
+                        component: nested_comp.clone(),
+                        context: ComponentContext::NestedInColumn { column: 1 },
+                        parent_id: Some(component.id.clone()),
+                    });
+                }
+                for nested_comp in &component.properties.column_2_components {
+                    flattened.push(ComponentWithContext {
+                        component: nested_comp.clone(),
+                        context: ComponentContext::NestedInColumn { column: 2 },
+                        parent_id: Some(component.id.clone()),
+                    });
+                }
+            },
+            ComponentType::ThreeColumn => {
+                for nested_comp in &component.properties.column_1_components {
+                    flattened.push(ComponentWithContext {
+                        component: nested_comp.clone(),
+                        context: ComponentContext::NestedInColumn { column: 1 },
+                        parent_id: Some(component.id.clone()),
+                    });
+                }
+                for nested_comp in &component.properties.column_2_components {
+                    flattened.push(ComponentWithContext {
+                        component: nested_comp.clone(),
+                        context: ComponentContext::NestedInColumn { column: 2 },
+                        parent_id: Some(component.id.clone()),
+                    });
+                }
+                for nested_comp in &component.properties.column_3_components {
+                    flattened.push(ComponentWithContext {
+                        component: nested_comp.clone(),
+                        context: ComponentContext::NestedInColumn { column: 3 },
+                        parent_id: Some(component.id.clone()),
+                    });
+                }
+            },
+            _ => {
+                // Other component types don't have nested components
+            }
+        }
+    }
+    
+    flattened
+}
+
+#[derive(Clone)]
+struct ComponentWithContext {
+    component: PageComponent,
+    context: ComponentContext,
+    parent_id: Option<String>,
+}
+
+#[derive(Clone)]
+enum ComponentContext {
+    Main,
+    NestedInContainer,
+    NestedInColumn { column: i32 },
+}
+
+// Render a selectable nested component with full selection capabilities
+fn render_selectable_nested_component(
+    component: &PageComponent,
+    selected_component: &UseStateHandle<Option<String>>,
+    on_component_click: &Callback<String>,
+    on_component_edit: &Callback<String>,
+    on_component_duplicate: &Callback<String>,
+    on_component_delete: &Callback<String>
+) -> Html {
+    let is_selected = selected_component.as_ref() == Some(&component.id);
+    
+    let on_click = {
+        let on_component_click = on_component_click.clone();
+        let component_id = component.id.clone();
+        Callback::from(move |e: MouseEvent| {
+            e.stop_propagation(); // Prevent parent component from being selected
+            on_component_click.emit(component_id.clone());
+        })
+    };
+    
+    let on_edit = {
+        let on_component_edit = on_component_edit.clone();
+        let component_id = component.id.clone();
+        Callback::from(move |_| {
+            on_component_edit.emit(component_id.clone());
+        })
+    };
+    
+    let on_duplicate = {
+        let on_component_duplicate = on_component_duplicate.clone();
+        let component_id = component.id.clone();
+        Callback::from(move |_| {
+            on_component_duplicate.emit(component_id.clone());
+        })
+    };
+    
+    let on_delete = {
+        let on_component_delete = on_component_delete.clone();
+        let component_id = component.id.clone();
+        Callback::from(move |_| {
+            on_component_delete.emit(component_id.clone());
+        })
+    };
+    
+    let selection_border = if is_selected {
+        "2px solid #007bff"
+    } else {
+        &format!("{} {} {}", component.styles.border_width, component.styles.border_style, component.styles.border_color)
+    };
+    
+    let selection_box_shadow = if is_selected {
+        format!("{}, 0 0 0 1px rgba(0, 123, 255, 0.25)", component.styles.box_shadow)
+    } else {
+        component.styles.box_shadow.clone()
+    };
+    
+    html! {
+        <div 
+            class={classes!("nested-component", if is_selected { Some("selected") } else { None })}
+            onclick={on_click}
+            style={format!(
+                "background-color: {}; color: {}; padding: {}; margin: 4px; border-radius: {}; font-size: {}; font-weight: {}; text-align: {}; border: {}; box-shadow: {}; opacity: {}; z-index: {}; font-family: {}; line-height: {}; letter-spacing: {}; text-decoration: {}; text-transform: {}; background-image: {}; background-size: {}; background-position: {}; background-repeat: {}; position: relative; cursor: pointer;",
+                component.styles.background_color,
+                component.styles.text_color,
+                component.styles.padding,
+                component.styles.border_radius,
+                component.styles.font_size,
+                component.styles.font_weight,
+                component.styles.text_align,
+                selection_border,
+                selection_box_shadow,
+                component.styles.opacity,
+                if is_selected { "10" } else { &component.styles.z_index.to_string() },
+                component.styles.font_family,
+                component.styles.line_height,
+                component.styles.letter_spacing,
+                component.styles.text_decoration,
+                component.styles.text_transform,
+                component.styles.background_image,
+                component.styles.background_size,
+                component.styles.background_position,
+                component.styles.background_repeat
+            )}
+        >
+            {render_component_content(component)}
+            
+            {if is_selected {
+                html! {
+                    <>
+                        <div class="nested-selection-indicator" style="position: absolute; top: -6px; left: -6px; background: #007bff; color: white; padding: 1px 4px; border-radius: 2px; font-size: 8px; font-weight: 600; z-index: 11; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                            {"✓ Nested"}
+                        </div>
+                        <div class="nested-component-controls" style="position: absolute; top: -30px; right: -6px; display: flex; gap: 2px; z-index: 11;">
+                            <button class="nested-control-btn" onclick={on_edit} title="Edit Nested Component" style="padding: 2px 4px; background: #6c757d; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"✏️"}</button>
+                            <button class="nested-control-btn" onclick={on_duplicate} title="Duplicate Nested Component" style="padding: 2px 4px; background: #17a2b8; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"📋"}</button>
+                            <button class="nested-control-btn" onclick={on_delete} title="Delete Nested Component" style="padding: 2px 4px; background: #dc3545; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"🗑️"}</button>
+                        </div>
+                    </>
+                }
+            } else { html! {} }}
+        </div>
+    }
+}
+
+// Enhanced component content renderer that supports drop zones for nested components
+fn render_component_content_with_drop_zones(
+    component: &PageComponent, 
+    on_nested_drop: Callback<(String, String)>,
+    _dragging_component: UseStateHandle<Option<ComponentType>>,
+    container_drag_over: UseStateHandle<Option<String>>,
+    column_drag_over: UseStateHandle<Option<(String, String)>>,
+    selected_component: UseStateHandle<Option<String>>,
+    on_component_click: Callback<String>,
+    on_component_edit: Callback<String>,
+    on_component_duplicate: Callback<String>,
+    on_component_delete: Callback<String>
+) -> Html {
+    match component.component_type {
+        ComponentType::Container => {
+            let container_id = component.id.clone();
+            let is_drag_over = (*container_drag_over).as_ref() == Some(&container_id);
+            
+            let on_drop = {
+                let on_nested_drop = on_nested_drop.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    on_nested_drop.emit((container_id.clone(), "container".to_string()));
+                })
+            };
+            
+            let on_drag_over = {
+                let container_drag_over = container_drag_over.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    container_drag_over.set(Some(container_id.clone()));
+                })
+            };
+            
+            let on_drag_leave = {
+                let container_drag_over = container_drag_over.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.stop_propagation();
+                    container_drag_over.set(None);
+                })
+            };
+            
+            let drop_zone_style = if is_drag_over {
+                "min-height: 60px; border: 2px dashed #007bff; border-radius: 4px; padding: 8px; background: #e3f2fd; display: flex; align-items: center; justify-content: center; color: #007bff; font-style: italic; font-weight: 500; box-shadow: 0 0 8px rgba(0,123,255,0.3);"
+            } else {
+                "min-height: 60px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;"
+            };
+            
+            html! { 
+                <div class="component-container" style="min-height: 100px; border: 2px dashed #ddd; border-radius: 8px; padding: 16px; background: #f9f9f9;">
+                    <div class="container-drop-zone" 
+                         style={drop_zone_style}
+                         ondragover={on_drag_over}
+                         ondragleave={on_drag_leave}
+                         ondrop={on_drop}
+                    >
+                        {if component.properties.nested_components.is_empty() {
+                            html! { 
+                                <div class="drop-placeholder">
+                                    {"📦 Drop components here to add them to this container"}
+                                </div>
+                            }
+                        } else {
+                            html! {
+                                <div class="nested-components">
+                                    {component.properties.nested_components.iter().map(|nested_comp| {
+                                        let is_selected = selected_component.as_ref() == Some(&nested_comp.id);
+                                        let nested_on_click = {
+                                            let on_component_click = on_component_click.clone();
+                                            let component_id = nested_comp.id.clone();
+                                            Callback::from(move |e: MouseEvent| {
+                                                e.stop_propagation();
+                                                on_component_click.emit(component_id.clone());
+                                            })
+                                        };
+                                        
+                                        let border_style = if is_selected {
+                                            "2px solid #007bff"
+                                        } else {
+                                            "1px solid #eee"
+                                        };
+                                        
+                                        let box_shadow_style = if is_selected {
+                                            "0 0 0 1px rgba(0, 123, 255, 0.25)"
+                                        } else {
+                                            "none"
+                                        };
+                                        
+                                        html! {
+                                            <div class="nested-component-wrapper" 
+                                                 style={format!("margin: 8px 0; padding: 8px; border: {}; border-radius: 4px; cursor: pointer; position: relative; box-shadow: {}; background: white; pointer-events: auto;", border_style, box_shadow_style)}
+                                                 onclick={nested_on_click}>
+                                                {if is_selected {
+                                                    let component_id = nested_comp.id.clone();
+                                                    let on_edit = {
+                                                        let on_component_edit = on_component_edit.clone();
+                                                        let component_id = component_id.clone();
+                                                        Callback::from(move |_| {
+                                                            on_component_edit.emit(component_id.clone());
+                                                        })
+                                                    };
+                                                    let on_duplicate = {
+                                                        let on_component_duplicate = on_component_duplicate.clone();
+                                                        let component_id = component_id.clone();
+                                                        Callback::from(move |_| {
+                                                            on_component_duplicate.emit(component_id.clone());
+                                                        })
+                                                    };
+                                                    let on_delete = {
+                                                        let on_component_delete = on_component_delete.clone();
+                                                        let component_id = component_id.clone();
+                                                        Callback::from(move |_| {
+                                                            on_component_delete.emit(component_id.clone());
+                                                        })
+                                                    };
+                                                    
+                                                    html! {
+                                                        <>
+                                                            <div class="nested-selection-indicator" style="position: absolute; top: -6px; left: -6px; background: #007bff; color: white; padding: 1px 4px; border-radius: 2px; font-size: 8px; font-weight: 600; z-index: 11;">
+                                                                {"✓ Nested"}
+                                                            </div>
+                                                            <div class="nested-component-controls" style="position: absolute; top: -6px; right: -6px; display: flex; gap: 2px; z-index: 11;">
+                                                                <button class="control-btn" onclick={on_edit} title="Edit Nested Component" style="padding: 2px 4px; background: #6c757d; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"✏️"}</button>
+                                                                <button class="control-btn" onclick={on_duplicate} title="Duplicate Nested Component" style="padding: 2px 4px; background: #17a2b8; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"📋"}</button>
+                                                                <button class="control-btn" onclick={on_delete} title="Delete Nested Component" style="padding: 2px 4px; background: #dc3545; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"🗑️"}</button>
+                                                            </div>
+                                                        </>
+                                                    }
+                                                } else { html! {} }}
+                                                <div class="nested-header" style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                                                    {format!("{} Component", nested_comp.component_type.display_name())}
+                                                </div>
+                                                <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                            </div>
+                                        }
+                                    }).collect::<Html>()}
+                                </div>
+                            }
+                        }}
+                    </div>
+                </div> 
+            }
+        }
+        ComponentType::TwoColumn => {
+            let container_id = component.id.clone();
+            let is_col1_drag_over = (*column_drag_over).as_ref() == Some(&(container_id.clone(), "column-1".to_string()));
+            let is_col2_drag_over = (*column_drag_over).as_ref() == Some(&(container_id.clone(), "column-2".to_string()));
+            
+            let on_drop_col1 = {
+                let on_nested_drop = on_nested_drop.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    on_nested_drop.emit((container_id.clone(), "column-1".to_string()));
+                })
+            };
+            let on_drop_col2 = {
+                let on_nested_drop = on_nested_drop.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    on_nested_drop.emit((container_id.clone(), "column-2".to_string()));
+                })
+            };
+            
+            let on_drag_over_col1 = {
+                let column_drag_over = column_drag_over.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    column_drag_over.set(Some((container_id.clone(), "column-1".to_string())));
+                })
+            };
+            
+            let on_drag_over_col2 = {
+                let column_drag_over = column_drag_over.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    column_drag_over.set(Some((container_id.clone(), "column-2".to_string())));
+                })
+            };
+            
+            let on_drag_leave_col = {
+                let column_drag_over = column_drag_over.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.stop_propagation();
+                    column_drag_over.set(None);
+                })
+            };
+            
+            let col1_style = if is_col1_drag_over {
+                "min-height: 40px; display: flex; align-items: center; justify-content: center; color: #007bff; font-style: italic; font-weight: 500; border: 2px dashed #007bff; border-radius: 4px; padding: 6px; background: #e3f2fd; box-shadow: 0 0 6px rgba(0,123,255,0.3);"
+            } else {
+                "min-height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;"
+            };
+            
+            let col2_style = if is_col2_drag_over {
+                "min-height: 40px; display: flex; align-items: center; justify-content: center; color: #007bff; font-style: italic; font-weight: 500; border: 2px dashed #007bff; border-radius: 4px; padding: 6px; background: #e3f2fd; box-shadow: 0 0 6px rgba(0,123,255,0.3);"
+            } else {
+                "min-height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;"
+            };
+            
+            html! { 
+                <div class="component-two-column" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; min-height: 120px; border: 2px dashed #ddd; border-radius: 8px; padding: 16px; background: #f9f9f9;">
+                    <div class="column column-1" style="min-height: 80px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white;">
+                        <div class="column-header" style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center;">{"Column 1"}</div>
+                        <div class="column-drop-zone" 
+                             style={col1_style}
+                             ondragover={on_drag_over_col1}
+                             ondragleave={on_drag_leave_col.clone()}
+                             ondrop={on_drop_col1}
+                        >
+                            {if component.properties.column_1_components.is_empty() {
+                                html! { <div class="drop-placeholder">{"Drop components here"}</div> }
+                            } else {
+                                html! {
+                                    <div class="nested-components">
+                                        {component.properties.column_1_components.iter().map(|nested_comp| {
+                                            let is_selected = selected_component.as_ref() == Some(&nested_comp.id);
+                                            let nested_on_click = {
+                                                let on_component_click = on_component_click.clone();
+                                                let component_id = nested_comp.id.clone();
+                                                Callback::from(move |e: MouseEvent| {
+                                                    e.stop_propagation();
+                                                    on_component_click.emit(component_id.clone());
+                                                })
+                                            };
+                                            
+                                            let border_style = if is_selected {
+                                                "2px solid #007bff"
+                                            } else {
+                                                "1px solid #eee"
+                                            };
+                                            
+                                            let box_shadow_style = if is_selected {
+                                                "0 0 0 1px rgba(0, 123, 255, 0.25)"
+                                            } else {
+                                                "none"
+                                            };
+                                            
+                                            html! {
+                                                <div class="nested-component" 
+                                                     style={format!("margin: 4px 0; padding: 4px; border: {}; border-radius: 4px; cursor: pointer; position: relative; box-shadow: {}; background: white; pointer-events: auto;", border_style, box_shadow_style)}
+                                                     onclick={nested_on_click}>
+                                                    {if is_selected {
+                                                        let component_id = nested_comp.id.clone();
+                                                        let on_edit = {
+                                                            let on_component_edit = on_component_edit.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_edit.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        let on_duplicate = {
+                                                            let on_component_duplicate = on_component_duplicate.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_duplicate.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        let on_delete = {
+                                                            let on_component_delete = on_component_delete.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_delete.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        
+                                                        html! {
+                                                            <>
+                                                                <div class="nested-selection-indicator" style="position: absolute; top: -4px; left: -4px; background: #007bff; color: white; padding: 1px 3px; border-radius: 2px; font-size: 7px; font-weight: 600; z-index: 11;">
+                                                                    {"✓"}
+                                                                </div>
+                                                                <div class="nested-component-controls" style="position: absolute; top: -4px; right: -4px; display: flex; gap: 2px; z-index: 11;">
+                                                                    <button class="control-btn" onclick={on_edit} title="Edit Nested Component" style="padding: 2px 4px; background: #6c757d; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"✏️"}</button>
+                                                                    <button class="control-btn" onclick={on_duplicate} title="Duplicate Nested Component" style="padding: 2px 4px; background: #17a2b8; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"📋"}</button>
+                                                                    <button class="control-btn" onclick={on_delete} title="Delete Nested Component" style="padding: 2px 4px; background: #dc3545; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"🗑️"}</button>
+                                                                </div>
+                                                            </>
+                                                        }
+                                                    } else { html! {} }}
+                                                    <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                                </div>
+                                            }
+                                        }).collect::<Html>()}
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
+                    <div class="column column-2" style="min-height: 80px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white;">
+                        <div class="column-header" style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center;">{"Column 2"}</div>
+                        <div class="column-drop-zone" 
+                             style={col2_style}
+                             ondragover={on_drag_over_col2}
+                             ondragleave={on_drag_leave_col}
+                             ondrop={on_drop_col2}
+                        >
+                            {if component.properties.column_2_components.is_empty() {
+                                html! { <div class="drop-placeholder">{"Drop components here"}</div> }
+                            } else {
+                                html! {
+                                    <div class="nested-components">
+                                        {component.properties.column_2_components.iter().map(|nested_comp| {
+                                            let is_selected = selected_component.as_ref() == Some(&nested_comp.id);
+                                            let nested_on_click = {
+                                                let on_component_click = on_component_click.clone();
+                                                let component_id = nested_comp.id.clone();
+                                                Callback::from(move |e: MouseEvent| {
+                                                    e.stop_propagation();
+                                                    on_component_click.emit(component_id.clone());
+                                                })
+                                            };
+                                            
+                                            let border_style = if is_selected {
+                                                "2px solid #007bff"
+                                            } else {
+                                                "1px solid #eee"
+                                            };
+                                            
+                                            let box_shadow_style = if is_selected {
+                                                "0 0 0 1px rgba(0, 123, 255, 0.25)"
+                                            } else {
+                                                "none"
+                                            };
+                                            
+                                            html! {
+                                                <div class="nested-component" 
+                                                     style={format!("margin: 4px 0; padding: 4px; border: {}; border-radius: 4px; cursor: pointer; position: relative; box-shadow: {}; background: white; pointer-events: auto;", border_style, box_shadow_style)}
+                                                     onclick={nested_on_click}>
+                                                    {if is_selected {
+                                                        let component_id = nested_comp.id.clone();
+                                                        let on_edit = {
+                                                            let on_component_edit = on_component_edit.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_edit.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        let on_duplicate = {
+                                                            let on_component_duplicate = on_component_duplicate.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_duplicate.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        let on_delete = {
+                                                            let on_component_delete = on_component_delete.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_delete.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        
+                                                        html! {
+                                                            <>
+                                                                <div class="nested-selection-indicator" style="position: absolute; top: -4px; left: -4px; background: #007bff; color: white; padding: 1px 3px; border-radius: 2px; font-size: 7px; font-weight: 600; z-index: 11;">
+                                                                    {"✓"}
+                                                                </div>
+                                                                <div class="nested-component-controls" style="position: absolute; top: -4px; right: -4px; display: flex; gap: 2px; z-index: 11;">
+                                                                    <button class="control-btn" onclick={on_edit} title="Edit Nested Component" style="padding: 2px 4px; background: #6c757d; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"✏️"}</button>
+                                                                    <button class="control-btn" onclick={on_duplicate} title="Duplicate Nested Component" style="padding: 2px 4px; background: #17a2b8; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"📋"}</button>
+                                                                    <button class="control-btn" onclick={on_delete} title="Delete Nested Component" style="padding: 2px 4px; background: #dc3545; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"🗑️"}</button>
+                                                                </div>
+                                                            </>
+                                                        }
+                                                    } else { html! {} }}
+                                                    <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                                </div>
+                                            }
+                                        }).collect::<Html>()}
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
+                </div> 
+            }
+        }
+        ComponentType::ThreeColumn => {
+            let container_id = component.id.clone();
+            let is_col1_drag_over = (*column_drag_over).as_ref() == Some(&(container_id.clone(), "column-1".to_string()));
+            let is_col2_drag_over = (*column_drag_over).as_ref() == Some(&(container_id.clone(), "column-2".to_string()));
+            let is_col3_drag_over = (*column_drag_over).as_ref() == Some(&(container_id.clone(), "column-3".to_string()));
+            
+            let on_drop_col1 = {
+                let on_nested_drop = on_nested_drop.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    on_nested_drop.emit((container_id.clone(), "column-1".to_string()));
+                })
+            };
+            let on_drop_col2 = {
+                let on_nested_drop = on_nested_drop.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    on_nested_drop.emit((container_id.clone(), "column-2".to_string()));
+                })
+            };
+            let on_drop_col3 = {
+                let on_nested_drop = on_nested_drop.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    on_nested_drop.emit((container_id.clone(), "column-3".to_string()));
+                })
+            };
+            let on_drag_over_col1 = {
+                let column_drag_over = column_drag_over.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    column_drag_over.set(Some((container_id.clone(), "column-1".to_string())));
+                })
+            };
+            
+            let on_drag_over_col2 = {
+                let column_drag_over = column_drag_over.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    column_drag_over.set(Some((container_id.clone(), "column-2".to_string())));
+                })
+            };
+            
+            let on_drag_over_col3 = {
+                let column_drag_over = column_drag_over.clone();
+                let container_id = container_id.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    column_drag_over.set(Some((container_id.clone(), "column-3".to_string())));
+                })
+            };
+            
+            let on_drag_leave_col = {
+                let column_drag_over = column_drag_over.clone();
+                Callback::from(move |e: DragEvent| {
+                    e.stop_propagation();
+                    column_drag_over.set(None);
+                })
+            };
+            
+            let col1_style = if is_col1_drag_over {
+                "min-height: 40px; display: flex; align-items: center; justify-content: center; color: #007bff; font-style: italic; font-weight: 500; border: 2px dashed #007bff; border-radius: 4px; padding: 6px; background: #e3f2fd; box-shadow: 0 0 6px rgba(0,123,255,0.3);"
+            } else {
+                "min-height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;"
+            };
+            
+            let col2_style = if is_col2_drag_over {
+                "min-height: 40px; display: flex; align-items: center; justify-content: center; color: #007bff; font-style: italic; font-weight: 500; border: 2px dashed #007bff; border-radius: 4px; padding: 6px; background: #e3f2fd; box-shadow: 0 0 6px rgba(0,123,255,0.3);"
+            } else {
+                "min-height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;"
+            };
+            
+            let col3_style = if is_col3_drag_over {
+                "min-height: 40px; display: flex; align-items: center; justify-content: center; color: #007bff; font-style: italic; font-weight: 500; border: 2px dashed #007bff; border-radius: 4px; padding: 6px; background: #e3f2fd; box-shadow: 0 0 6px rgba(0,123,255,0.3);"
+            } else {
+                "min-height: 40px; display: flex; align-items: center; justify-content: center; color: #666; font-style: italic;"
+            };
+            
+            html! { 
+                <div class="component-three-column" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; min-height: 120px; border: 2px dashed #ddd; border-radius: 8px; padding: 16px; background: #f9f9f9;">
+                    <div class="column column-1" style="min-height: 80px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white;">
+                        <div class="column-header" style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center;">{"Column 1"}</div>
+                        <div class="column-drop-zone" 
+                             style={col1_style}
+                             ondragover={on_drag_over_col1}
+                             ondragleave={on_drag_leave_col.clone()}
+                             ondrop={on_drop_col1}
+                        >
+                            {if component.properties.column_1_components.is_empty() {
+                                html! { <div class="drop-placeholder">{"Drop components here"}</div> }
+                            } else {
+                                html! {
+                                    <div class="nested-components">
+                                        {component.properties.column_1_components.iter().map(|nested_comp| {
+                                            let is_selected = selected_component.as_ref() == Some(&nested_comp.id);
+                                            let nested_on_click = {
+                                                let on_component_click = on_component_click.clone();
+                                                let component_id = nested_comp.id.clone();
+                                                Callback::from(move |e: MouseEvent| {
+                                                    e.stop_propagation();
+                                                    on_component_click.emit(component_id.clone());
+                                                })
+                                            };
+                                            
+                                            let border_style = if is_selected {
+                                                "2px solid #007bff"
+                                            } else {
+                                                "1px solid #eee"
+                                            };
+                                            
+                                            let box_shadow_style = if is_selected {
+                                                "0 0 0 1px rgba(0, 123, 255, 0.25)"
+                                            } else {
+                                                "none"
+                                            };
+                                            
+                                            html! {
+                                                <div class="nested-component" 
+                                                     style={format!("margin: 4px 0; padding: 4px; border: {}; border-radius: 4px; cursor: pointer; position: relative; box-shadow: {}; background: white; pointer-events: auto;", border_style, box_shadow_style)}
+                                                     onclick={nested_on_click}>
+                                                    {if is_selected {
+                                                        let component_id = nested_comp.id.clone();
+                                                        let on_edit = {
+                                                            let on_component_edit = on_component_edit.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_edit.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        let on_duplicate = {
+                                                            let on_component_duplicate = on_component_duplicate.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_duplicate.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        let on_delete = {
+                                                            let on_component_delete = on_component_delete.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_delete.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        
+                                                        html! {
+                                                            <>
+                                                                <div class="nested-selection-indicator" style="position: absolute; top: -4px; left: -4px; background: #007bff; color: white; padding: 1px 3px; border-radius: 2px; font-size: 7px; font-weight: 600; z-index: 11;">
+                                                                    {"✓"}
+                                                                </div>
+                                                                <div class="nested-component-controls" style="position: absolute; top: -4px; right: -4px; display: flex; gap: 2px; z-index: 11;">
+                                                                    <button class="control-btn" onclick={on_edit} title="Edit Nested Component" style="padding: 2px 4px; background: #6c757d; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"✏️"}</button>
+                                                                    <button class="control-btn" onclick={on_duplicate} title="Duplicate Nested Component" style="padding: 2px 4px; background: #17a2b8; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"📋"}</button>
+                                                                    <button class="control-btn" onclick={on_delete} title="Delete Nested Component" style="padding: 2px 4px; background: #dc3545; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"🗑️"}</button>
+                                                                </div>
+                                                            </>
+                                                        }
+                                                    } else { html! {} }}
+                                                    <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                                </div>
+                                            }
+                                        }).collect::<Html>()}
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
+                    <div class="column column-2" style="min-height: 80px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white;">
+                        <div class="column-header" style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center;">{"Column 2"}</div>
+                        <div class="column-drop-zone" 
+                             style={col2_style}
+                             ondragover={on_drag_over_col2}
+                             ondragleave={on_drag_leave_col.clone()}
+                             ondrop={on_drop_col2}
+                        >
+                            {if component.properties.column_2_components.is_empty() {
+                                html! { <div class="drop-placeholder">{"Drop components here"}</div> }
+                            } else {
+                                html! {
+                                    <div class="nested-components">
+                                        {component.properties.column_2_components.iter().map(|nested_comp| {
+                                            let is_selected = selected_component.as_ref() == Some(&nested_comp.id);
+                                            let nested_on_click = {
+                                                let on_component_click = on_component_click.clone();
+                                                let component_id = nested_comp.id.clone();
+                                                Callback::from(move |e: MouseEvent| {
+                                                    e.stop_propagation();
+                                                    on_component_click.emit(component_id.clone());
+                                                })
+                                            };
+                                            
+                                            let border_style = if is_selected {
+                                                "2px solid #007bff"
+                                            } else {
+                                                "1px solid #eee"
+                                            };
+                                            
+                                            let box_shadow_style = if is_selected {
+                                                "0 0 0 1px rgba(0, 123, 255, 0.25)"
+                                            } else {
+                                                "none"
+                                            };
+                                            
+                                            html! {
+                                                <div class="nested-component" 
+                                                     style={format!("margin: 4px 0; padding: 4px; border: {}; border-radius: 4px; cursor: pointer; position: relative; box-shadow: {}; background: white; pointer-events: auto;", border_style, box_shadow_style)}
+                                                     onclick={nested_on_click}>
+                                                    {if is_selected {
+                                                        let component_id = nested_comp.id.clone();
+                                                        let on_edit = {
+                                                            let on_component_edit = on_component_edit.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_edit.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        let on_duplicate = {
+                                                            let on_component_duplicate = on_component_duplicate.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_duplicate.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        let on_delete = {
+                                                            let on_component_delete = on_component_delete.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_delete.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        
+                                                        html! {
+                                                            <>
+                                                                <div class="nested-selection-indicator" style="position: absolute; top: -4px; left: -4px; background: #007bff; color: white; padding: 1px 3px; border-radius: 2px; font-size: 7px; font-weight: 600; z-index: 11;">
+                                                                    {"✓"}
+                                                                </div>
+                                                                <div class="nested-component-controls" style="position: absolute; top: -4px; right: -4px; display: flex; gap: 2px; z-index: 11;">
+                                                                    <button class="control-btn" onclick={on_edit} title="Edit Nested Component" style="padding: 2px 4px; background: #6c757d; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"✏️"}</button>
+                                                                    <button class="control-btn" onclick={on_duplicate} title="Duplicate Nested Component" style="padding: 2px 4px; background: #17a2b8; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"📋"}</button>
+                                                                    <button class="control-btn" onclick={on_delete} title="Delete Nested Component" style="padding: 2px 4px; background: #dc3545; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"🗑️"}</button>
+                                                                </div>
+                                                            </>
+                                                        }
+                                                    } else { html! {} }}
+                                                    <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                                </div>
+                                            }
+                                        }).collect::<Html>()}
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
+                    <div class="column column-3" style="min-height: 80px; border: 1px dashed #ccc; border-radius: 4px; padding: 8px; background: white;">
+                        <div class="column-header" style="font-size: 12px; color: #666; margin-bottom: 8px; text-align: center;">{"Column 3"}</div>
+                        <div class="column-drop-zone" 
+                             style={col3_style}
+                             ondragover={on_drag_over_col3}
+                             ondragleave={on_drag_leave_col}
+                             ondrop={on_drop_col3}
+                        >
+                            {if component.properties.column_3_components.is_empty() {
+                                html! { <div class="drop-placeholder">{"Drop components here"}</div> }
+                            } else {
+                                html! {
+                                    <div class="nested-components">
+                                        {component.properties.column_3_components.iter().map(|nested_comp| {
+                                            let is_selected = selected_component.as_ref() == Some(&nested_comp.id);
+                                            let nested_on_click = {
+                                                let on_component_click = on_component_click.clone();
+                                                let component_id = nested_comp.id.clone();
+                                                Callback::from(move |e: MouseEvent| {
+                                                    e.stop_propagation();
+                                                    on_component_click.emit(component_id.clone());
+                                                })
+                                            };
+                                            
+                                            let border_style = if is_selected {
+                                                "2px solid #007bff"
+                                            } else {
+                                                "1px solid #eee"
+                                            };
+                                            
+                                            let box_shadow_style = if is_selected {
+                                                "0 0 0 1px rgba(0, 123, 255, 0.25)"
+                                            } else {
+                                                "none"
+                                            };
+                                            
+                                            html! {
+                                                <div class="nested-component" 
+                                                     style={format!("margin: 4px 0; padding: 4px; border: {}; border-radius: 4px; cursor: pointer; position: relative; box-shadow: {}; background: white; pointer-events: auto;", border_style, box_shadow_style)}
+                                                     onclick={nested_on_click}>
+                                                    {if is_selected {
+                                                        let component_id = nested_comp.id.clone();
+                                                        let on_edit = {
+                                                            let on_component_edit = on_component_edit.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_edit.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        let on_duplicate = {
+                                                            let on_component_duplicate = on_component_duplicate.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_duplicate.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        let on_delete = {
+                                                            let on_component_delete = on_component_delete.clone();
+                                                            let component_id = component_id.clone();
+                                                            Callback::from(move |_| {
+                                                                on_component_delete.emit(component_id.clone());
+                                                            })
+                                                        };
+                                                        
+                                                        html! {
+                                                            <>
+                                                                <div class="nested-selection-indicator" style="position: absolute; top: -4px; left: -4px; background: #007bff; color: white; padding: 1px 3px; border-radius: 2px; font-size: 7px; font-weight: 600; z-index: 11;">
+                                                                    {"✓"}
+                                                                </div>
+                                                                <div class="nested-component-controls" style="position: absolute; top: -4px; right: -4px; display: flex; gap: 2px; z-index: 11;">
+                                                                    <button class="control-btn" onclick={on_edit} title="Edit Nested Component" style="padding: 2px 4px; background: #6c757d; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"✏️"}</button>
+                                                                    <button class="control-btn" onclick={on_duplicate} title="Duplicate Nested Component" style="padding: 2px 4px; background: #17a2b8; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"📋"}</button>
+                                                                    <button class="control-btn" onclick={on_delete} title="Delete Nested Component" style="padding: 2px 4px; background: #dc3545; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 8px;">{"🗑️"}</button>
+                                                                </div>
+                                                            </>
+                                                        }
+                                                    } else { html! {} }}
+                                                    <div style="pointer-events: none;">
+                                                    {render_component_content(nested_comp)}
+                                                </div>
+                                                </div>
+                                            }
+                                        }).collect::<Html>()}
+                                    </div>
+                                }
+                            }}
+                        </div>
+                    </div>
+                </div> 
+            }
+        }
+        // For all other component types, use the original rendering function
+        _ => render_component_content(component)
     }
 }
 
