@@ -110,6 +110,7 @@
     text-decoration: none;
     letter-spacing: -0.02em;
     transition: var(--transition);
+    text-align: left;
 }
 
 .site-title:hover {

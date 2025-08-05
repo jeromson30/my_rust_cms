@@ -20,6 +20,7 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
     let component_templates = use_state(Vec::<ComponentTemplate>::new);
     let loading = use_state(|| true);
     let admin_button_visible = use_state(|| true); // Default to true until loaded
+    let site_title = use_state(|| "My Rust CMS".to_string());
 
     // Load navigation items, component templates, and admin button setting
     {
@@ -28,6 +29,7 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
         let component_templates = component_templates.clone();
         let loading = loading.clone();
         let admin_button_visible = admin_button_visible.clone();
+        let site_title = site_title.clone();
 
         use_effect_with_deps(move |_| {
             web_sys::console::log_1(&"PublicLayout: Starting to fetch navigation items, templates, and settings".into());
@@ -81,6 +83,16 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
                                 let visible = value.parse::<bool>().unwrap_or(true);
                                 admin_button_visible.set(visible);
                                 web_sys::console::log_1(&format!("Admin button visibility set to: {}", visible).into());
+                            }
+                        }
+                        
+                        // Find site title setting
+                        if let Some(setting) = settings.iter().find(|s| s.setting_key == "site_title") {
+                            if let Some(ref value) = setting.setting_value {
+                                if !value.trim().is_empty() {
+                                    site_title.set(value.trim().to_string());
+                                    web_sys::console::log_1(&format!("Site title set to: {}", value.trim()).into());
+                                }
                             }
                         }
                     }
@@ -207,7 +219,7 @@ pub fn public_layout(props: &PublicLayoutProps) -> Html {
                 html! {
                     <header class="site-header" style={get_component_style("header")}>
                         <div class="container">
-                            <h1 class="site-title">{"My Rust CMS"}</h1>
+                            <h1 class="site-title">{(*site_title).clone()}</h1>
                             <nav class="site-nav">
                                 if !*loading {
                                     {{

@@ -1,5 +1,6 @@
 use yew::prelude::*;
 use crate::services::auth_service::User;
+use crate::services::api_service::get_settings;
 
 #[derive(Properties, PartialEq)]
 pub struct AdminHeaderProps {
@@ -10,10 +11,31 @@ pub struct AdminHeaderProps {
 
 #[function_component(AdminHeader)]
 pub fn admin_header(props: &AdminHeaderProps) -> Html {
+    let site_title = use_state(|| "My Rust CMS".to_string());
+
+    // Load site title from settings
+    {
+        let site_title = site_title.clone();
+        use_effect_with_deps(move |_| {
+            wasm_bindgen_futures::spawn_local(async move {
+                if let Ok(settings) = get_settings(Some("site")).await {
+                    if let Some(title_setting) = settings.iter().find(|s| s.setting_key == "site_title") {
+                        if let Some(ref value) = title_setting.setting_value {
+                            if !value.trim().is_empty() {
+                                site_title.set(format!("{} Admin", value.trim()));
+                            }
+                        }
+                    }
+                }
+            });
+            || ()
+        }, ());
+    }
+
     html! {
         <header class="admin-header">
             <div class="admin-header-content">
-                <h1>{"CMS Admin"}</h1>
+                <h1 class="admin-title">{(*site_title).clone()}</h1>
                 <div class="admin-header-actions">
                     <button class="btn btn-secondary" onclick={let callback = props.on_public_click.clone(); Callback::from(move |_| callback.emit(()))}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
