@@ -1,4 +1,4 @@
-# 🦀 Rust CMS
+# 🦀 My Rust CMS
 
 A full-stack content management system built entirely in Rust, featuring a sophisticated visual page builder with nested component support. Built with the **RAYDT Stack** (Rust • Axum • Yew • Diesel • Tower) for maximum performance, safety, and developer productivity.
 
