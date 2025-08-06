@@ -1,61 +1,99 @@
-# My Rust CMS
+# 🦀 Rust CMS
 
-A full-stack Content Management System built with the revolutionary **RAYDT Stack** (Rust • Axum • Yew • Diesel • Tower), featuring a Yew WebAssembly frontend and high-performance Axum backend.
+A full-stack content management system built entirely in Rust, featuring a sophisticated visual page builder with nested component support. Built with the **RAYDT Stack** (Rust • Axum • Yew • Diesel • Tower) for maximum performance, safety, and developer productivity.
 
 [![Built with RAYDT Stack](https://img.shields.io/badge/Built%20with-RAYDT%20Stack-orange.svg)](./RAYDT-STACK.md)
 [![Rust](https://img.shields.io/badge/Language-Rust-orange.svg)](https://www.rust-lang.org/)
 [![WebAssembly](https://img.shields.io/badge/Frontend-WebAssembly-blue.svg)](https://webassembly.org/)
 [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-blue.svg)](https://www.postgresql.org/)
+[![Page Builder](https://img.shields.io/badge/Feature-Visual%20Page%20Builder-green.svg)](#-page-builder)
+[![Nested Components](https://img.shields.io/badge/Feature-Nested%20Components-blue.svg)](#-nested-component-system)
 
-## 🌟 Overview
+## Overview
 
-**My Rust CMS** is a modern, high-performance content management system that leverages the full power of Rust across the entire stack. Built with the groundbreaking **[RAYDT Stack](./RAYDT-STACK.md)**, it delivers enterprise-grade performance, memory safety, and type safety from database to UI.
+A modern content management system built entirely in Rust, featuring a visual page builder with comprehensive nested component support and enterprise-grade performance through WebAssembly.
 
-### 🚀 Key Highlights
+### What You Get
 
-- **Memory Safe**: Zero memory-related vulnerabilities thanks to Rust's ownership system
-- **Blazing Fast**: Native performance with WebAssembly frontend and optimized Axum backend
-- **Type Safe**: Full-stack type safety with compile-time error checking
-- **Production Ready**: Enterprise-grade security, authentication, and session management
-- **Developer Friendly**: Single language (Rust) across the entire application stack
+- **🎨 Visual Page Builder**: Intuitive drag-and-drop interface with real-time preview
+- **🧩 Nested Components**: Sophisticated component hierarchy for complex layouts
+- **⚡ WebAssembly Frontend**: High-performance browser rendering with near-native speed
+- **🛡️ Memory Safety**: Zero-cost abstractions with compile-time safety guarantees
+- **🔒 Secure by Design**: Built-in protection against common web vulnerabilities
+- **🌐 Type Safety**: End-to-end type safety from database to user interface
+- **📱 Responsive Design**: Mobile-first design that works across all devices
 
 ## ✨ Features
 
-### 🎨 Frontend (Yew WebAssembly)
+### 🎨 Page Builder
 
-- **Admin Dashboard**: Comprehensive overview with real-time statistics
-- **Visual Page Builder**: Drag-and-drop component-based page creation
-- **Post Management**: Rich markdown editor with live preview
-- **Media Library**: Intuitive file upload and management interface
-- **User Management**: Role-based access control with admin interface
-- **Comment Moderation**: Advanced filtering and bulk operations
-- **Navigation Manager**: Dynamic menu and navigation configuration
-- **Analytics Dashboard**: User engagement and content performance metrics
-- **Responsive Design**: Mobile-first, modern UI that works everywhere
-- **Public Website**: Fast, SEO-friendly public pages
+Professional visual page builder with advanced component management:
 
-### ⚡ Backend (Axum + Diesel)
+- **🧩 Nested Architecture**: 
+  - Recursive component nesting with unlimited depth
+  - Container, TwoColumn, and ThreeColumn layout components
+  - Intuitive drag-and-drop interface
+  - Visual selection indicators with clear hierarchy
 
-- **RESTful API**: Complete CRUD operations for all resources
-- **Authentication System**: Secure session-based auth with bcrypt password hashing
-- **Role-Based Access Control**: Admin/user roles with granular permissions
-- **Session Management**: Advanced session handling with automatic cleanup
-- **File Upload System**: Secure media handling with type validation
-- **Database Migrations**: Version-controlled schema with Diesel ORM
-- **Rate Limiting**: Built-in protection against abuse
-- **CORS Configuration**: Secure cross-origin resource sharing
+- **⚙️ Component Management**:
+  - **Edit** (✏️): Real-time property modification with modal interface
+  - **Duplicate** (📋): One-click component cloning with unique identifiers
+  - **Delete** (🗑️): Safe component removal with proper cleanup
+  - Live preview with instant visual feedback
+
+- **🎯 Component Library**:
+  - **Layout**: Container, TwoColumn, ThreeColumn, Hero, Card
+  - **Content**: Text, Heading, Subheading, Quote, List
+  - **Media**: Image, Video, Gallery with upload integration
+  - **Interactive**: Button, Link, ContactForm, Newsletter
+  - **Utility**: Spacer, Divider, PostsList for content organization
+
+- **🎨 Visual Styling**:
+  - Code-free visual style editor
+  - Typography, color, and spacing controls
+  - Border and background customization
+  - Responsive design system
+
+### 🖥️ Admin Interface
+
+Comprehensive administrative interface with intuitive design:
+
+- **🏠 Dashboard**: Real-time statistics and system overview
+- **📝 Post Editor**: Advanced Markdown editor with live preview
+- **📚 Media Library**: Secure file upload and organization system
+- **👥 User Management**: Role-based access control with granular permissions
+- **💬 Comment Moderation**: Advanced filtering and bulk moderation tools
+- **🧭 Navigation Manager**: Dynamic menu configuration interface
+- **📊 Analytics**: User engagement and content performance metrics
+- **📱 Mobile Responsive**: Optimized for all device sizes
+- **🌐 Public Rendering**: High-performance page rendering with nested components
+
+### ⚡ Backend
+
+High-performance Axum-based backend with enterprise features:
+
+- **RESTful API**: Complete CRUD operations with type-safe endpoints
+- **Authentication**: Secure session management with bcrypt password hashing
+- **Authorization**: Role-based access control with granular permissions
+- **Session Management**: Automatic cleanup and expiration handling
+- **File Upload System**: Secure media handling with comprehensive validation
+- **Database Migrations**: Version-controlled schema management with Diesel
+- **Rate Limiting**: Built-in protection against abuse and DDoS attacks
+- **CORS Configuration**: Proper cross-origin resource sharing setup
 - **Health Monitoring**: System health checks and performance metrics
-- **Background Tasks**: Automated session cleanup and maintenance
+- **Background Processing**: Automated maintenance and cleanup tasks
 
-### 🗃️ Database Features
+### 🗃️ Database
 
-- **PostgreSQL Integration**: Production-ready database with ACID compliance
-- **Advanced Schema**: 12+ tables supporting complex content relationships
-- **Page Builder System**: Flexible component-based page construction
-- **Media Management**: Comprehensive file storage and organization
-- **User Sessions**: Secure session tracking with expiration
-- **Content Categorization**: Hierarchical content organization
-- **Navigation System**: Dynamic menu and routing management
+Production-grade PostgreSQL database with comprehensive schema:
+
+- **ACID Compliance**: Full transactional integrity and data consistency
+- **Normalized Schema**: 12+ well-designed tables with proper relationships
+- **Component Serialization**: Efficient JSON storage for complex page structures
+- **Media Management**: Comprehensive file metadata and organization
+- **Session Storage**: Secure session tracking with automatic expiration
+- **Content Hierarchy**: Flexible categorization and taxonomies
+- **Navigation System**: Dynamic menu structures with nested support
 
 ## 🏗️ Architecture
 
@@ -497,44 +535,84 @@ diesel database reset
 - Component render times
 - Network request efficiency
 
-## 🎯 Features Roadmap
+## 🧩 Nested Component System
 
-### Current Status ✅
+Advanced nested component architecture enabling complex page layouts:
 
-- ✅ **Complete CRUD Operations**: All entities (users, posts, pages, media, comments)
-- ✅ **Authentication & Authorization**: Session-based auth with RBAC
-- ✅ **Admin Dashboard**: Comprehensive management interface
-- ✅ **Visual Page Builder**: Component-based page construction
-- ✅ **Media Management**: Secure file upload and organization
-- ✅ **Public Website**: Fast, SEO-friendly frontend
-- ✅ **Database Migrations**: Version-controlled schema management
-- ✅ **Docker Support**: Containerized deployment
-- ✅ **Session Management**: Advanced session handling with cleanup
-- ✅ **Testing Framework**: Comprehensive test coverage
+### 🏗️ Component Hierarchy
+```
+Page
+├── Container Component
+│   ├── Text Component
+│   ├── Button Component
+│   └── TwoColumn Component
+│       ├── Column 1: Image Component
+│       └── Column 2: Text + Button Components
+├── ThreeColumn Component
+│   ├── Column 1: Hero Component
+│   ├── Column 2: Card Component
+│   └── Column 3: Newsletter Component
+└── Container Component
+    └── Gallery Component
+```
 
-### Planned Features 🚧
+### 🎯 What It Does
 
-- 🚧 **Email Integration**: Notification system
-- 🚧 **Search Functionality**: Full-text search across content
-- 🚧 **Analytics Dashboard**: Advanced metrics and insights
-- 🚧 **Theme System**: Customizable UI themes
-- 🚧 **Plugin Architecture**: Extensible functionality
-- 🚧 **API Rate Limiting**: Advanced rate limiting per user/endpoint
-- 🚧 **Content Versioning**: Track changes to posts and pages
-- 🚧 **Multi-language Support**: Internationalization (i18n)
-- 🚧 **Advanced SEO**: Meta tags, sitemaps, structured data
-- 🚧 **Backup System**: Automated database and file backups
+- **🔄 Recursive Nesting**: Unlimited component depth with intelligent hierarchy management
+- **🎨 Visual Selection**: Precise component selection with clear visual indicators
+- **⚙️ Interactive Controls**: Context-sensitive edit, duplicate, and delete operations
+- **🔗 Event Management**: Sophisticated event propagation with proper isolation
+- **💾 State Management**: Efficient nested state updates with immutable patterns
+- **🔍 Component Discovery**: Advanced algorithms for rapid component location
+- **📱 Responsive Rendering**: Adaptive layouts that work across all screen sizes
 
-### Future Enhancements 🔮
+### 🛠️ How It Works
 
-- 🔮 **Real-time Collaboration**: Multi-user editing capabilities
-- 🔮 **GraphQL API**: Alternative to REST API
-- 🔮 **Mobile App**: React Native or Flutter companion
-- 🔮 **AI Content Generation**: AI-powered content suggestions
-- 🔮 **Advanced Analytics**: Machine learning insights
-- 🔮 **Microservices Architecture**: Split into domain services
-- 🔮 **Event Sourcing**: Event-driven architecture
-- 🔮 **WebRTC Integration**: Real-time communication features
+- **Helper Functions**: `find_component_by_id`, `remove_nested_component`, `duplicate_nested_component`
+- **Event System**: Hierarchical click handling with proper event isolation
+- **State Updates**: Efficient updates with minimal re-rendering overhead
+- **Serialization**: Robust JSON serialization maintaining component relationships
+- **Public Rendering**: Seamless component rendering on public-facing pages
+
+### What Works Right Now ✅
+
+- ✅ **Visual Page Builder**: Complete drag-and-drop interface with nested component support
+- ✅ **Component Architecture**: Robust hierarchy system with unlimited nesting depth
+- ✅ **Component Library**: 15+ production-ready components for all content types
+- ✅ **Interactive Selection**: Precise component selection with visual feedback
+- ✅ **Public Rendering**: High-performance component rendering on public pages
+- ✅ **Full CRUD Operations**: Complete content management across all entities
+- ✅ **Authentication System**: Secure session-based authentication with role management
+- ✅ **Administrative Interface**: Comprehensive dashboard with intuitive navigation
+- ✅ **Media Management**: Secure file upload system with comprehensive validation
+- ✅ **Database Migrations**: Version-controlled schema with automated deployment
+- ✅ **Container Support**: Docker configuration for streamlined deployment
+- ✅ **Session Management**: Automatic session cleanup and security management
+- ✅ **Test Coverage**: Comprehensive testing suite for reliability assurance
+
+## 🎯 What You Can Build
+
+Perfect for building sophisticated web applications with complex content requirements:
+
+### 🏢 Business & Corporate
+- **Landing Pages**: Professional multi-column layouts with nested call-to-actions
+- **Product Showcases**: Rich media galleries with detailed feature presentations
+- **Corporate Blogs**: Structured content with professional typography and layout
+
+### 🛍️ E-commerce & Marketing
+- **Product Catalogs**: Complex layouts with specifications, reviews, and recommendations
+- **Campaign Pages**: Hero sections with nested promotional components
+- **Category Displays**: Grid layouts with filters and interactive elements
+
+### 📰 Publishing & Media
+- **Editorial Content**: Magazine-style layouts with rich media integration
+- **News Portals**: Structured articles with sidebar content and related links
+- **Content Hubs**: Organized information architecture with nested navigation
+
+### 🎓 Education & Documentation
+- **Course Platforms**: Interactive lesson modules with multimedia content
+- **Technical Documentation**: Code examples with syntax highlighting and organization
+- **Knowledge Management**: Searchable content with hierarchical organization
 
 ## 🤝 Contributing
 
@@ -574,24 +652,47 @@ We welcome contributions to make this CMS even better!
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🏆 Why This CMS?
+
+### 🚀 **Performance**
+- **WebAssembly**: Near-native browser performance with minimal overhead
+- **Efficient Serialization**: Optimized data handling and transfer
+- **Smart Rendering**: Targeted component updates with minimal re-rendering
+
+### 🛡️ **Safety & Security**
+- **Memory Safety**: Rust's ownership system eliminates entire classes of vulnerabilities
+- **Type Safety**: Compile-time error prevention across the entire stack
+- **Secure Architecture**: Built-in protection against common web security issues
+
+### 🎨 **Developer Experience**
+- **Unified Language**: Single language across frontend, backend, and database layers
+- **Rich Tooling**: Comprehensive debugging and development tools
+- **Clean Architecture**: Well-organized codebase with clear separation of concerns
+
+### 🧩 **Technical Advantages**
+- **Advanced Components**: Sophisticated nested architecture with unlimited flexibility
+- **Type-Safe Integration**: Shared data structures between all application layers
+- **Production Ready**: Battle-tested features with comprehensive error handling
+
 ## 🙏 Acknowledgments
 
-- **🦀 Rust Community** for the amazing ecosystem
-- **⚡ Axum Team** for the excellent web framework
-- **🎨 Yew Contributors** for WebAssembly frontend capabilities
-- **🗃️ Diesel Maintainers** for type-safe database interactions
-- **🔒 Tower Ecosystem** for composable middleware
-- **🌟 RAYDT Stack Pioneers** for pushing the boundaries of web development
+- **🦀 Rust Community** for creating an exceptional systems programming ecosystem
+- **⚡ Axum Team** for building a powerful and ergonomic async web framework
+- **🎨 Yew Contributors** for pioneering WebAssembly frontend development
+- **🗃️ Diesel Maintainers** for providing type-safe database interactions
+- **🔒 Tower Ecosystem** for composable middleware architecture
+- **🌟 RAYDT Stack** for demonstrating full-stack Rust capabilities
 
 ## 📞 Support & Community
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/my_rust_cms/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/my_rust_cms/discussions)
-- **Documentation**: [Full Documentation](./docs/)
-- **RAYDT Stack**: [Learn More](./RAYDT-STACK.md)
+- **🐛 Issues**: [GitHub Issues](https://github.com/yourusername/my_rust_cms/issues)
+- **💬 Discussions**: [GitHub Discussions](https://github.com/yourusername/my_rust_cms/discussions)
+- **📚 Documentation**: [Full Documentation](./docs/)
+- **🏗️ RAYDT Stack**: [Learn More](./RAYDT-STACK.md)
+- **🧩 Components**: [Nested Component Guide](./docs/nested-components.md)
 
 ---
 
-**🚀 Built with the revolutionary [RAYDT Stack](./RAYDT-STACK.md)**
+**🚀 Built with the [RAYDT Stack](./RAYDT-STACK.md) - Full-stack Rust that actually works**
 
-*Join in*ß
+*A CMS that respects your time, your users' experience, and your sanity*
